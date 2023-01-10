@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-  app:
+  yandex-direct-ecom-api:
     build: .
     restart: always
     environment:
@@ -10,10 +10,25 @@ services:
       YA_TEST_USERS: ${YA_TEST_USERS}
       YA_CLIENT_ID: ${YA_CLIENT_ID}
 
-    command: sh script.sh
+    #command: sh script.sh
     volumes:
       - /home/get/logs_all/yandex_direct_ecom_api/:/app/logs/
     
+  nginx:
+    container_name: nginx-yandex-direct-ecom-api
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    depends_on:
+      - yandex-direct-ecom-api
+    restart: always
+    environment:
+      - "TZ=Europe/Moscow"
+    ports:
+      - 8088:80
+      - 4440:443
+    volumes:
+      - /home/get/cert:/app/cert
 
 
     
