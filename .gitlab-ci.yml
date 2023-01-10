@@ -1,8 +1,8 @@
 workflow:
   rules:
-    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'master'
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'main'
       when: never
-    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == "main"
       variables:
         TAG_NAME: apps1
       when: always
@@ -16,6 +16,6 @@ deploy:
     - ${TAG_NAME}
   script:
   - docker compose down
-  - docker rmi yandex_direct_ecom-api-app
-  - docker rmi yandex_direct_ecom-api-nginx
+  # - docker rmi yandex_direct_ecom-api-app
+  # - docker rmi yandex_direct_ecom-api-nginx
   - docker compose up -d
