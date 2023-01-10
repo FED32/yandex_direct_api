@@ -1,0 +1,33 @@
+swagger: "2.0"
+info:
+  title: "Yandex Direct Ecom API Documentation"
+  contact:
+    email: "s.fedyushin@ecomru.ru"
+  basePath: "/swagger"
+paths:
+  "/yandexdirect/getuserinfo":
+    post:
+tags:
+  - account
+    - info
+summary: "Получить информацию пользователя по его токену"
+description: "Метод для получения информации пользователя по его токену"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "body"
+  required: true
+  schema:
+    type: "object"
+    properties:
+      token:
+        type: "string"
+        example: "xxx_YYYzzz1234ABCDefg"
+responses:
+  200:
+    description: "OK"
+  400:
+    description: "Bad Request"

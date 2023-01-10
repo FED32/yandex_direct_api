@@ -1,0 +1,59 @@
+swagger: "2.0"
+info:
+  title: "Yandex Direct Ecom API Documentation"
+  contact:
+    email: "s.fedyushin@ecomru.ru"
+  basePath: "/swagger"
+paths:
+  "/yandexdirect/getads":
+    post:
+tags:
+  - ad
+    - info
+summary: "Получить список объявлений"
+description: "Метод для получения списка объявлений"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "body"
+  required: true
+  schema:
+    type: "object"
+    properties:
+      login:
+        type: "string"
+        example: "aaabbbq123@yandex.ru"
+      token:
+        type: "string"
+        example: "xxx_YYYzzz1234ABCDefg"
+      ids:
+        type:
+          - array
+            - long
+        example: [123456789, 789012345]
+        description: Отбирать объявления с указанными идентификаторами.  От 1 до 10000 элементов в массиве. Хотя бы один из параметров ids, groups и campaigns (могут присутствовать все)
+      groups:
+        type:
+          - array
+            - long
+        example: [123456789, 789012345]
+        description: Отбирать объявления указанных групп. От 1 до 1000 элементов в массиве. Хотя бы один из параметров ids, groups и campaigns (могут присутствовать все)
+      campaigns:
+        type:
+          - array
+            - long
+        example: [123456789, 789012345]
+        description: Отбирать объявления указанных кампаний.  От 1 до 10 элементов в массиве. Хотя бы один из параметров ids, groups и campaigns (могут присутствовать все)
+      text_params:
+        type: "string"
+        example: "true"
+        description: Выводить поле параметров текстово-графических объявлений
+responses:
+  200:
+    description: "OK"
+  400:
+    description: "Bad Request"
+

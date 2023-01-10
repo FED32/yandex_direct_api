@@ -1,0 +1,19 @@
+version: "3.8"
+
+services:
+  app:
+    build: .
+    restart: always
+    environment:
+      TZ: Europe/Moscow
+      YA_TEST_TOKENS: ${YA_TEST_TOKENS}
+      YA_TEST_USERS: ${YA_TEST_USERS}
+      YA_CLIENT_ID: ${YA_CLIENT_ID}
+
+    command: sh script.sh
+    volumes:
+      - /home/get/logs_all/yandex_direct_ecom_api/:/app/logs/
+    
+
+
+    

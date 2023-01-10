@@ -1,0 +1,118 @@
+swagger: "2.0"
+info:
+  title: "Yandex Direct Ecom API Documentation"
+  contact:
+    email: "s.fedyushin@ecomru.ru"
+  basePath: "/swagger"
+paths:
+  "/yandexdirect/addtextad":
+    post:
+tags:
+  - ad
+    - add
+summary: "Добавить текстовое объявление"
+description: "Метод для добавления текстового объявления"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "body"
+  required: true
+  schema:
+    type: "object"
+    properties:
+      login:
+        type: "string"
+        example: "aaabbbq123@yandex.ru"
+      token:
+        type: "string"
+        example: "xxx_YYYzzz1234ABCDefg"
+      ads_group_id:
+        type: "long"
+        example: 123456
+        description: Идентификатор группы, в которую добавляется объявление (обязательно)
+      txt_ad_title:
+        type: "string"
+        example: "абвгabcd"
+        description: Заголовок 1 (обязательно)
+      txt_ad_title2:
+        type: "string"
+        example: "абвгabcd"
+        description: Заголовок 2 (не обязательно)
+      txt_ad_text:
+        type: "string"
+        example: "some text какой-то текст"
+        description: Текст объявления (обязательно)
+      txt_mobile:
+        type: "string"
+        example: "NO"
+        description: Признак того, что объявление является мобильным YES или NO (обязательно)
+      href:
+        type: "string"
+        example: "https://site.ru"
+        description: Ссылка на сайт рекламодателя. Не более 1024 символов (Хотя бы один из параметров Href, TurboPageId, VCardId или BusinessId (могут присутствовать все))
+      turbo_page_id:
+        type: "long"
+        example: 123456
+        description: Идентификатор Турбо-страницы (Хотя бы один из параметров Href, TurboPageId, VCardId или BusinessId (могут присутствовать все))
+      vcard_id:
+        type: "long"
+        example: 123456
+        description: Идентификатор виртуальной визитки (Хотя бы один из параметров Href, TurboPageId, VCardId или BusinessId (могут присутствовать все))
+      business_id:
+        type: "long"
+        example: 123456
+        description: Идентификатор профиля организации на Яндексе. Если указан и параметр PreferVCardOverBusiness равен NO, данные из профиля организации используются вместо визитки при показе объявления (Хотя бы один из параметров Href, TurboPageId, VCardId или BusinessId (могут присутствовать все))
+      prefer_vcard_over_business:
+        type: "string"
+        example: "NO"
+        description: Признак, который определяет приоритетность источника данных при показе объявления YES — визитка, NO — профиль организации (не обязательно)
+      txt_ad_image_hash:
+        type: "string"
+        example: "wodjwb979fcu131ewhfiw134"
+        description: Хэш изображения (не обязательно)
+      sitelink_set_id:
+        type: "long"
+        example: 123456
+        description: Идентификатор набора быстрых ссылок. Допускается только при наличии параметра Href или TurboPageId (не обязательно)
+      txt_display_url_path:
+        type: "string"
+        example: "NO"
+        description: Отображаемая ссылка. Допускается только при наличии параметра Href (не обязательно)
+      ad_extension_ids:
+        type:
+          - array
+            - long
+        example: [12345, 7890]
+        description: Идентификаторы расширений (не обязательно)
+      creative_id:
+        type: "long"
+        example: 123456
+        description: Идентификатор креатива (не обязательно)
+      txt_price:
+        type: "long"
+        example: 9999
+        description: Цена товара или услуги, умноженная на 1000000. Целое число, кратное 10000 (что соответствует цене с двумя знаками после запятой) (не обязательно)
+      txt_old_price:
+        type: "long"
+        example: 10000
+        description: Старая цена товара или услуги, умноженная на 1000000. Целое число, кратное 10000. Старая цена должна быть строго больше цены (не обязательно)
+      txt_price_qualifier:
+        type: "string"
+        example: "FROM"
+        description: Текстовое пояснение к цене FROM — «от». UP_TO — «до». NONE — нет пояснения (не обязательно)
+      txt_price_currency:
+        type: "string"
+        example: "USD"
+        description: Валюта, в которой указана цена (не обязательно)
+      ext_link_params:
+        type: "string"
+        example: "true"
+        description: Добавление меток к ссылке
+responses:
+  200:
+    description: "OK"
+  400:
+    description: "Bad Request"

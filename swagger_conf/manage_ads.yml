@@ -1,0 +1,47 @@
+swagger: "2.0"
+info:
+  title: "Yandex Direct Ecom API Documentation"
+  contact:
+    email: "s.fedyushin@ecomru.ru"
+  basePath: "/swagger"
+paths:
+  "/yandexdirect/manageads":
+    post:
+tags:
+  - ad
+    - manage
+summary: "Управление объявлениями"
+description: "Метод для управления объявлениями. Удаляет, архивирует/разархивирует, останавливает/возобновляет показы объявлений, отправляет на модерацию"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "body"
+  required: true
+  schema:
+    type: "object"
+    properties:
+      login:
+        type: "string"
+        example: "aaabbbq123@yandex.ru"
+      token:
+        type: "string"
+        example: "xxx_YYYzzz1234ABCDefg"
+      ids:
+        type:
+          - array
+            - long
+        example: [123456789, 789012345]
+        description: Идентификаторы объявлений
+      action:
+        type: "string"
+        example: "delete"
+        description: Действие (delete, archive, unarchive, suspend, resume, moderate)
+responses:
+  200:
+    description: "OK"
+  400:
+    description: "Bad Request"
+
