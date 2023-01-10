@@ -9,8 +9,8 @@ RUN mkdir -p ~/.postgresql && \
     wget "https://storage.yandexcloud.net/cloud-certs/CA.pem" -O ~/.postgresql/root.crt && \
     chmod 0600 ~/.postgresql/root.crt
 
-CMD ["python", "main.py"]
-#CMD gunicorn -b 0.0.0.0:5000 --timeout 9999 --workers 8 main:app --reload
+#CMD ["python", "main.py"]
+CMD gunicorn -b 0.0.0.0:5000 --timeout 9999 --workers 8 main:app --reload
 
 
 
