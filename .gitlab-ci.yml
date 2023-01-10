@@ -16,6 +16,6 @@ deploy:
     - ${TAG_NAME}
   script:
   - docker compose down
-  # - docker rmi yandex_direct_ecom-api-app
+  ## - docker rmi yandex_direct_ecom-api-app
   # - docker rmi yandex_direct_ecom-api-nginx
   - docker compose up -d
