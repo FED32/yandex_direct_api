@@ -1,0 +1,40 @@
+swagger: "2.0"
+info:
+  title: "Yandex Direct Ecom API Documentation"
+  contact:
+    email: "s.fedyushin@ecomru.ru"
+  basePath: "/swagger"
+paths:
+  "/yandexdirect/getgroups":
+    post:
+tags:
+  - group
+    - info
+summary: "Получить список групп"
+description: "Метод для вывода списка групп и их параметров"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "body"
+  required: true
+  schema:
+    type: "object"
+    properties:
+      login:
+        type: "string"
+        example: "aaabbbq123@yandex.ru"
+      token:
+        type: "string"
+        example: "xxx_YYYzzz1234ABCDefg"
+      campaigns:
+        type: "array"
+        example: [ "1234567890", "0987654321" ]
+        description: список id кампаний (не более 10)
+responses:
+  200:
+    description: "OK"
+  400:
+    description: "Bad Request"

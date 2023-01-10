@@ -1,0 +1,36 @@
+swagger: "2.0"
+info:
+  title: "Yandex Direct Ecom API Documentation"
+  contact:
+    email: "s.fedyushin@ecomru.ru"
+  basePath: "/swagger"
+paths:
+  "/yandexdirect/getcampaigns":
+    post:
+tags:
+  - campaign
+    - info
+summary: "Получить кампании"
+description: "Метод для получения кампаний и их параметров"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "body"
+  required: true
+  schema:
+    type: "object"
+    properties:
+      login:
+        type: "string"
+        example: "aaabbbq123@yandex.ru"
+      token:
+        type: "string"
+        example: "xxx_YYYzzz1234ABCDefg"
+responses:
+  200:
+    description: "OK"
+  400:
+    description: "Bad Request"

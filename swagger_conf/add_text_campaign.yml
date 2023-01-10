@@ -1,0 +1,296 @@
+swagger: "2.0"
+info:
+  title: "Yandex Direct Ecom API Documentation"
+  contact:
+    email: "s.fedyushin@ecomru.ru"
+  basePath: "/swagger"
+paths:
+  "/yandexdirect/addtextcampaign":
+    post:
+tags:
+  - campaign
+    - add
+summary: "Добавить текстовую кампанию"
+description: "Метод для добавления текстовой кампании"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "body"
+  required: true
+  schema:
+    type: "object"
+    properties:
+      login:
+        type: "string"
+        example: "aaabbbq123@yandex.ru"
+      token:
+        type: "string"
+        example: "xxx_YYYzzz1234ABCDefg"
+      s_bid_strat:
+        type: "string"
+        example:  "HIGHEST_POSITION, WB_MAXIMUM_CLICKS, WB_MAXIMUM_CONVERSION_RATE, AVERAGE_CPC, AVERAGE_CPA, AVERAGE_ROI, AVERAGE_CRR, PAY_FOR_CONVERSION, PAY_FOR_CONVERSION_CRR"
+        description: Тип стратегии показа на поиске (обязательный параметр)
+      n_bid_strat:
+        type: "string"
+        example: "NETWORK_DEFAULT, MAXIMUM_COVERAGE, WB_MAXIMUM_CLICKS, WB_MAXIMUM_CONVERSION_RATE, AVERAGE_CPC, AVERAGE_CPA, AVERAGE_ROI, AVERAGE_CRR, PAY_FOR_CONVERSION, PAY_FOR_CONVERSION_CRR, SERVING_OFF"
+        description: Тип стратегии показа в сетях (обязательный параметр)
+      s_weekly_spend_limit:
+        type: "long"
+        example: 500000000
+        description: Недельный бюджет в валюте рекламодателя, умноженный на 1000000 для стратегии показа на поиске WB_MAXIMUM_CLICKS, WB_MAXIMUM_CONVERSION_RATE, AVERAGE_CPC, AVERAGE_CPA, AVERAGE_ROI, AVERAGE_CRR, PAY_FOR_CONVERSION, PAY_FOR_CONVERSION_CRR
+      s_bid_ceiling:
+        type: "long"
+        example: 10000000
+        description: Максимальная ставка в валюте рекламодателя, умноженная на 1000000 для стратегии показа на поиске WB_MAXIMUM_CLICKS, WB_MAXIMUM_CONVERSION_RATE, AVERAGE_CPA, AVERAGE_ROI
+      s_goal_id:
+        type: "integer"
+        example: 13
+        description: Идентификатор цели Яндекc Метрики для стратегии показа на поиске WB_MAXIMUM_CONVERSION_RATE, AVERAGE_CPA, AVERAGE_ROI, PAY_FOR_CONVERSION, PAY_FOR_CONVERSION_CRR
+      s_average_cpc:
+        type: "long"
+        example: 10000000
+        description: Средняя цена клика в валюте рекламодателя, умноженная на 1000000 для стратегии показа на поиске AVERAGE_CPC
+      s_average_cpa:
+        type: "long"
+        example: 10000000
+        description: Средняя цена достижения цели в валюте рекламодателя, умноженная на 1000000 для стратегии показа на поиске AVERAGE_CPA
+      s_reserve_return:
+        type: "integer"
+        example: 0, 10, 20... 100
+        description: Максимальный процент сэкономленных средств, который можно возвращать в рекламу (расходовать) в случае, если прогнозируемое значение рентабельности превышает значение параметра RoiCoef для стратегии показа на поиске AVERAGE_ROI
+      s_roi_coef:
+        type: "long"
+        example: 10000
+        description: Желаемая средняя рентабельность инвестиций за неделю для стратегии показа на поиске AVERAGE_ROI
+      s_profitability:
+        type: "long"
+        example: 10000
+        description: Процент выручки, являющийся себестоимостью товаров или услуг для стратегии показа на поиске AVERAGE_ROI
+      s_crr:
+        type: "integer"
+        example: 10
+        description: Средняя доля расходов для стратегии показа на поиске AVERAGE_CRR, PAY_FOR_CONVERSION_CRR
+      s_cpa:
+        type: "integer"
+        example: 10
+        description: Цена достижения цели в валюте рекламодателя, умноженная на 1000000 для стратегии показа на поиске PAY_FOR_CONVERSION
+      n_limit_percent:
+        type: "integer"
+        example: 100
+        description: Максимальный процент бюджета, расходуемый на показы в сетях для стратегии показа в сетях NETWORK_DEFAULT Значение кратно десяти 10, 20, ..., 100
+      n_weekly_spend_limit:
+        type: "long"
+        example: 500000000
+        description: Недельный бюджет в валюте рекламодателя, умноженный на 1000000 для стратегии показа в сетях WB_MAXIMUM_CLICKS, WB_MAXIMUM_CONVERSION_RATE, AVERAGE_CPC, AVERAGE_CPA, AVERAGE_ROI, AVERAGE_CRR, PAY_FOR_CONVERSION, PAY_FOR_CONVERSION_CRR
+      n_bid_ceiling:
+        type: "long"
+        example: 10000000
+        description: Максимальная ставка в валюте рекламодателя, умноженная на 1000000 для стратегии показа в сетях WB_MAXIMUM_CLICKS, WB_MAXIMUM_CONVERSION_RATE, AVERAGE_CPA, AVERAGE_ROI
+      n_goal_id:
+        type: "integer"
+        example: 13
+        description: Идентификатор цели Яндекc Метрики для стратегии показа в сетях WB_MAXIMUM_CONVERSION_RATE, AVERAGE_CPA, AVERAGE_ROI, PAY_FOR_CONVERSION, PAY_FOR_CONVERSION_CRR
+      n_average_cpc:
+        type: "long"
+        example: 10000000
+        description: Средняя цена клика в валюте рекламодателя, умноженная на 1000000 для стратегии показа в сетях AVERAGE_CPC
+      n_average_cpa:
+        type: "long"
+        example: 10000000
+        description: Средняя цена достижения цели в валюте рекламодателя, умноженная на 1000000 для стратегии показа в сетях AVERAGE_CPA
+      n_reserve_return:
+        type: "integer"
+        example: 0, 10, 20... 100
+        description: Максимальный процент сэкономленных средств, который можно возвращать в рекламу (расходовать) в случае, если прогнозируемое значение рентабельности превышает значение параметра RoiCoef для стратегии показа в сетях AVERAGE_ROI
+      n_roi_coef:
+        type: "long"
+        example: 10000
+        description: Желаемая средняя рентабельность инвестиций за неделю для стратегии показа в сетях AVERAGE_ROI
+      n_profitability:
+        type: "long"
+        example: 10000
+        description: Процент выручки, являющийся себестоимостью товаров или услуг для стратегии показа в сетях AVERAGE_ROI
+      n_crr:
+        type: "integer"
+        example: 10
+        description: Средняя доля расходов для стратегии показа в сетях AVERAGE_CRR, PAY_FOR_CONVERSION_CRR
+      n_cpa:
+        type: "integer"
+        example: 10
+        description: Цена достижения цели в валюте рекламодателя, умноженная на 1000000 для стратегии показа в сетях PAY_FOR_CONVERSION
+      add_metrica_tag:
+        type: "string"
+        example: "YES"
+        description: Aвтоматически добавлять в ссылку объявления метку yclid с уникальным номером клика
+      add_openstat_tag:
+        type: "string"
+        example: "NO"
+        description: При переходе на сайт рекламодателя добавлять к URL метку в формате OpenStat
+      add_to_favorites:
+        type: "string"
+        example: "NO"
+        description: Добавить кампанию в самые важные для применения фильтра в веб-интерфейсе по этому признаку
+      enable_area_of_interest_targeting:
+        type: "string"
+        example: "YES"
+        description: Включить Расширенный географический таргетинг
+      enable_company_info:
+        type: "string"
+        example: "YES"
+        description: При показе на Яндекc Картах добавлять в объявление информацию об организации из Яндекc Справочника
+      enable_site_monitoring:
+        type: "string"
+        example: "NO"
+        description: Останавливать показы при недоступности сайта рекламодателя
+      exclude_paused_competing_ads:
+        type: "string"
+        example: "NO"
+        description: Рассчитывать прогнозируемые ставки без учета ставок в объявлениях конкурентов, остановленных в соответствии с временным таргетингом
+      maintain_network_cpc:
+        type: "string"
+        example: "NO"
+        description: Удерживать среднюю цену клика в сетях ниже средней цены на поиске
+      require_servicing:
+        type: "string"
+        example: "NO"
+        description: Перевести кампанию на обслуживание персональным менеджером
+      campain_exact_phrase_matching_enabled:
+        type: "string"
+        example: "NO"
+        description: Включает отбор фразы по точности соответствия внутри кампании
+      counter_ids:
+        type:
+          - array
+            - long
+        example: [123, 456, 789]
+        description: Идентификаторы счетчиков Яндекс Метрики, установленных на сайте рекламодателя (не обязательно)
+      goal_ids:
+        type:
+          - array
+            - long
+        example: [123, 456, 789]
+        description: Идентификаторы целей Яндекс Метрики, на достижение которых будет направлена автоматическая корректировка ставок
+      goal_vals:
+        type:
+          - array
+            - long
+        example: [1000000, 2000000, 3000000]
+        description: Ценности конверсий — денежная оценка выгоды, получаемой рекламодателем при достижении указанных целей, в валюте рекламодателя, умноженная на 1000000
+      attr_model:
+        type: "string"
+        example: "LYDC"
+        description: Модель атрибуции, используемая для оптимизации конверсий. Возможные значения FC — первый переход, LC — последний переход, LSC — последний значимый переход, LYDC — последний переход из Яндекс Директа
+      name:
+        type: "string"
+        example: "abcdefабвгд"
+        description: Название кампании (до 255 символов)
+      start_date:
+        type: "string"
+        example: "YYYY-MM-DD"
+        description: Дата начала показов объявлений в формате YYYY-MM-DD. Должна быть не меньше текущей даты
+      end_date:
+        type: "string"
+        example: "YYYY-MM-DD"
+        description: Дата окончания показов объявлений в формате YYYY-MM-DD (не обязательно)
+      client_info:
+        type: "string"
+        example: "asddfftrr"
+        description: Название клиента (до 255 символов). Значение по умолчанию — наименование из настроек рекламодателя (не обязательно)
+      sms_events:
+        type:
+          - array
+            - string
+        example: ["MONITORING", "MODERATION", "MONEY_IN", "MONEY_OUT", "FINISHED"]
+        description: События, о которых необходимо информировать по SMS (не обязательно)
+      sms_time_from:
+        type: "string"
+        example: "09:00"
+        description: Время, начиная с которого разрешено отправлять SMS о событиях, связанных с кампанией. Указывается в формате HH:MM, минуты задают кратно 15 (0, 15, 30, 45) (не обязательно)
+      sms_time_to:
+        type: "string"
+        example: "21:00"
+        description: Время, до которого разрешено отправлять SMS о событиях, связанных с кампанией. Указывается в формате HH:MM, минуты задают кратно 15 (0, 15, 30, 45) (не обязательно)
+      email:
+        type: "string"
+        example: "asddffr@qwsd.com"
+        description: Адрес электронной почты для отправки уведомлений о событиях, связанных с кампанией. Значение по умолчанию — адрес рекламодателя. (не обязательно)
+      email_ch_pos_interval:
+        type: "integer"
+        example: 60
+        description: Периодичность проверки прогноза трафика — 15, 30 или 60 минут (не обязательно)
+      email_warning_bal:
+        type: "integer"
+        example: 20
+        description: Минимальный баланс, при уменьшении до которого отправляется уведомление. Задается в процентах от суммы последнего платежа, от 1 до 50 (не обязательно)
+      email_send_acc_news:
+        type: "string"
+        example: "NO"
+        description: Отправлять ли уведомления о событиях, связанных с кампанией. Задается для кампаний, обслуживаемых персональным менеджером в Яндексе. (не обязательно)
+      email_send_warnings:
+        type: "string"
+        example: "NO"
+        description: Отправлять ли уведомления по электронной почте (не обязательно)
+      timezone:
+        type: "string"
+        example: "Europe/Moscow"
+        description: Часовой пояс в месте нахождения рекламодателя (не обязательно)
+      daily_budget_amount:
+        type: "long"
+        example: 500000000
+        description: Дневной бюджет кампании в валюте рекламодателя, умноженный на 1000000
+      daily_budget_mode:
+        type: "string"
+        example: "STANDARD, DISTRIBUTED"
+        description: Режим показа объявлений
+      negative_keywords:
+        type:
+          - array
+            - string
+        example: ["купить кровать", "купить диван", "купить шкаф"]
+        description: Массив минус-фраз, общих для всех ключевых фраз кампании (не обязательно)
+      blocked_ips:
+        type:
+          - array
+            - string
+        example: ["10.20.30.40", "50.60.70.80"]
+        description: Массив IP-адресов, которым не нужно показывать объявления (не обязательно)
+      excluded_sites:
+        type:
+          - array
+            - string
+        example: [ "google.com", "yandex.ru" ]
+        description: Массив мест показа, где не нужно показывать объявления (не обязательно)
+      time_targeting_shedule:
+        type:
+          - array
+            - string
+        example: [ "1, 0, 0, 50, 50, 100, 100, 150, 200, 200, 150, 100, 100, 80, 70, 100, 100, 100, 50, 50, 40, 30, 0, 0, 0", "2, 0, 0, 50, 50, 100, 100, 150, 200, 200, 150, 100, 100, 80, 70, 100, 100, 100, 50, 50, 40, 30, 0, 0, 0" ]
+        description: Настройки временного таргетинга и почасовой корректировки ставок. Не более 7 элементов в массиве (не обязательно)
+      time_targeting_cons_working_weekends:
+        type: "string"
+        example: "YES"
+        description: Менять ли расписание показов при переносе рабочего дня на субботу или воскресенье
+      time_targeting_suspend_on_holidays:
+        type: "string"
+        example: "YES"
+        description: Останавливать ли объявления в праздничные нерабочие дни
+      time_targeting_bid_percent:
+        type: "integer"
+        example: 20
+        description: Коэффициент к ставке при показе в праздничные нерабочие дни. Указывается в процентах от 10 до 200, значение должно быть кратно 10 (не обязательно)
+      time_targeting_start_hour:
+        type: "integer"
+        example: 20
+        description: Время (в часах) начала показов в праздничные нерабочие дни. От 0 до 23. При значении NO параметра SuspendOnHolidays
+      time_targeting_end_hour:
+        type: "integer"
+        example: 20
+        description: Время (в часах) окончания показов в праздничные нерабочие дни. От 1 до 24. При значении NO параметра SuspendOnHolidays
+responses:
+  200:
+    description: "OK"
+  400:
+    description: "Bad Request"

@@ -1,0 +1,42 @@
+swagger: "2.0"
+info:
+  title: "Yandex Direct Ecom API Documentation"
+  contact:
+    email: "s.fedyushin@ecomru.ru"
+  basePath: "/swagger"
+paths:
+  "/yandexdirect/deletegroups":
+    post:
+tags:
+  - group
+    - manage
+summary: "Удаление групп"
+description: "Метод для удаления групп"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "body"
+  required: true
+  schema:
+    type: "object"
+    properties:
+      login:
+        type: "string"
+        example: "aaabbbq123@yandex.ru"
+      token:
+        type: "string"
+        example: "xxx_YYYzzz1234ABCDefg"
+      groups:
+        type:
+          - array
+            - long
+        example: [123456789, 789012345]
+        description: Идентификаторы групп, которые требуется удалить
+responses:
+  200:
+    description: "OK"
+  400:
+    description: "Bad Request"

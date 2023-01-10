@@ -1,0 +1,77 @@
+swagger: "2.0"
+info:
+  title: "Yandex Direct Ecom API Documentation"
+  contact:
+    email: "s.fedyushin@ecomru.ru"
+  basePath: "/swagger"
+paths:
+  "/yandexdirect/addgroup":
+    post:
+tags:
+  - group
+    - add
+summary: "Добавить группу объявлений"
+description: "Метод для добавления группы объявлений"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "body"
+  required: true
+  schema:
+    type: "object"
+    properties:
+      login:
+        type: "string"
+        example: "aaabbbq123@yandex.ru"
+      token:
+        type: "string"
+        example: "xxx_YYYzzz1234ABCDefg"
+      name:
+        type: "string"
+        example: "abcdef"
+        description: Название группы объявлений (обязательно)
+      campaign_id:
+        type: "long"
+        example: 123456
+        description: Идентификатор кампании, в которую добавляется группа (обязательно)
+      region_ids:
+        type:
+          - array
+            - integer
+        example: [11, 12, 13, -14]
+        description: Массив идентификаторов регионов, для которых показы включены или выключены (обязательно)
+      negative_keywords:
+        type:
+          - array
+            - sring
+        example: ["диван", "кровать"]
+        description: Массив минус-фраз, общих для всех ключевых фраз группы объявлений (не обязательно)
+      negative_keyword_set_ids:
+        type:
+          - array
+            - long
+        example: [123, 456, 789]
+        description: Идентификаторы наборов минус-фраз. Не более 3 элементов в массиве (не обязательно)
+      tracking_params:
+        type: "string"
+        example: "from=direct&ad={ad_id}"
+        description: GET-параметры для отслеживания источников переходов на сайт, которые добавляются в ссылку всех объявлений группы (не более 1024 символов). Могут содержать подстановочные переменные. (не обязательно)
+      text_feed_id:
+        type: "long"
+        example: 123456
+        description: Идентификатор фида, на основе которого требуется сгенерировать текстово-графические объявления. (не обязательно)
+      text_feed_category_ids:
+        type:
+          - array
+            - long
+        example: [ 123, 456, 789 ]
+        description: Идентификаторы категорий товаров, на основе которых требуется сгенерировать текстово-графические объявления.  (не обязательно)
+responses:
+  200:
+    description: "OK"
+  400:
+    description: "Bad Request"
+
