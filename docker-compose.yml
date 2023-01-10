@@ -3,6 +3,7 @@ version: "3.8"
 services:
   yandex-direct-ecom-api:
     build: .
+    container_name: yandex-direct-ecom-api 
     restart: always
     environment:
       TZ: Europe/Moscow
