@@ -1,0 +1,54 @@
+swagger: "2.0"
+info:
+  title: "Yandex Direct Ecom API Documentation"
+  contact:
+    email: "s.fedyushin@ecomru.ru"
+  basePath: "/swagger"
+paths:
+  "/yandexdirect/getkeywords":
+    post:
+tags:
+  - keywords
+#    - info
+summary: "Получить ключевые фразы"
+description: "Метод для получения параметров ключевых фраз или автотаргетингов"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "body"
+  required: true
+  schema:
+    type: "object"
+    properties:
+      login:
+        type: "string"
+        example: "aaabbbq123@yandex.ru"
+#      token:
+#        type: "string"
+#        example: "xxx_YYYzzz1234ABCDefg"
+      ids:
+        type:
+          - array
+            - long
+        example: [1234567890, 0987654321]
+        description: Отбирать ключевые фразы и автотаргетинги с указанными идентификаторами. Один из параметров Ids, AdGroupIds и CampaignIds (могут присутствовать все).
+      adgroup_ids:
+        type:
+          - array
+            - long
+        example: [1234567890, 0987654321]
+        description: Отбирать ключевые фразы и автотаргетинги указанных групп. Один из параметров Ids, AdGroupIds и CampaignIds (могут присутствовать все).
+      campaign_ids:
+        type:
+          - array
+            - long
+        example: [1234567890, 0987654321]
+        description: Отбирать ключевые фразы и автотаргетинги указанных кампаний. Один из параметров Ids, AdGroupIds и CampaignIds (могут присутствовать все).
+responses:
+  200:
+    description: "OK"
+  400:
+    description: "Bad Request"

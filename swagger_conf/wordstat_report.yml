@@ -1,0 +1,48 @@
+swagger: "2.0"
+info:
+  title: "Yandex Direct Ecom API Documentation"
+  contact:
+    email: "s.fedyushin@ecomru.ru"
+  basePath: "/swagger"
+paths:
+  "/yandexdirect/wordstatreport":
+    post:
+tags:
+  - forecasts
+#    - add
+summary: "Сформировать отчет о статистике поисковых запросов"
+description: "Запускает на сервере формирование отчета о статистике поисковых запросов, проверяет статус и скачивает отчет по готовности"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "body"
+  required: true
+  schema:
+    type: "object"
+    properties:
+      login:
+        type: "string"
+        example: "aaabbbq123@yandex.ru"
+#      token:
+#        type: "string"
+#        example: "xxx_YYYzzz1234ABCDefg"
+      phrases:
+        type:
+          - array
+            - string
+        example: ["холодильник -морозильник -(морозильная камера) -ремонт", "диван -кровать"]
+        description: Массив ключевых фраз, по которым требуется получить статистику поисковых запросов
+      regions:
+        type:
+          - array
+            - integer
+        example:  [1,-219]
+        description: Массив идентификаторов регионов. Позволяет получать статистику поисковых запросов, сделанных только в указанных регионах. Чтобы исключить регион, перед его идентификатором ставят минус. Если регионы не указаны, статистика выдается по всем регионам.
+responses:
+  200:
+    description: "OK"
+  400:
+    description: "Bad Request"

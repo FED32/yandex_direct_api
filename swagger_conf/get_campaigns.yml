@@ -8,8 +8,8 @@ paths:
   "/yandexdirect/getcampaigns":
     post:
 tags:
-  - campaign
-    - info
+  - campaigns
+#    - info
 summary: "Получить кампании"
 description: "Метод для получения кампаний и их параметров"
 consumes:
@@ -26,9 +26,9 @@ parameters:
       login:
         type: "string"
         example: "aaabbbq123@yandex.ru"
-      token:
-        type: "string"
-        example: "xxx_YYYzzz1234ABCDefg"
+#      token:
+#        type: "string"
+#        example: "xxx_YYYzzz1234ABCDefg"
 responses:
   200:
     description: "OK"

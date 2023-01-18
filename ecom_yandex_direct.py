@@ -170,7 +170,10 @@ class YandexDirectEcomru:
 
         return self.exec_post_api5(service, self.head, body)
 
-    def create_new_wordstat_report(self, phrases, regions=None, lim=10):
+    def create_new_wordstat_report(self,
+                                   phrases: list,
+                                   regions: list = None,
+                                   lim=10):
         """
         Запускает на сервере формирование отчета о статистике поисковых запросов,
         возвращает идентификатор будущего отчета.
@@ -230,7 +233,7 @@ class YandexDirectEcomru:
             print("Произошла непредвиденная ошибка.")
             return None
 
-    def get_wordstat_report(self, report_id):
+    def get_wordstat_report(self, report_id: int):
         """
         Возвращает отчет о статистике поисковых запросов
         """
@@ -280,7 +283,7 @@ class YandexDirectEcomru:
             print("Произошла непредвиденная ошибка.")
             return None
 
-    def create_new_forecast(self, phrases, regions=None, currency='RUB', auc_bids='No'):
+    def create_new_forecast(self, phrases: list, regions: list = None, currency: str = 'RUB', auc_bids: str = 'No'):
         """
         Запускает на сервере формирование прогноза показов, кликов и затрат.
         Возможные значения currency: RUB, CHF, EUR, KZT, TRY, UAH, USD, BYN.
@@ -1706,8 +1709,11 @@ class YandexDirectEcomru:
         """
         Возвращает изображения, отвечающие заданным критериям
         """
-        field_names = ["AdImageHash", "OriginalUrl", "PreviewUrl", "Name", "Type", "Subtype", "Associated"]
+
         service = 'adimages'
+
+        field_names = ["AdImageHash", "OriginalUrl", "PreviewUrl", "Name", "Type", "Subtype", "Associated"]
+
         body = {"method": "get",
                 "params": {"FieldNames": field_names}
                 }
@@ -1724,6 +1730,178 @@ class YandexDirectEcomru:
                 #                 body["params"].setdefault("Page", {})
                 body["params"]["Page"].setdefault("Offset", offset)
         #         print(body)
+
+        return self.exec_post_api5(service, self.head, body)
+
+    def get_keywords(self,
+                     ids: list = None,
+                     adgroup_ids: list = None,
+                     campaign_ids: list = None,
+                     limit=None,
+                     offset=None):
+        """Возвращает параметры ключевых фраз или автотаргетингов"""
+
+        service = 'keywords'
+
+        body = {"method": "get",
+                "params": {"SelectionCriteria": {},
+                           "FieldNames": ["Id", "Keyword", "State", "Status", "ServingStatus", "AdGroupId",
+                                          "CampaignId", "Bid", "ContextBid", "StrategyPriority", "UserParam1",
+                                          "UserParam2", "Productivity","StatisticsSearch", "StatisticsNetwork",
+                                          "AutotargetingCategories"]
+                           }
+                }
+
+        if limit is not None:
+            body["params"].setdefault("Page", {})
+            body["params"]["Page"].setdefault("Limit", limit)
+            if offset is not None:
+                body["params"]["Page"].setdefault("Offset", offset)
+
+        if ids is not None:
+            body["params"]["SelectionCriteria"].setdefault("Ids", ids)
+        if adgroup_ids is not None:
+            body["params"]["SelectionCriteria"].setdefault("AdGroupIds", adgroup_ids)
+        if campaign_ids is not None:
+            body["params"]["SelectionCriteria"].setdefault("CampaignIds", campaign_ids)
+
+        if ids is None and adgroup_ids is None and campaign_ids is None:
+            print("Не заданы критерии отбора")
+            return None
+
+        return self.exec_post_api5(service, self.head, body)
+
+    @staticmethod
+    def create_keyword_params(adgroup_id: int,
+                              keyword: str,
+                              bid: int = None,
+                              context_bid: int = None,
+                              strategy_priority: str = None,
+                              user_param1: str = None,
+                              user_param2: str = None,
+                              autotargeting_exact="NO",
+                              autotargeting_alternative="NO",
+                              autotargeting_competitor="NO",
+                              autotargeting_broader="NO",
+                              autotargeting_accessory="NO"
+                              ):
+        """Возвращает словарь с параметрами ключевого слова или автотаргетинга"""
+
+        if (len(''.join(re.findall(r'[^!]', keyword))) > 4096) or \
+                (len(keyword.split(' ')) > 7) or \
+                (max([len(word) for word in (''.join(re.findall(r'[^!-]', keyword))).split(' ')]) > 35):
+
+            print("Не корректные параметры ключевой фразы")
+            return None
+        else:
+
+            result = {"Keyword": keyword,
+                      "AdGroupId": adgroup_id
+                      }
+
+            if bid is not None:
+                result.setdefault("Bid", bid)
+            if context_bid is not None:
+                result.setdefault("ContextBid", context_bid)
+            if strategy_priority is not None:
+                result.setdefault("StrategyPriority", strategy_priority)
+            if user_param1 is not None:
+                result.setdefault("UserParam1", user_param1)
+            if user_param2 is not None:
+                result.setdefault("UserParam2", user_param2)
+
+            if keyword == '---autotargeting':
+                autotargeting_categories = [{"Category": "EXACT", "Value": autotargeting_exact},
+                                            {"Category": "ALTERNATIVE", "Value": autotargeting_alternative},
+                                            {"Category": "COMPETITOR", "Value": autotargeting_competitor},
+                                            {"Category": "BROADER", "Value": autotargeting_broader},
+                                            {"Category": "ACCESSORY", "Value": autotargeting_accessory}]
+
+                result.setdefault("AutotargetingCategories", autotargeting_categories)
+
+            return result
+
+    def add_keywords(self, keywords: list):
+        """Создает ключевые фразы и автотаргетинги"""
+
+        service = 'keywords'
+
+        body = {"method": "add",
+                "params": {"Keywords": keywords}
+                }
+
+        return self.exec_post_api5(service, self.head, body)
+
+    @staticmethod
+    def update_keyword_params(keyword_id: int,
+                              keyword: str = None,
+                              user_param1: str = None,
+                              user_param2: str = None,
+                              autotargeting_exact=None,
+                              autotargeting_alternative=None,
+                              autotargeting_competitor=None,
+                              autotargeting_broader=None,
+                              autotargeting_accessory=None
+                              ):
+        """Возвращает словарь с параметрами ключевого слова или автотаргетинга для обновления"""
+
+        result = {"Id": keyword_id}
+
+        if keyword is not None:
+            if (len(''.join(re.findall(r'[^!]', keyword))) > 4096) or \
+                    (len(keyword.split(' ')) > 7) or \
+                    (max([len(word) for word in (''.join(re.findall(r'[^!-]', keyword))).split(' ')]) > 35):
+                print("Не корректные параметры ключевой фразы")
+                return None
+            else:
+                result.setdefault("Keyword", keyword)
+
+        if user_param1 is not None:
+            result.setdefault("UserParam1", user_param1)
+        if user_param2 is not None:
+            result.setdefault("UserParam2", user_param2)
+
+        if autotargeting_exact is not None:
+            result.setdefault("AutotargetingCategories", [])
+            result["AutotargetingCategories"].append({"Category": "EXACT", "Value": autotargeting_exact})
+        if autotargeting_alternative is not None:
+            result.setdefault("AutotargetingCategories", [])
+            result["AutotargetingCategories"].append({"Category": "ALTERNATIVE", "Value": autotargeting_alternative})
+        if autotargeting_competitor is not None:
+            result.setdefault("AutotargetingCategories", [])
+            result["AutotargetingCategories"].append({"Category": "COMPETITOR", "Value": autotargeting_competitor})
+        if autotargeting_broader is not None:
+            result.setdefault("AutotargetingCategories", [])
+            result["AutotargetingCategories"].append({"Category": "BROADER", "Value": autotargeting_broader})
+        if autotargeting_accessory is not None:
+            result.setdefault("AutotargetingCategories", [])
+            result["AutotargetingCategories"].append({"Category": "ACCESSORY", "Value": autotargeting_accessory})
+
+        return result
+
+    def update_keywords(self, keywords: list):
+        """Изменяет параметры ключевых фраз и автотаргетингов"""
+
+        service = 'keywords'
+
+        body = {"method": "update",
+                "params": {"Keywords": keywords}
+                }
+
+        return self.exec_post_api5(service, self.head, body)
+
+    def manage_keywords(self, ids: list, action: str):
+        """
+        Удаляет ключевые фразы и автотаргетинги;
+        Возобновляет показы по ранее остановленным ключевым фразам и автотаргетингам;
+        Останавливает показы по ключевым фразам и автотаргетингам;
+        (delete/resume/suspend)
+        """
+
+        service = 'ads'
+        body = {"method": action,
+                "params": {"SelectionCriteria": {"Ids": ids}}
+                }
 
         return self.exec_post_api5(service, self.head, body)
 

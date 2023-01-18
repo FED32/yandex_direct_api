@@ -8,8 +8,8 @@ paths:
   "/yandexdirect/deletegroups":
     post:
 tags:
-  - group
-    - manage
+  - adgroups
+#    - manage
 summary: "Удаление групп"
 description: "Метод для удаления групп"
 consumes:
@@ -26,9 +26,9 @@ parameters:
       login:
         type: "string"
         example: "aaabbbq123@yandex.ru"
-      token:
-        type: "string"
-        example: "xxx_YYYzzz1234ABCDefg"
+#      token:
+#        type: "string"
+#        example: "xxx_YYYzzz1234ABCDefg"
       groups:
         type:
           - array

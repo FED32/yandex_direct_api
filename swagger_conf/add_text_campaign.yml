@@ -8,8 +8,8 @@ paths:
   "/yandexdirect/addtextcampaign":
     post:
 tags:
-  - campaign
-    - add
+  - campaigns
+#    - add
 summary: "Добавить текстовую кампанию"
 description: "Метод для добавления текстовой кампании"
 consumes:
@@ -26,9 +26,9 @@ parameters:
       login:
         type: "string"
         example: "aaabbbq123@yandex.ru"
-      token:
-        type: "string"
-        example: "xxx_YYYzzz1234ABCDefg"
+#      token:
+#        type: "string"
+#        example: "xxx_YYYzzz1234ABCDefg"
       s_bid_strat:
         type: "string"
         example:  "HIGHEST_POSITION, WB_MAXIMUM_CLICKS, WB_MAXIMUM_CONVERSION_RATE, AVERAGE_CPC, AVERAGE_CPA, AVERAGE_ROI, AVERAGE_CRR, PAY_FOR_CONVERSION, PAY_FOR_CONVERSION_CRR"

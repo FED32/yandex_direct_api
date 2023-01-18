@@ -5,13 +5,13 @@ info:
     email: "s.fedyushin@ecomru.ru"
   basePath: "/swagger"
 paths:
-  "/yandexdirect/manageads":
+  "/yandexdirect/managekeywords":
     post:
 tags:
-  - ads
+  - keywords
 #    - manage
-summary: "Управление объявлениями"
-description: "Метод для управления объявлениями. Удаляет, архивирует/разархивирует, останавливает/возобновляет показы объявлений, отправляет на модерацию"
+summary: "Управление ключевыми фразами и автотаргетингами"
+description: "Метод для управления ключевыми фразами и автотаргетингами. Удаляет, останавливает/возобновляет показы по ранее остановленным ключевым фразам и автотаргетингам"
 consumes:
 - "application/json"
 produces:
@@ -34,18 +34,15 @@ parameters:
           - array
             - long
         example: [123456789, 789012345]
-        description: Идентификаторы объявлений
+        description: Идентификаторы ключевых фраз и автотаргетингов
       action:
         type: "string"
         example: "delete"
-        description: Действие (delete, archive, unarchive, suspend, resume, moderate)
+        description: Действие (delete, suspend, resume)
         enum:
           - delete
-          - archive
-          - unarchive
           - suspend
           - resume
-          - moderate
 responses:
   200:
     description: "OK"

@@ -8,8 +8,8 @@ paths:
   "/yandexdirect/getads":
     post:
 tags:
-  - ad
-    - info
+  - ads
+#    - info
 summary: "Получить список объявлений"
 description: "Метод для получения списка объявлений"
 consumes:
@@ -26,9 +26,9 @@ parameters:
       login:
         type: "string"
         example: "aaabbbq123@yandex.ru"
-      token:
-        type: "string"
-        example: "xxx_YYYzzz1234ABCDefg"
+#      token:
+#        type: "string"
+#        example: "xxx_YYYzzz1234ABCDefg"
       ids:
         type:
           - array

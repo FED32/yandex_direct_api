@@ -8,7 +8,7 @@ paths:
   "/yandexdirect/authlink":
     get:
 tags:
-  - account
+  - accounts
 summary: "Получить ссылку для авторизации"
 description: "Метод для генерации ссылки для авторизации пользователя и предоставления доступа сервису к аккаунту"
 consumes:

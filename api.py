@@ -6,6 +6,9 @@ from config import Configuration
 import logger_api
 from ecom_yandex_direct import YandexDirectEcomru
 import os
+import time
+import pandas as pd
+from get_token_from_db import *
 
 
 app = Flask(__name__)
@@ -100,7 +103,8 @@ def get_campaigns():
     try:
         json_file = request.get_json(force=False)
         login = json_file["login"]
-        token = json_file["token"]
+        # token = json_file["token"]
+        token = get_token_from_db(client_login=login)
 
         direct = YandexDirectEcomru(login, token)
 
@@ -127,7 +131,9 @@ def get_groups():
     try:
         json_file = request.get_json(force=False)
         login = json_file["login"]
-        token = json_file["token"]
+        # token = json_file["token"]
+        token = get_token_from_db(client_login=login)
+
         campaigns = json_file["campaigns"]
 
         direct = YandexDirectEcomru(login, token)
@@ -162,7 +168,8 @@ def get_ads():
     try:
         json_file = request.get_json(force=False)
         login = json_file["login"]
-        token = json_file["token"]
+        # token = json_file["token"]
+        token = get_token_from_db(client_login=login)
 
         direct = YandexDirectEcomru(login, token)
 
@@ -208,7 +215,8 @@ def add_text_campaign():
     try:
         json_file = request.get_json(force=False)
         login = json_file["login"]
-        token = json_file["token"]
+        # token = json_file["token"]
+        token = get_token_from_db(client_login=login)
 
         direct = YandexDirectEcomru(login, token)
 
@@ -499,8 +507,6 @@ def add_text_campaign():
 #             time_targeting_end_hour = json_file.get("time_targeting_end_hour", None)
 
 
-
-
 @app.route('/yandexdirect/addgroup', methods=['POST'])
 @swag_from("swagger_conf/add_group.yml")
 def add_group():
@@ -509,7 +515,8 @@ def add_group():
     try:
         json_file = request.get_json(force=False)
         login = json_file["login"]
-        token = json_file["token"]
+        # token = json_file["token"]
+        token = get_token_from_db(client_login=login)
 
         direct = YandexDirectEcomru(login, token)
 
@@ -566,7 +573,8 @@ def add_text_ad():
     try:
         json_file = request.get_json(force=False)
         login = json_file["login"]
-        token = json_file["token"]
+        # token = json_file["token"]
+        token = get_token_from_db(client_login=login)
 
         direct = YandexDirectEcomru(login, token)
 
@@ -658,7 +666,8 @@ def manage_camps():
     try:
         json_file = request.get_json(force=False)
         login = json_file["login"]
-        token = json_file["token"]
+        # token = json_file["token"]
+        token = get_token_from_db(client_login=login)
 
         direct = YandexDirectEcomru(login, token)
 
@@ -710,7 +719,8 @@ def delete_groups():
     try:
         json_file = request.get_json(force=False)
         login = json_file["login"]
-        token = json_file["token"]
+        # token = json_file["token"]
+        token = get_token_from_db(client_login=login)
 
         direct = YandexDirectEcomru(login, token)
 
@@ -750,7 +760,8 @@ def manage_ads():
     try:
         json_file = request.get_json(force=False)
         login = json_file["login"]
-        token = json_file["token"]
+        # token = json_file["token"]
+        token = get_token_from_db(client_login=login)
 
         direct = YandexDirectEcomru(login, token)
 
@@ -794,5 +805,342 @@ def manage_ads():
     except BaseException as ex:
         logger.error(f'manage ads: {ex}')
         raise HttpError(400, f'{ex}')
+
+
+@app.route('/yandexdirect/getkeywords', methods=['POST'])
+@swag_from("swagger_conf/get_keywords.yml")
+def get_keywords():
+    """Метод для получения параметров ключевых фраз или автотаргетингов"""
+
+    try:
+        json_file = request.get_json(force=False)
+        login = json_file["login"]
+        # token = json_file["token"]
+        token = get_token_from_db(client_login=login)
+
+        direct = YandexDirectEcomru(login, token)
+
+        ids = json_file.get("ids", None)
+        adgroup_ids = json_file.get("adgroup_ids", None)
+        campaign_ids = json_file.get("campaign_ids", None)
+
+        result = direct.get_keywords(ids=ids, adgroup_ids=adgroup_ids, campaign_ids=campaign_ids)
+
+        if result is None:
+            logger.error("get keywords: yandex direct error")
+            return jsonify({'error': 'yandex direct error'})
+        else:
+            logger.info(f"get keywords: {result.status_code}")
+            return jsonify(result.json())
+
+    except BadRequestKeyError:
+        logger.error("get keywords: BadRequest")
+        return Response(None, 400)
+
+    except KeyError:
+        logger.error("get keywords: KeyError")
+        return Response(None, 400)
+
+    except BaseException as ex:
+        logger.error(f'get keywords: {ex}')
+        raise HttpError(400, f'{ex}')
+
+
+@app.route('/yandexdirect/addkeyword', methods=['POST'])
+@swag_from("swagger_conf/add_keyword.yml")
+def add_keyword():
+    """Метод для добавления ключевой фразы или автотаргетинга"""
+
+    try:
+        json_file = request.get_json(force=False)
+        login = json_file["login"]
+        # token = json_file["token"]
+        token = get_token_from_db(client_login=login)
+
+        direct = YandexDirectEcomru(login, token)
+
+        adgroup_id = json_file["adgroup_id"]
+        keyword = json_file["keyword"]
+        bid = json_file.get("bid", None)
+        context_bid = json_file.get("context_bid", None)
+        strategy_priority = json_file.get("strategy_priority", None)
+        user_param1 = json_file.get("user_param1", None)
+        user_param2 = json_file.get("user_param2", None)
+        autotargeting_exact = json_file.get("autotargeting_exact", "NO")
+        autotargeting_alternative = json_file.get("autotargeting_alternative", "NO")
+        autotargeting_competitor = json_file.get("autotargeting_competitor", "NO")
+        autotargeting_broader = json_file.get("autotargeting_broader", "NO")
+        autotargeting_accessory = json_file.get("autotargeting_accessory", "NO")
+
+        keyword_params = direct.create_keyword_params(adgroup_id=adgroup_id,
+                                                      keyword=keyword,
+                                                      bid=bid,
+                                                      context_bid=context_bid,
+                                                      strategy_priority=strategy_priority,
+                                                      user_param1=user_param1,
+                                                      user_param2=user_param2,
+                                                      autotargeting_exact=autotargeting_exact,
+                                                      autotargeting_alternative=autotargeting_alternative,
+                                                      autotargeting_competitor=autotargeting_competitor,
+                                                      autotargeting_broader=autotargeting_broader,
+                                                      autotargeting_accessory=autotargeting_accessory)
+
+        if keyword_params is None:
+            logger.error("add keyword: keyword params incorrect")
+            return jsonify({'error': 'keyword params incorrect'})
+        else:
+            result = direct.add_keywords(keywords=[keyword_params])
+            if result is None:
+                logger.error("add keyword: yandex direct error")
+                return jsonify({'error': 'yandex direct error'})
+            else:
+                logger.info(f"add keyword: {result.status_code}")
+                return jsonify(result.json())
+
+    except BadRequestKeyError:
+        logger.error("add keyword: BadRequest")
+        return Response(None, 400)
+
+    except KeyError:
+        logger.error("add keyword: KeyError")
+        return Response(None, 400)
+
+    except BaseException as ex:
+        logger.error(f'add keyword: {ex}')
+        raise HttpError(400, f'{ex}')
+
+
+@app.route('/yandexdirect/updatekeyword', methods=['POST'])
+@swag_from("swagger_conf/update_keyword.yml")
+def update_keyword():
+    """Метод для изменения параметров ключевой фразы и автотаргетинга"""
+
+    try:
+        json_file = request.get_json(force=False)
+        login = json_file["login"]
+        # token = json_file["token"]
+        token = get_token_from_db(client_login=login)
+
+        direct = YandexDirectEcomru(login, token)
+
+        keyword_id = json_file["keyword_id"]
+        keyword = json_file.get("keyword", None)
+        user_param1 = json_file.get("user_param1", None)
+        user_param2 = json_file.get("user_param2", None)
+        autotargeting_exact = json_file.get("autotargeting_exact", None)
+        autotargeting_alternative = json_file.get("autotargeting_alternative", None)
+        autotargeting_competitor = json_file.get("autotargeting_competitor", None)
+        autotargeting_broader = json_file.get("autotargeting_broader", None)
+        autotargeting_accessory = json_file.get("autotargeting_accessory", None)
+
+        keyword_params = direct.update_keyword_params(keyword_id=keyword_id,
+                                                      keyword=keyword,
+                                                      user_param1=user_param1,
+                                                      user_param2=user_param2,
+                                                      autotargeting_exact=autotargeting_exact,
+                                                      autotargeting_alternative=autotargeting_alternative,
+                                                      autotargeting_competitor=autotargeting_competitor,
+                                                      autotargeting_broader=autotargeting_broader,
+                                                      autotargeting_accessory=autotargeting_accessory)
+
+        if keyword_params is None:
+            logger.error("update keyword: keyword params incorrect")
+            return jsonify({'error': 'keyword params incorrect'})
+        else:
+            result = direct.update_keywords(keywords=[keyword_params])
+            if result is None:
+                logger.error("update keyword: yandex direct error")
+                return jsonify({'error': 'yandex direct error'})
+            else:
+                logger.info(f"update keyword: {result.status_code}")
+                return jsonify(result.json())
+
+    except BadRequestKeyError:
+        logger.error("update keyword: BadRequest")
+        return Response(None, 400)
+
+    except KeyError:
+        logger.error("update keyword: KeyError")
+        return Response(None, 400)
+
+    except BaseException as ex:
+        logger.error(f'update keyword: {ex}')
+        raise HttpError(400, f'{ex}')
+
+
+@app.route('/yandexdirect/managekeywords', methods=['POST'])
+@swag_from("swagger_conf/manage_keywords.yml")
+def manage_keywords():
+    """Метод для изменения параметров ключевой фразы и автотаргетинга"""
+
+    try:
+        json_file = request.get_json(force=False)
+        login = json_file["login"]
+        # token = json_file["token"]
+        token = get_token_from_db(client_login=login)
+
+        direct = YandexDirectEcomru(login, token)
+
+        ids = json_file["ids"]
+
+        action = json_file["action"]
+
+        if action == "delete":
+            action_ = "delete"
+        elif action == "suspend":
+            action_ = "suspend"
+        elif action == "resume":
+            action_ = "resume"
+        else:
+            logger.error("manage keywords: incorrect action")
+            return jsonify({'error': 'incorrect action'})
+
+        result = direct.manage_keywords(ids=ids, action=action_)
+
+        if result is None:
+            logger.error("manage keywords: yandex direct error")
+            return jsonify({'error': 'yandex direct error'})
+        else:
+            logger.info(f"manage keywords: {result.status_code}")
+            return jsonify(result.json())
+
+    except BadRequestKeyError:
+        logger.error("manage keywords: BadRequest")
+        return Response(None, 400)
+
+    except KeyError:
+        logger.error("manage keywords: KeyError")
+        return Response(None, 400)
+
+    except BaseException as ex:
+        logger.error(f'manage keywords: {ex}')
+        raise HttpError(400, f'{ex}')
+
+
+@app.route('/yandexdirect/wordstatreport', methods=['POST'])
+@swag_from("swagger_conf/wordstat_report.yml")
+def wordstat_report():
+    """
+    Запускает на сервере формирование отчета о статистике поисковых запросов,
+    проверяет статус и скачивает отчет по готовности
+    """
+
+    try:
+        json_file = request.get_json(force=False)
+        login = json_file["login"]
+        # token = json_file["token"]
+        token = get_token_from_db(client_login=login)
+
+        direct = YandexDirectEcomru(login, token)
+
+        phrases = json_file["phrases"]
+        regions = json_file.get("regions", None)
+
+        nwr = direct.create_new_wordstat_report(phrases=phrases, regions=regions)
+
+        if nwr is None:
+            logger.error("create wordstat report: yandex direct error")
+            return jsonify({'error': 'create wordstat report - yandex direct error'})
+        else:
+            report_id = nwr.json()["data"]
+
+            status = None
+            while status != 'Done':
+                time.sleep(15)
+                rep_list = direct.get_wordstat_report_list()
+                if rep_list is None:
+                    logger.error("get wordstat report list: yandex direct error")
+                    return jsonify({'error': 'get wordstat report list - yandex direct error'})
+                else:
+                    reports = pd.DataFrame(rep_list.json()["data"])
+                    r_stat = reports[reports["ReportID"] == report_id]
+                    status = r_stat["StatusReport"][0]
+
+            result = direct.get_wordstat_report(report_id=report_id)
+
+            if result is None:
+                logger.error("get wordstat report: yandex direct error")
+                return jsonify({'error': 'get wordstat report - yandex direct error'})
+
+            else:
+                logger.info(f"get wordstat report: {result.status_code}")
+                return jsonify(result.json())
+
+    except BadRequestKeyError:
+        logger.error("wordstat report: BadRequest")
+        return Response(None, 400)
+
+    except KeyError:
+        logger.error("wordstat report: KeyError")
+        return Response(None, 400)
+
+    except BaseException as ex:
+        logger.error(f'wordstat report: {ex}')
+        raise HttpError(400, f'{ex}')
+
+
+@app.route('/yandexdirect/forecast', methods=['POST'])
+@swag_from("swagger_conf/forecast.yml")
+def forecast():
+    """
+    Запускает на сервере формирование прогноза показов, кликов и затрат.
+    Отслеживает статус и загружает прогноз по готовности
+    """
+
+    try:
+        json_file = request.get_json(force=False)
+        login = json_file["login"]
+        # token = json_file["token"]
+        token = get_token_from_db(client_login=login)
+
+        direct = YandexDirectEcomru(login, token)
+
+        phrases = json_file["phrases"]
+        regions = json_file.get("regions", None)
+        currency = json_file["currency"]
+        auc_bids = json_file.get("auc_bids", None)
+
+        nf = direct.create_new_forecast(phrases=phrases, regions=regions, currency=currency, auc_bids=auc_bids)
+
+        if nf is None:
+            logger.error("forecast: yandex direct error")
+            return jsonify({'error': 'create new forecast - yandex direct error'})
+        else:
+            forecast_id = nf.json()["data"]
+
+            status = None
+            while status != 'Done':
+                time.sleep(15)
+                forecast_list = direct.get_forecast_list()
+                if forecast_list is None:
+                    logger.error("forecast_list list: yandex direct error")
+                    return jsonify({'error': 'forecast_list list - yandex direct error'})
+                else:
+                    forecasts = pd.DataFrame(forecast_list.json()["data"])
+                    f_stat = forecasts[forecasts["ForecastID"] == forecast_id]
+                    status = f_stat["StatusForecast"][0]
+
+            result = direct.get_forecast(forecast_id=forecast_id)
+
+            if result is None:
+                logger.error("get forecast: yandex direct error")
+                return jsonify({'error': 'get forecast - yandex direct error'})
+
+            else:
+                logger.info(f"get forecast: {result.status_code}")
+                return jsonify(result.json())
+
+    except BadRequestKeyError:
+        logger.error("forecast: BadRequest")
+        return Response(None, 400)
+
+    except KeyError:
+        logger.error("forecast: KeyError")
+        return Response(None, 400)
+
+    except BaseException as ex:
+        logger.error(f'forecast: {ex}')
+        raise HttpError(400, f'{ex}')
+
 
 

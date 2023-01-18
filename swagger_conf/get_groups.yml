@@ -8,8 +8,8 @@ paths:
   "/yandexdirect/getgroups":
     post:
 tags:
-  - group
-    - info
+  - adgroups
+#    - info
 summary: "Получить список групп"
 description: "Метод для вывода списка групп и их параметров"
 consumes:
@@ -26,9 +26,9 @@ parameters:
       login:
         type: "string"
         example: "aaabbbq123@yandex.ru"
-      token:
-        type: "string"
-        example: "xxx_YYYzzz1234ABCDefg"
+#      token:
+#        type: "string"
+#        example: "xxx_YYYzzz1234ABCDefg"
       campaigns:
         type: "array"
         example: [ "1234567890", "0987654321" ]
