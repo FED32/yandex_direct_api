@@ -1,0 +1,73 @@
+swagger: "2.0"
+info:
+  title: "Yandex Direct Ecom API Documentation"
+  contact:
+    email: "s.fedyushin@ecomru.ru"
+  basePath: "/swagger"
+paths:
+  "/yandexdirect/updatekeyword":
+    post:
+tags:
+  - keywords
+#    - update
+summary: "Изменить ключевую фразу или автотаргетинг"
+description: "Метод для изменения ключевой фразы или автотаргетинга"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "body"
+  required: true
+  schema:
+    type: "object"
+    properties:
+      login:
+        type: "string"
+        example: "aaabbbq123@yandex.ru"
+#      token:
+#        type: "string"
+#        example: "xxx_YYYzzz1234ABCDefg"
+      keyword_id:
+        type: "long"
+        example: 123456
+        description: Идентификатор ключевой фразы или автотаргетинга (обязательно)
+      keyword:
+        type: "string"
+        example: "купить диван -кровать"
+        description: Ключевая фраза (не обязательно)
+      user_param1:
+        type: "string"
+        example: "диван"
+        description: Значение подстановочной переменной {param1} (не обязательно)
+      user_param2:
+        type: "string"
+        example: "кровать"
+        description: Значение подстановочной переменной {param2} (не обязательно)
+      autotargeting_exact:
+        type: "string"
+        example: "NO"
+        description: Категория таргетинга. EXACT — целевые запросы. Рекламное объявление точно отвечает на запросы пользователя.
+      autotargeting_alternative:
+        type: "string"
+        example: "NO"
+        description: Категория таргетинга. ALTERNATIVE — альтернативные запросы. Пользователь ищет продукт, который можно заменить рекламируемым. При этом объявление также может удовлетворить запрос.
+      autotargeting_competitor:
+        type: "string"
+        example: "NO"
+        description: Категория таргетинга. COMPETITOR — запросы с упоминанием конкурентов. Поиск рекламируемого продукта у конкурентов.
+      autotargeting_broader:
+        type: "string"
+        example: "NO"
+        description: Категория таргетинга. BROADER — широкие запросы. Запросы с интересом к продукту, примером которого является рекламное предложение.
+      autotargeting_accessory:
+        type: "string"
+        example: "NO"
+        description: Категория таргетинга. ACCESSORY — сопутствующие запросы. Запросы по продуктам, которые могут быть интересны вместе с рекламируемым товаром или услугой.
+    responses:
+      200:
+        description: "OK"
+      400:
+        description: "Bad Request"
+

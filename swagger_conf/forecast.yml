@@ -1,0 +1,56 @@
+swagger: "2.0"
+info:
+  title: "Yandex Direct Ecom API Documentation"
+  contact:
+    email: "s.fedyushin@ecomru.ru"
+  basePath: "/swagger"
+paths:
+  "/yandexdirect/forecast":
+    post:
+tags:
+  - forecasts
+#    - add
+summary: "Сформировать прогноз показов, кликов и затрат"
+description: "Запускает на сервере формирование прогноза показов, кликов и затрат, отслеживает статус и загружает прогноз по готовности"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "body"
+  required: true
+  schema:
+    type: "object"
+    properties:
+      login:
+        type: "string"
+        example: "aaabbbq123@yandex.ru"
+#      token:
+#        type: "string"
+#        example: "xxx_YYYzzz1234ABCDefg"
+      phrases:
+        type:
+          - array
+            - string
+        example: ["холодильник -морозильник -(морозильная камера) -ремонт", "диван -кровать"]
+        description: Массив ключевых фраз, по которым требуется получить статистику поисковых запросов
+      regions:
+        type:
+          - array
+            - integer
+        example:  [1,-219]
+        description: Массив идентификаторов регионов. Позволяет получать статистику поисковых запросов, сделанных только в указанных регионах. Чтобы исключить регион, перед его идентификатором ставят минус. Если регионы не указаны, статистика выдается по всем регионам.
+      currency:
+        type: "string"
+        example: "EUR"
+        description: Валюта, в которой должны быть выражены цены клика и суммарные затраты в отчете. Возможные значения RUB, CHF, EUR, KZT, TRY, UAH, USD, BYN.
+      auc_bids:
+        type: "string"
+        example: "No"
+        description: Выводить ли в отчете результаты торгов (массив AuctionBids) — Yes/No. Если не задано, подразумевается No. (не обязательно)
+responses:
+  200:
+    description: "OK"
+  400:
+    description: "Bad Request"

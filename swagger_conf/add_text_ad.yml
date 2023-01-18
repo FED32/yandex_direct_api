@@ -8,8 +8,8 @@ paths:
   "/yandexdirect/addtextad":
     post:
 tags:
-  - ad
-    - add
+  - ads
+#    - add
 summary: "Добавить текстовое объявление"
 description: "Метод для добавления текстового объявления"
 consumes:
@@ -26,9 +26,9 @@ parameters:
       login:
         type: "string"
         example: "aaabbbq123@yandex.ru"
-      token:
-        type: "string"
-        example: "xxx_YYYzzz1234ABCDefg"
+#      token:
+#        type: "string"
+#        example: "xxx_YYYzzz1234ABCDefg"
       ads_group_id:
         type: "long"
         example: 123456

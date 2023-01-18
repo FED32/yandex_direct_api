@@ -8,8 +8,8 @@ paths:
   "/yandexdirect/managecamps":
     post:
 tags:
-  - campaign
-    - manage
+  - campaigns
+#    - manage
 summary: "Управление кампаниями"
 description: "Метод для управления кампаниями. Удаляет, архивирует/разархивирует, останавливает/возобновляет показы кампании"
 consumes:
@@ -26,9 +26,9 @@ parameters:
       login:
         type: "string"
         example: "aaabbbq123@yandex.ru"
-      token:
-        type: "string"
-        example: "xxx_YYYzzz1234ABCDefg"
+#      token:
+#        type: "string"
+#        example: "xxx_YYYzzz1234ABCDefg"
       campaigns:
         type:
           - array
@@ -39,6 +39,12 @@ parameters:
         type: "string"
         example: "delete"
         description: Действие (delete, archive, unarchive, suspend, resume)
+        enum:
+          - delete
+          - archive
+          - unarchive
+          - suspend
+          - resume
 responses:
   200:
     description: "OK"

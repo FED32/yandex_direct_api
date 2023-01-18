@@ -8,8 +8,8 @@ paths:
   "/yandexdirect/getuserinfo":
     post:
 tags:
-  - account
-    - info
+  - accounts
+#    - info
 summary: "Получить информацию пользователя по его токену"
 description: "Метод для получения информации пользователя по его токену"
 consumes:
