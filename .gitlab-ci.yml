@@ -6,7 +6,7 @@ workflow:
       variables:
         TAG_NAME: apps1
       when: always
-   
+   #
  
 stages:
 - deploy
