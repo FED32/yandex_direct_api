@@ -27,7 +27,7 @@ class YandexDirectEcomru:
                         'https://api-sandbox.direct.yandex.com/json/v5/']
 
         self.head = {"Authorization": f'Bearer {self.token}',
-                     "Accept-Language": "ru",
+                     "Accept-Language": "en",
                      "Client-Login": self.login,
                      "Content-Type": "application/json; charset=utf-8",
                      "Use-Operator-Units": use_operator_units
@@ -441,25 +441,11 @@ class YandexDirectEcomru:
         """
         Возвращает словарь с параметрами текстовой кампании
         """
-        # if settings is None:
-        #     settings = [{"Option": "ADD_METRICA_TAG", "Value": "YES"},
-        #                 {"Option": "ADD_OPENSTAT_TAG", "Value": "NO"},
-        #                 {"Option": "ADD_TO_FAVORITES", "Value": "NO"},
-        #                 {"Option": "ENABLE_AREA_OF_INTEREST_TARGETING", "Value": "YES"},
-        #                 {"Option": "ENABLE_COMPANY_INFO", "Value": "YES"},
-        #                 {"Option": "ENABLE_SITE_MONITORING", "Value": "NO"},
-        #                 {"Option": "EXCLUDE_PAUSED_COMPETING_ADS", "Value": "NO"},
-        #                 {"Option": "MAINTAIN_NETWORK_CPC", "Value": "NO"},
-        #                 {"Option": "REQUIRE_SERVICING", "Value": "NO"},
-        #                 {"Option": "CAMPAIGN_EXACT_PHRASE_MATCHING_ENABLED", "Value": "NO"}
-        #                 ]
 
         result = {"TextCampaign": {"BiddingStrategy": {"Search": {},
                                                        "Network": {}}
                                    }}
 
-        # if settings is not None:
-        #     result["TextCampaign"]["Settings"] = settings
         result["TextCampaign"]["Settings"] = [
             {"Option": "ADD_METRICA_TAG", "Value": add_metrica_tag},
             {"Option": "ADD_OPENSTAT_TAG", "Value": add_openstat_tag},
@@ -1044,7 +1030,7 @@ class YandexDirectEcomru:
                         print('Длина строки excluded_site превышает максимальное значение')
                         return None
                         # break
-                result["ExcludedSites"] = excluded_sites
+                result["ExcludedSites"] = {"Items": excluded_sites}
             else:
                 print('Количество excluded_sites превышает максимальное значение')
 
