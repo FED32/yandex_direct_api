@@ -31,11 +31,34 @@ parameters:
 #        example: "xxx_YYYzzz1234ABCDefg"
       s_bid_strat:
         type: "string"
-        example:  "HIGHEST_POSITION, WB_MAXIMUM_CLICKS, WB_MAXIMUM_CONVERSION_RATE, AVERAGE_CPC, AVERAGE_CPA, AVERAGE_ROI, AVERAGE_CRR, PAY_FOR_CONVERSION, PAY_FOR_CONVERSION_CRR"
+        example:  "HIGHEST_POSITION"
+        enum:
+          - "HIGHEST_POSITION"
+          - "WB_MAXIMUM_CLICKS"
+          - "WB_MAXIMUM_CONVERSION_RATE"
+          - "AVERAGE_CPC"
+          - "AVERAGE_CPA"
+          - "AVERAGE_ROI"
+          - "AVERAGE_CRR"
+          - "PAY_FOR_CONVERSION"
+          - "PAY_FOR_CONVERSION_CRR"
+          - "SERVING_OFF"
         description: Тип стратегии показа на поиске (обязательный параметр)
       n_bid_strat:
         type: "string"
-        example: "NETWORK_DEFAULT, MAXIMUM_COVERAGE, WB_MAXIMUM_CLICKS, WB_MAXIMUM_CONVERSION_RATE, AVERAGE_CPC, AVERAGE_CPA, AVERAGE_ROI, AVERAGE_CRR, PAY_FOR_CONVERSION, PAY_FOR_CONVERSION_CRR, SERVING_OFF"
+        example: "NETWORK_DEFAULT"
+        enum:
+          - "NETWORK_DEFAULT"
+          - "MAXIMUM_COVERAGE"
+          - "WB_MAXIMUM_CLICKS"
+          - "WB_MAXIMUM_CONVERSION_RATE"
+          - "AVERAGE_CPC"
+          - "AVERAGE_CPA"
+          - "AVERAGE_ROI"
+          - "AVERAGE_CRR"
+          - "PAY_FOR_CONVERSION"
+          - "PAY_FOR_CONVERSION_CRR"
+          - "SERVING_OFF"
         description: Тип стратегии показа в сетях (обязательный параметр)
       s_weekly_spend_limit:
         type: "long"
@@ -59,8 +82,8 @@ parameters:
         description: Средняя цена достижения цели в валюте рекламодателя, умноженная на 1000000 для стратегии показа на поиске AVERAGE_CPA
       s_reserve_return:
         type: "integer"
-        example: 0, 10, 20... 100
-        description: Максимальный процент сэкономленных средств, который можно возвращать в рекламу (расходовать) в случае, если прогнозируемое значение рентабельности превышает значение параметра RoiCoef для стратегии показа на поиске AVERAGE_ROI
+        example: 10
+        description: Максимальный процент сэкономленных средств, который можно возвращать в рекламу (расходовать) в случае, если прогнозируемое значение рентабельности превышает значение параметра RoiCoef для стратегии показа на поиске AVERAGE_ROI. Значение от 0 до 100, кратное десяти 0, 10, 20... 100.
       s_roi_coef:
         type: "long"
         example: 10000
@@ -103,8 +126,8 @@ parameters:
         description: Средняя цена достижения цели в валюте рекламодателя, умноженная на 1000000 для стратегии показа в сетях AVERAGE_CPA
       n_reserve_return:
         type: "integer"
-        example: 0, 10, 20... 100
-        description: Максимальный процент сэкономленных средств, который можно возвращать в рекламу (расходовать) в случае, если прогнозируемое значение рентабельности превышает значение параметра RoiCoef для стратегии показа в сетях AVERAGE_ROI
+        example: 10
+        description: Максимальный процент сэкономленных средств, который можно возвращать в рекламу (расходовать) в случае, если прогнозируемое значение рентабельности превышает значение параметра RoiCoef для стратегии показа в сетях AVERAGE_ROI. Значение от 0 до 100, кратное десяти 0, 10, 20... 100.
       n_roi_coef:
         type: "long"
         example: 10000
@@ -228,10 +251,16 @@ parameters:
       email_send_acc_news:
         type: "string"
         example: "NO"
+        enum:
+          - "YES"
+          - "NO"
         description: Отправлять ли уведомления о событиях, связанных с кампанией. Задается для кампаний, обслуживаемых персональным менеджером в Яндексе. (не обязательно)
       email_send_warnings:
         type: "string"
         example: "NO"
+        enum:
+          - "YES"
+          - "NO"
         description: Отправлять ли уведомления по электронной почте (не обязательно)
       timezone:
         type: "string"
@@ -243,7 +272,10 @@ parameters:
         description: Дневной бюджет кампании в валюте рекламодателя, умноженный на 1000000
       daily_budget_mode:
         type: "string"
-        example: "STANDARD, DISTRIBUTED"
+        example: "STANDARD"
+        enum:
+          - "STANDARD"
+          - "DISTRIBUTED"
         description: Режим показа объявлений
       negative_keywords:
         type:
@@ -276,6 +308,9 @@ parameters:
       time_targeting_suspend_on_holidays:
         type: "string"
         example: "YES"
+        enum:
+          - "YES"
+          - "NO"
         description: Останавливать ли объявления в праздничные нерабочие дни
       time_targeting_bid_percent:
         type: "integer"

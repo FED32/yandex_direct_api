@@ -9,6 +9,7 @@ import os
 import time
 import pandas as pd
 from get_token_from_db import *
+from db_work import put_query
 
 
 app = Flask(__name__)
@@ -104,7 +105,8 @@ def get_campaigns():
         json_file = request.get_json(force=False)
         login = json_file["login"]
         # token = json_file["token"]
-        token = get_token_from_db(client_login=login)
+        # token = get_token_from_db(client_login=login)
+        token = 'y0_AQAAAABihNGYAAhQ1wAAAADLKvrhX8L69sCOQii3e7pjpQ0tsAU4Ha4'
 
         direct = YandexDirectEcomru(login, token)
 
@@ -214,6 +216,9 @@ def add_text_campaign():
 
     try:
         json_file = request.get_json(force=False)
+
+        # put_query(json_file=json_file, table_name='ya_ads_addtextcampaigns')
+
         login = json_file["login"]
         # token = json_file["token"]
         token = get_token_from_db(client_login=login)
@@ -368,6 +373,7 @@ def add_text_campaign():
                 return jsonify({'error': 'yandex direct error'})
             else:
                 logger.info(f"add text campaign: {result.status_code}")
+                put_query(json_file=json_file, table_name='ya_ads_addtextcampaigns', result=result)
                 return jsonify(result.json())
 
     except BadRequestKeyError:
@@ -550,6 +556,8 @@ def add_group():
                 return jsonify({'error': 'yandex direct error'})
             else:
                 logger.info(f"add group: {result.status_code}")
+                put_query(json_file=json_file, table_name='ya_ads_addgroups', result=result)
+
                 return jsonify(result.json())
 
     except BadRequestKeyError:
@@ -639,6 +647,8 @@ def add_text_ad():
                 return jsonify({'error': 'yandex direct error'})
             else:
                 logger.info(f"add text ad: {result.status_code}")
+                put_query(json_file=json_file, table_name='ya_ads_addtextads', result=result)
+
                 return jsonify(result.json())
 
     except BadRequestKeyError:
@@ -895,6 +905,8 @@ def add_keyword():
                 return jsonify({'error': 'yandex direct error'})
             else:
                 logger.info(f"add keyword: {result.status_code}")
+                put_query(json_file=json_file, table_name='ya_ads_addkeywords', result=result)
+
                 return jsonify(result.json())
 
     except BadRequestKeyError:
