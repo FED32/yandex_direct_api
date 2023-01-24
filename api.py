@@ -8,8 +8,27 @@ from ecom_yandex_direct import YandexDirectEcomru
 import os
 import time
 import pandas as pd
-from get_token_from_db import *
+from get_token_from_db import get_token_from_db
 from db_work import put_query
+from sqlalchemy import create_engine
+
+
+host = os.environ.get('ECOMRU_PG_HOST', None)
+port = os.environ.get('ECOMRU_PG_PORT', None)
+ssl_mode = os.environ.get('ECOMRU_PG_SSL_MODE', None)
+db_name = os.environ.get('ECOMRU_PG_DB_NAME', None)
+user = os.environ.get('ECOMRU_PG_USER', None)
+password = os.environ.get('ECOMRU_PG_PASSWORD', None)
+target_session_attrs = 'read-write'
+
+# host = 'localhost'
+# port = '5432'
+# db_name = 'postgres'
+# user = 'postgres'
+# password = ' '
+
+db_params = f"postgresql://{user}:{password}@{host}:{port}/{db_name}"
+engine = create_engine(db_params)
 
 
 app = Flask(__name__)
@@ -105,8 +124,7 @@ def get_campaigns():
         json_file = request.get_json(force=False)
         login = json_file["login"]
         # token = json_file["token"]
-        # token = get_token_from_db(client_login=login)
-        token = 'y0_AQAAAABihNGYAAhQ1wAAAADLKvrhX8L69sCOQii3e7pjpQ0tsAU4Ha4'
+        token = get_token_from_db(client_login=login, engine=engine, logger=logger)
 
         direct = YandexDirectEcomru(login, token)
 
@@ -134,7 +152,7 @@ def get_groups():
         json_file = request.get_json(force=False)
         login = json_file["login"]
         # token = json_file["token"]
-        token = get_token_from_db(client_login=login)
+        token = get_token_from_db(client_login=login, engine=engine, logger=logger)
 
         campaigns = json_file["campaigns"]
 
@@ -171,7 +189,7 @@ def get_ads():
         json_file = request.get_json(force=False)
         login = json_file["login"]
         # token = json_file["token"]
-        token = get_token_from_db(client_login=login)
+        token = get_token_from_db(client_login=login, engine=engine, logger=logger)
 
         direct = YandexDirectEcomru(login, token)
 
@@ -216,12 +234,9 @@ def add_text_campaign():
 
     try:
         json_file = request.get_json(force=False)
-
-        # put_query(json_file=json_file, table_name='ya_ads_addtextcampaigns')
-
         login = json_file["login"]
         # token = json_file["token"]
-        token = get_token_from_db(client_login=login)
+        token = get_token_from_db(client_login=login, engine=engine, logger=logger)
 
         direct = YandexDirectEcomru(login, token)
 
@@ -373,7 +388,10 @@ def add_text_campaign():
                 return jsonify({'error': 'yandex direct error'})
             else:
                 logger.info(f"add text campaign: {result.status_code}")
-                put_query(json_file=json_file, table_name='ya_ads_addtextcampaigns', result=result)
+
+                put_query(json_file=json_file, table_name='ya_ads_addtextcampaigns', result=result, engine=engine,
+                          logger=logger)
+
                 return jsonify(result.json())
 
     except BadRequestKeyError:
@@ -522,7 +540,7 @@ def add_group():
         json_file = request.get_json(force=False)
         login = json_file["login"]
         # token = json_file["token"]
-        token = get_token_from_db(client_login=login)
+        token = get_token_from_db(client_login=login, engine=engine, logger=logger)
 
         direct = YandexDirectEcomru(login, token)
 
@@ -556,7 +574,9 @@ def add_group():
                 return jsonify({'error': 'yandex direct error'})
             else:
                 logger.info(f"add group: {result.status_code}")
-                put_query(json_file=json_file, table_name='ya_ads_addgroups', result=result)
+
+                put_query(json_file=json_file, table_name='ya_ads_addgroups', result=result, engine=engine,
+                          logger=logger)
 
                 return jsonify(result.json())
 
@@ -582,7 +602,7 @@ def add_text_ad():
         json_file = request.get_json(force=False)
         login = json_file["login"]
         # token = json_file["token"]
-        token = get_token_from_db(client_login=login)
+        token = get_token_from_db(client_login=login, engine=engine, logger=logger)
 
         direct = YandexDirectEcomru(login, token)
 
@@ -647,7 +667,9 @@ def add_text_ad():
                 return jsonify({'error': 'yandex direct error'})
             else:
                 logger.info(f"add text ad: {result.status_code}")
-                put_query(json_file=json_file, table_name='ya_ads_addtextads', result=result)
+
+                put_query(json_file=json_file, table_name='ya_ads_addtextads', result=result, engine=engine,
+                          logger=logger)
 
                 return jsonify(result.json())
 
@@ -677,7 +699,7 @@ def manage_camps():
         json_file = request.get_json(force=False)
         login = json_file["login"]
         # token = json_file["token"]
-        token = get_token_from_db(client_login=login)
+        token = get_token_from_db(client_login=login, engine=engine, logger=logger)
 
         direct = YandexDirectEcomru(login, token)
 
@@ -730,7 +752,7 @@ def delete_groups():
         json_file = request.get_json(force=False)
         login = json_file["login"]
         # token = json_file["token"]
-        token = get_token_from_db(client_login=login)
+        token = get_token_from_db(client_login=login, engine=engine, logger=logger)
 
         direct = YandexDirectEcomru(login, token)
 
@@ -771,7 +793,7 @@ def manage_ads():
         json_file = request.get_json(force=False)
         login = json_file["login"]
         # token = json_file["token"]
-        token = get_token_from_db(client_login=login)
+        token = get_token_from_db(client_login=login, engine=engine, logger=logger)
 
         direct = YandexDirectEcomru(login, token)
 
@@ -826,7 +848,7 @@ def get_keywords():
         json_file = request.get_json(force=False)
         login = json_file["login"]
         # token = json_file["token"]
-        token = get_token_from_db(client_login=login)
+        token = get_token_from_db(client_login=login, engine=engine, logger=logger)
 
         direct = YandexDirectEcomru(login, token)
 
@@ -865,7 +887,7 @@ def add_keyword():
         json_file = request.get_json(force=False)
         login = json_file["login"]
         # token = json_file["token"]
-        token = get_token_from_db(client_login=login)
+        token = get_token_from_db(client_login=login, engine=engine, logger=logger)
 
         direct = YandexDirectEcomru(login, token)
 
@@ -905,7 +927,9 @@ def add_keyword():
                 return jsonify({'error': 'yandex direct error'})
             else:
                 logger.info(f"add keyword: {result.status_code}")
-                put_query(json_file=json_file, table_name='ya_ads_addkeywords', result=result)
+
+                put_query(json_file=json_file, table_name='ya_ads_addkeywords', result=result, engine=engine,
+                          logger=logger)
 
                 return jsonify(result.json())
 
@@ -931,7 +955,7 @@ def update_keyword():
         json_file = request.get_json(force=False)
         login = json_file["login"]
         # token = json_file["token"]
-        token = get_token_from_db(client_login=login)
+        token = get_token_from_db(client_login=login, engine=engine, logger=logger)
 
         direct = YandexDirectEcomru(login, token)
 
@@ -989,7 +1013,7 @@ def manage_keywords():
         json_file = request.get_json(force=False)
         login = json_file["login"]
         # token = json_file["token"]
-        token = get_token_from_db(client_login=login)
+        token = get_token_from_db(client_login=login, engine=engine, logger=logger)
 
         direct = YandexDirectEcomru(login, token)
 
@@ -1041,7 +1065,7 @@ def wordstat_report():
         json_file = request.get_json(force=False)
         login = json_file["login"]
         # token = json_file["token"]
-        token = get_token_from_db(client_login=login)
+        token = get_token_from_db(client_login=login, engine=engine, logger=logger)
 
         direct = YandexDirectEcomru(login, token)
 
@@ -1103,7 +1127,7 @@ def forecast():
         json_file = request.get_json(force=False)
         login = json_file["login"]
         # token = json_file["token"]
-        token = get_token_from_db(client_login=login)
+        token = get_token_from_db(client_login=login, engine=engine, logger=logger)
 
         direct = YandexDirectEcomru(login, token)
 
