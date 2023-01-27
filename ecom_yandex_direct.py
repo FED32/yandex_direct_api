@@ -436,7 +436,8 @@ class YandexDirectEcomru:
                                 goal_ids=None,
                                 goal_vals=None,
                                 attr_model="LYDC",
-                                update=False
+                                tracking_params: str = None
+                                # update=False
                                 ):
         """
         Возвращает словарь с параметрами текстовой кампании
@@ -468,12 +469,12 @@ class YandexDirectEcomru:
         #                                                           "OptimizeGoalId": rel_kw_opt_goal_id}
         if goal_ids is not None and goal_vals is not None:
             try:
-                if update is True:
-                    goals = [{"GoalId": goal_id, "Value": goal_val, "Operation": "SET", "IsMetrikaSourceOfValue": "NO"}
-                             for goal_id, goal_val in zip(goal_ids, goal_vals)]
-                else:
-                    goals = [{"GoalId": goal_id, "Value": goal_val, "IsMetrikaSourceOfValue": "NO"}
-                             for goal_id, goal_val in zip(goal_ids, goal_vals)]
+                # if update is True:
+                #     goals = [{"GoalId": goal_id, "Value": goal_val, "Operation": "SET", "IsMetrikaSourceOfValue": "NO"}
+                #              for goal_id, goal_val in zip(goal_ids, goal_vals)]
+                # else:
+                goals = [{"GoalId": goal_id, "Value": goal_val, "IsMetrikaSourceOfValue": "NO"}
+                         for goal_id, goal_val in zip(goal_ids, goal_vals)]
 
                 result["TextCampaign"]["PriorityGoals"] = {"Items": goals}
             except TypeError:
@@ -483,6 +484,9 @@ class YandexDirectEcomru:
 
         if attr_model is not None:
             result["TextCampaign"]["AttributionModel"] = attr_model
+
+        if tracking_params is not None:
+            result["TextCampaign"]["TrackingParams"] = tracking_params
 
         try:
             if s_bid_strat == 'HIGHEST_POSITION':
