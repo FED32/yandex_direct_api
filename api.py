@@ -284,6 +284,8 @@ def add_text_campaign():
 
         attr_model = json_file.get("attr_model", "LYDC")
 
+        tracking_params = json_file.get("tracking_params", None)
+
         txt_camp_params = direct.create_text_camp_params(s_bid_strat=s_bid_strat,
                                                          n_bid_strat=n_bid_strat,
                                                          s_weekly_spend_limit=s_weekly_spend_limit,
@@ -320,6 +322,7 @@ def add_text_campaign():
                                                          counter_ids=counter_ids,
                                                          goal_ids=goal_ids,
                                                          goal_vals=goal_vals,
+                                                         tracking_params=tracking_params,
                                                          attr_model=attr_model)
 
         if txt_camp_params is None:

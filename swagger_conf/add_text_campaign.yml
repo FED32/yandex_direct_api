@@ -206,6 +206,10 @@ parameters:
         type: "string"
         example: "LYDC"
         description: Модель атрибуции, используемая для оптимизации конверсий. Возможные значения FC — первый переход, LC — последний переход, LSC — последний значимый переход, LYDC — последний переход из Яндекс Директа
+      tracking_params:
+        type: "string"
+        example: "from=direct&ad={ad_id}"
+        description: Параметры URL для шаблонов (не обязательно)
       name:
         type: "string"
         example: "abcdefабвгд"
