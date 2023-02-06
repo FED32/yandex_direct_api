@@ -10,8 +10,8 @@ RUN mkdir -p ~/.postgresql && \
     chmod 0600 ~/.postgresql/root.crt
 
 #CMD ["python", "main.py"]
-#CMD gunicorn -b 0.0.0.0:5000 --timeout 9999 --workers 8 main:app --reload
-CMD gunicorn -b 0.0.0.0:5000 -k uvicorn.workers.UvicornWorker main:app --reload
+CMD gunicorn -b 0.0.0.0:5000 --timeout 9999 --workers 2 main:app 
+#CMD gunicorn -b 0.0.0.0:5000 -k uvicorn.workers.UvicornWorker main:app --reload
 
 
 
