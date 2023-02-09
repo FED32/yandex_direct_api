@@ -41,18 +41,79 @@ def put_query(engine,
 
     # print(dataset['res_warnings'][0])
 
-    n = 0
-    while n < attempts:
+    with engine.begin() as connection:
+        n = 0
+        while n < attempts:
+            try:
+                res = dataset.to_sql(name=table_name, con=connection, if_exists='append', index=False)
+                logger.info(f"Upload to {table_name} - ok")
+                return 'ok'
+            except BaseException as ex:
+                logger.error(f"data to db: {ex}")
+                time.sleep(5)
+                n += 1
+        logger.error("data to db error")
+        return None
+
+
+def get_clients(account_id: int, engine, logger):
+    """Получает список доступных аккаунтов для клиента"""
+
+    query = f"""
+             SELECT account_id AS api_id, attribute_value AS login 
+             FROM account_service_data asd 
+             WHERE attribute_id = 24 AND account_id = {account_id}
+             """
+
+    with engine.begin() as connection:
         try:
-            res = dataset.to_sql(name=table_name, con=engine, if_exists='append', index=False)
-            logger.info(f"Upload to {table_name} - ok")
-            return 'ok'
+            data = pd.read_sql(query, con=connection)
+
+            if data is None:
+                logger.error("accounts database error")
+                return None
+            elif data.shape[0] == 0:
+                logger.info("non-existent account")
+                return []
+            else:
+                return data['login'].tolist()
+
         except BaseException as ex:
-            logger.error(f"data to db: {ex}")
-            time.sleep(5)
-            n += 1
-    logger.error("data to db error")
-    return None
+            logger.error(f"get clients: {ex}")
+            # print('Нет подключения к БД')
+            return None
+
+def get_objects_from_db(login: str, table_name: str, engine, logger):
+    """Получает кампании клиента созданные через сервис"""
+
+    query = f"""
+             SELECT * 
+             FROM {table_name} 
+             WHERE res_id IS NOT NULL AND login = '{login}'
+             """
+
+    with engine.begin() as connection:
+        try:
+            data = pd.read_sql(query, con=connection)
+
+            if data is None:
+                logger.error("accounts database error")
+                return None
+            elif data.shape[0] == 0:
+                logger.info(f"no data for account {login}")
+                return []
+            else:
+                return data.to_dict(orient='records')
+
+        except BaseException as ex:
+            logger.error(f"get objects: {ex}")
+            # print('Нет подключения к БД')
+            return None
+
+
+
+
+
 
 
 # def update_query_status(table_name, query_id, res_id, res_warnings, res_errors):
