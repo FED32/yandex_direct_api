@@ -1,0 +1,34 @@
+swagger: "2.0"
+info:
+  title: "Yandex Direct Ecom API Documentation"
+  contact:
+    email: "s.fedyushin@ecomru.ru"
+  basePath: "/swagger"
+paths:
+  "/yandexdirect/getclients":
+    post:
+tags:
+  - accounts
+#    - info
+summary: "Получить список доступных аккаунтов для клиента"
+description: "Метод для получения списка доступных аккаунтов для клиента"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "body"
+  required: true
+  schema:
+    type: "object"
+    properties:
+      account_id:
+        type: integer
+        example: 123
+        description: id клиента платформы gtcom
+responses:
+  200:
+    description: "OK"
+  400:
+    description: "Bad Request"
