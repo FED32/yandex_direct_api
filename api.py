@@ -275,14 +275,14 @@ def add_text_campaign():
         exclude_paused_competing_ads = json_file.get("exclude_paused_competing_ads", "NO")
         maintain_network_cpc = json_file.get("maintain_network_cpc", "NO")
         require_servicing = json_file.get("require_servicing", "NO")
-        campain_exact_phrase_matching_enabled = json_file.get("campain_exact_phrase_matching_enabled", "NO")
+        campaign_exact_phrase_matching_enabled = json_file.get("campaign_exact_phrase_matching_enabled", "NO")
 
         counter_ids = json_file.get("counter_ids", None)
 
         goal_ids = json_file.get("goal_ids", None)
         goal_vals = json_file.get("goal_vals", None)
 
-        attr_model = json_file.get("attr_model", "LYDC")
+        attribution_model = json_file.get("attribution_model", "LYDC")
 
         tracking_params = json_file.get("tracking_params", None)
 
@@ -318,12 +318,12 @@ def add_text_campaign():
                                                          exclude_paused_competing_ads=exclude_paused_competing_ads,
                                                          maintain_network_cpc=maintain_network_cpc,
                                                          require_servicing=require_servicing,
-                                                         campain_exact_phrase_matching_enabled=campain_exact_phrase_matching_enabled,
+                                                         campaign_exact_phrase_matching_enabled=campaign_exact_phrase_matching_enabled,
                                                          counter_ids=counter_ids,
                                                          goal_ids=goal_ids,
                                                          goal_vals=goal_vals,
                                                          tracking_params=tracking_params,
-                                                         attr_model=attr_model)
+                                                         attribution_model=attribution_model)
 
         if txt_camp_params is None:
             logger.error("add text campaign: txt_camp_params incorrect")
@@ -392,7 +392,7 @@ def add_text_campaign():
             else:
                 logger.info(f"add text campaign: {result.status_code}")
 
-                put_query(json_file=json_file, table_name='ya_ads_addtextcampaigns', result=result, engine=engine,
+                put_query(json_file=json_file, table_name='ya_ads_addcampaigns', result=result, engine=engine,
                           logger=logger)
 
                 return jsonify(result.json())
@@ -557,6 +557,19 @@ def add_group():
         text_feed_id = json_file.get("text_feed_id", None)
         text_feed_category_ids = json_file.get("text_feed_category_ids", None)
 
+        dynamic_text_domain_urls = json_file.get("dynamic_text_domain_urls", None)
+        dynamic_text_autotargeting_exact = json_file.get("dynamic_text_autotargeting_exact", None)
+        dynamic_text_autotargeting_alternative = json_file.get("dynamic_text_autotargeting_alternative", None)
+        dynamic_text_autotargeting_competitor = json_file.get("dynamic_text_autotargeting_competitor", None)
+        dynamic_text_autotargeting_broader = json_file.get("dynamic_text_autotargeting_broader", None)
+        dynamic_text_autotargeting_accessory = json_file.get("dynamic_text_autotargeting_accessory", None)
+        dynamic_text_feed_ids = json_file.get("dynamic_text_feed_ids", None)
+        dynamic_text_feed_autotargeting_exact = json_file.get("dynamic_text_feed_autotargeting_exact", None)
+        dynamic_text_feed_autotargeting_alternative = json_file.get("dynamic_text_feed_autotargeting_alternative", None)
+        dynamic_text_feed_autotargeting_competitor = json_file.get("dynamic_text_feed_autotargeting_competitor", None)
+        dynamic_text_feed_autotargeting_broader = json_file.get("dynamic_text_feed_autotargeting_broader", None)
+        dynamic_text_feed_autotargeting_accessory = json_file.get("dynamic_text_feed_autotargeting_accessory", None)
+
         group_params = direct.create_group(name=name,
                                            campaign_id=campaign_id,
                                            region_ids=region_ids,
@@ -564,7 +577,20 @@ def add_group():
                                            negative_keyword_set_ids=negative_keyword_set_ids,
                                            tracking_params=tracking_params,
                                            text_feed_id=text_feed_id,
-                                           text_feed_category_ids=text_feed_category_ids)
+                                           text_feed_category_ids=text_feed_category_ids,
+                                           dynamic_text_domain_urls=dynamic_text_domain_urls,
+                                           dynamic_text_autotargeting_exact=dynamic_text_autotargeting_exact,
+                                           dynamic_text_autotargeting_alternative=dynamic_text_autotargeting_alternative,
+                                           dynamic_text_autotargeting_competitor=dynamic_text_autotargeting_competitor,
+                                           dynamic_text_autotargeting_broader=dynamic_text_autotargeting_broader,
+                                           dynamic_text_autotargeting_accessory=dynamic_text_autotargeting_accessory,
+                                           dynamic_text_feed_ids=dynamic_text_feed_ids,
+                                           dynamic_text_feed_autotargeting_exact=dynamic_text_feed_autotargeting_exact,
+                                           dynamic_text_feed_autotargeting_alternative=dynamic_text_feed_autotargeting_alternative,
+                                           dynamic_text_feed_autotargeting_competitor=dynamic_text_feed_autotargeting_competitor,
+                                           dynamic_text_feed_autotargeting_broader=dynamic_text_feed_autotargeting_broader,
+                                           dynamic_text_feed_autotargeting_accessory=dynamic_text_feed_autotargeting_accessory
+                                           )
 
         if group_params is None:
             logger.error("add group: group params incorrect")
@@ -611,18 +637,18 @@ def add_text_ad():
 
         ads_group_id = json_file["ads_group_id"]
 
-        txt_ad_title = json_file["txt_ad_title"]
-        txt_ad_title2 = json_file.get("txt_ad_title2", None)
-        txt_ad_text = json_file["txt_ad_text"]
-        txt_mobile = json_file["txt_mobile"]
+        title = json_file["title"]
+        title2 = json_file.get("title2", None)
+        text = json_file["text"]
+        mobile = json_file["mobile"]
         href = json_file.get("href", None)
         turbo_page_id = json_file.get("turbo_page_id", None)
         vcard_id = json_file.get("vcard_id", None)
         business_id = json_file.get("business_id", None)
         prefer_vcard_over_business = json_file.get("prefer_vcard_over_business", None)
-        txt_ad_image_hash = json_file.get("txt_ad_image_hash", None)
+        ad_image_hash = json_file.get("ad_image_hash", None)
         sitelink_set_id = json_file.get("sitelink_set_id")
-        txt_display_url_path = json_file.get("txt_display_url_path", None)
+        display_url_path = json_file.get("display_url_path", None)
         ad_extension_ids = json_file.get("ad_extension_ids", None)
         creative_id = json_file.get("creative_id", None)
         txt_price = json_file.get("txt_price", None)
@@ -639,18 +665,18 @@ def add_text_ad():
             ext_link_params_ = False
 
         params = direct.create_ad_params(ads_group_id=ads_group_id,
-                                         txt_ad_title=txt_ad_title,
-                                         txt_ad_title2=txt_ad_title2,
-                                         txt_ad_text=txt_ad_text,
-                                         txt_mobile=txt_mobile,
+                                         title=title,
+                                         title2=title2,
+                                         text=text,
+                                         mobile=mobile,
                                          href=href,
                                          turbo_page_id=turbo_page_id,
                                          vcard_id=vcard_id,
                                          business_id=business_id,
                                          prefer_vcard_over_business=prefer_vcard_over_business,
-                                         txt_ad_image_hash=txt_ad_image_hash,
+                                         ad_image_hash=ad_image_hash,
                                          sitelink_set_id=sitelink_set_id,
-                                         txt_display_url_path=txt_display_url_path,
+                                         display_url_path=display_url_path,
                                          ad_extension_ids=ad_extension_ids,
                                          creative_id=creative_id,
                                          txt_price=txt_price,
@@ -671,7 +697,7 @@ def add_text_ad():
             else:
                 logger.info(f"add text ad: {result.status_code}")
 
-                put_query(json_file=json_file, table_name='ya_ads_addtextads', result=result, engine=engine,
+                put_query(json_file=json_file, table_name='ya_ads_addads', result=result, engine=engine,
                           logger=logger)
 
                 return jsonify(result.json())
@@ -687,6 +713,61 @@ def add_text_ad():
     except BaseException as ex:
         logger.error(f'add text ad: {ex}')
         raise HttpError(400, f'{ex}')
+
+
+@app.route('/yandexdirect/adddynamictextad', methods=['POST'])
+@swag_from("swagger_conf/add_dynamic_text_ad.yml")
+def add_dynamic_text_ad():
+    """Метод для создания динамического текстового объявления"""
+
+    try:
+        json_file = request.get_json(force=False)
+        login = json_file["login"]
+        # token = json_file["token"]
+        token = get_token_from_db(client_login=login, engine=engine, logger=logger)
+
+        direct = YandexDirectEcomru(login, token)
+
+        ads_group_id = json_file["ads_group_id"]
+
+        text = json_file["text"]
+        vcard_id = json_file.get("vcard_id", None)
+        ad_image_hash = json_file.get("ad_image_hash", None)
+        sitelink_set_id = json_file.get("sitelink_set_id", None)
+        ad_extension_ids = json_file.get("ad_extension_ids", None)
+
+        params = direct.create_dynamic_text_ad_params(ads_group_id, text, vcard_id, ad_image_hash, sitelink_set_id,
+                                                      ad_extension_ids)
+
+        if params is None:
+            logger.error("add dynamic text ad: text ad params incorrect")
+            return jsonify({'error': 'dynamic text ad params incorrect'})
+        else:
+            result = direct.add_ads(ads=[params])
+
+            if result is None:
+                logger.error("add dynamic text ad: yandex direct error")
+                return jsonify({'error': 'yandex direct error'})
+            else:
+                logger.info(f"add dynamic text ad: {result.status_code}")
+
+                put_query(json_file=json_file, table_name='ya_ads_addads', result=result, engine=engine,
+                          logger=logger)
+
+                return jsonify(result.json())
+
+    except BadRequestKeyError:
+        logger.error("add dynamic text ad: BadRequest")
+        return Response(None, 400)
+
+    except KeyError:
+        logger.error("add dynamic text ad: KeyError")
+        return Response(None, 400)
+
+    except BaseException as ex:
+        logger.error(f'add dynamic text ad: {ex}')
+        raise HttpError(400, f'{ex}')
+
 
 
 @app.route('/yandexdirect/managecamps', methods=['POST'])
@@ -1221,7 +1302,7 @@ def get_campaigns_db():
         json_file = request.get_json(force=False)
         login = json_file["login"]
 
-        res = get_objects_from_db(login=login, table_name='ya_ads_addtextcampaigns', engine=engine, logger=logger)
+        res = get_objects_from_db(login=login, table_name='ya_ads_addcampaigns', engine=engine, logger=logger)
 
         if res is None:
             raise HttpError(400, f'accounts database error')
@@ -1241,6 +1322,145 @@ def get_campaigns_db():
     except BaseException as ex:
         logger.error(f'get_campaigns_db: {ex}')
         raise HttpError(400, f'{ex}')
+
+@app.route('/yandexdirect/adddynamictextcampaign', methods=['POST'])
+@swag_from("swagger_conf/add_dynamic_text_campaign.yml")
+def add_dynamic_text_campaign():
+    """Метод для создания динамической текстовой кампании"""
+
+    try:
+        json_file = request.get_json(force=False)
+        login = json_file["login"]
+        # token = json_file["token"]
+        token = get_token_from_db(client_login=login, engine=engine, logger=logger)
+
+        direct = YandexDirectEcomru(login, token)
+
+        s_bid_strat = json_file["s_bid_strat"]
+        s_weekly_spend_limit = json_file.get("s_weekly_spend_limit", None)
+        s_bid_ceiling = json_file.get("s_bid_ceiling", None)
+        s_goal_id = json_file.get("s_goal_id", None)
+        s_average_cpc = json_file.get("s_average_cpc", None)
+        s_average_cpa = json_file.get("s_average_cpa", None)
+        s_reserve_return = json_file.get("s_reserve_return", None)
+        s_roi_coef = json_file.get("s_roi_coef", None)
+        s_profitability = json_file.get("s_profitability", None)
+        s_crr = json_file.get("s_crr", None)
+        s_cpa = json_file.get("s_cpa", None)
+        add_metrica_tag = json_file.get("add_metrica_tag", None)
+        add_openstat_tag = json_file.get("add_openstat_tag", None)
+        add_to_favorites = json_file.get("add_to_favorites", None)
+        enable_area_of_interest_targeting = json_file.get("enable_area_of_interest_targeting", None)
+        enable_company_info = json_file.get("enable_company_info", None)
+        enable_site_monitoring = json_file.get("enable_site_monitoring", None)
+        require_servicing = json_file.get("require_servicing", None)
+        campaign_exact_phrase_matching_enabled = json_file.get("campaign_exact_phrase_matching_enabled", None)
+        placement_search_results = json_file.get("placement_search_results", None)
+        placement_product_gallery = json_file.get("placement_product_gallery", None)
+        counter_ids = json_file.get("counter_ids", None)
+        goal_ids = json_file.get("goal_ids", None)
+        goal_vals = json_file.get("goal_vals", None)
+        goal_is_metrika_source_of_value = json_file.get("goal_is_metrika_source_of_value", None)
+        tracking_params = json_file.get("tracking_params", None)
+        attribution_model = json_file.get("attribution_model", None)
+
+        dynamic_txt_camp_params = direct.create_dynamic_text_camp_params(
+            s_bid_strat, s_weekly_spend_limit, s_bid_ceiling, s_goal_id, s_average_cpc, s_average_cpa,
+            s_reserve_return, s_roi_coef, s_profitability, s_crr, s_cpa, add_metrica_tag, add_openstat_tag,
+            add_to_favorites, enable_area_of_interest_targeting, enable_company_info, enable_site_monitoring,
+            require_servicing, campaign_exact_phrase_matching_enabled, placement_search_results,
+            placement_product_gallery, counter_ids, goal_ids, goal_vals, goal_is_metrika_source_of_value,
+            tracking_params, attribution_model)
+
+        if dynamic_txt_camp_params is None:
+            logger.error("add dynamic text campaign: txt_camp_params incorrect")
+            return jsonify({'error': 'dynamic_txt_camp_params incorrect'})
+        else:
+            name = json_file["name"]
+            start_date = json_file["start_date"]
+            end_date = json_file.get("end_date", None)
+            client_info = json_file.get("client_info", None)
+            sms_events = json_file.get("sms_events", None)
+            sms_time_from = json_file.get("sms_time_from", "9:00")
+            sms_time_to = json_file.get("sms_time_to", "21:00")
+            email = json_file.get("email", None)
+            email_ch_pos_interval = json_file.get("email_ch_pos_interval", 60)
+            email_warning_bal = json_file.get("email_warning_bal", 20)
+            email_send_acc_news = json_file.get("email_send_acc_news", "NO")
+            email_send_warnings = json_file.get("email_send_warnings", "NO")
+            timezone = json_file.get("timezone", "Europe/Moscow")
+            daily_budget_amount = json_file.get("daily_budget_amount", None)
+            daily_budget_mode = json_file.get("daily_budget_mode", None)
+            negative_keywords = json_file.get("negative_keywords", None)
+            blocked_ips = json_file.get("blocked_ips", None)
+            excluded_sites = json_file.get("excluded_sites", None)
+            time_targeting_shedule = json_file.get("time_targeting_shedule", None)
+            time_targeting_cons_working_weekends = json_file.get("time_targeting_cons_working_weekends", None)
+            time_targeting_suspend_on_holidays = json_file.get("time_targeting_suspend_on_holidays", None)
+            time_targeting_bid_percent = json_file.get("time_targeting_bid_percent", None)
+            time_targeting_start_hour = json_file.get("time_targeting_start_hour", None)
+            time_targeting_end_hour = json_file.get("time_targeting_end_hour", None)
+
+            camp_params = direct.create_campaign(name=name,
+                                                 start_date=start_date,
+                                                 end_date=end_date,
+                                                 client_info=client_info,
+                                                 sms_events=sms_events,
+                                                 sms_time_from=sms_time_from,
+                                                 sms_time_to=sms_time_to,
+                                                 email=email,
+                                                 email_ch_pos_interval=email_ch_pos_interval,
+                                                 email_warning_bal=email_warning_bal,
+                                                 email_send_acc_news=email_send_acc_news,
+                                                 email_send_warnings=email_send_warnings,
+                                                 timezone=timezone,
+                                                 daily_budget_amount=daily_budget_amount,
+                                                 daily_budget_mode=daily_budget_mode,
+                                                 negative_keywords=negative_keywords,
+                                                 blocked_ips=blocked_ips,
+                                                 excluded_sites=excluded_sites,
+                                                 text_campaign_params=None,
+                                                 mobile_app_campaign_params=None,
+                                                 dynamic_text_campaign_params=dynamic_txt_camp_params["DynamicTextCampaign"],
+                                                 cpm_banner_campaign_params=None,
+                                                 smart_campaign_params=None,
+                                                 time_targeting_shedule=time_targeting_shedule,
+                                                 time_targeting_cons_working_weekends=time_targeting_cons_working_weekends,
+                                                 time_targeting_suspend_on_holidays=time_targeting_suspend_on_holidays,
+                                                 time_targeting_bid_percent=time_targeting_bid_percent,
+                                                 time_targeting_start_hour=time_targeting_start_hour,
+                                                 time_targeting_end_hour=time_targeting_end_hour)
+
+            result = direct.add_camp(campaigns=[camp_params])
+
+            if result is None:
+                logger.error("add dynamic text campaign: yandex direct error")
+                return jsonify({'error': 'yandex direct error'})
+            else:
+                logger.info(f"add dynamic text campaign: {result.status_code}")
+
+                put_query(json_file=json_file, table_name='ya_ads_addcampaigns', result=result, engine=engine,
+                          logger=logger)
+
+                return jsonify(result.json())
+
+    except BadRequestKeyError:
+        logger.error("add dynamic text campaign: BadRequest")
+        return Response(None, 400)
+
+    except KeyError as ex:
+        logger.error(f"add dynamic text campaign: KeyError {ex}")
+        return Response(None, 400)
+
+    except BaseException as ex:
+        logger.error(f'add dynamic text campaign: {ex}')
+        raise HttpError(400, f'{ex}')
+
+
+
+
+
+
 
 
 

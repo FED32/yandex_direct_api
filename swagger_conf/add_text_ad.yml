@@ -33,21 +33,24 @@ parameters:
         type: "long"
         example: 123456
         description: Идентификатор группы, в которую добавляется объявление (обязательно)
-      txt_ad_title:
+      title:
         type: "string"
         example: "абвгabcd"
         description: Заголовок 1 (обязательно)
-      txt_ad_title2:
+      title2:
         type: "string"
         example: "абвгabcd"
         description: Заголовок 2 (не обязательно)
-      txt_ad_text:
+      text:
         type: "string"
         example: "some text какой-то текст"
         description: Текст объявления (обязательно)
-      txt_mobile:
+      mobile:
         type: "string"
         example: "NO"
+        enum:
+          - "YES"
+          - "NO"
         description: Признак того, что объявление является мобильным YES или NO (обязательно)
       href:
         type: "string"
@@ -68,8 +71,11 @@ parameters:
       prefer_vcard_over_business:
         type: "string"
         example: "NO"
+        enum:
+          - "YES"
+          - "NO"
         description: Признак, который определяет приоритетность источника данных при показе объявления YES — визитка, NO — профиль организации (не обязательно)
-      txt_ad_image_hash:
+      ad_image_hash:
         type: "string"
         example: "wodjwb979fcu131ewhfiw134"
         description: Хэш изображения (не обязательно)
@@ -77,9 +83,12 @@ parameters:
         type: "long"
         example: 123456
         description: Идентификатор набора быстрых ссылок. Допускается только при наличии параметра Href или TurboPageId (не обязательно)
-      txt_display_url_path:
+      display_url_path:
         type: "string"
         example: "NO"
+        enum:
+          - "YES"
+          - "NO"
         description: Отображаемая ссылка. Допускается только при наличии параметра Href (не обязательно)
       ad_extension_ids:
         type:
@@ -102,14 +111,31 @@ parameters:
       txt_price_qualifier:
         type: "string"
         example: "FROM"
+        enum:
+          - "FROM"
+          - "UP_TO"
+          - "NONE"
         description: Текстовое пояснение к цене FROM — «от». UP_TO — «до». NONE — нет пояснения (не обязательно)
       txt_price_currency:
         type: "string"
         example: "USD"
+        enum:
+          - "RUB"
+          - "BYN"
+          - "CHF"
+          - "EUR"
+          - "KZT"
+          - "TRY"
+          - "UAH"
+          - "USD"
+          - "UZS"
         description: Валюта, в которой указана цена (не обязательно)
       ext_link_params:
         type: "string"
         example: "true"
+        enum:
+          - "true"
+          - "false"
         description: Добавление меток к ссылке
 responses:
   200:

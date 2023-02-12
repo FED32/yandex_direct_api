@@ -1,0 +1,62 @@
+swagger: "2.0"
+info:
+  title: "Yandex Direct Ecom API Documentation"
+  contact:
+    email: "s.fedyushin@ecomru.ru"
+  basePath: "/swagger"
+paths:
+  "/yandexdirect/adddynamictextad":
+    post:
+tags:
+  - ads
+#    - add
+summary: "Добавить динамическое текстовое объявление"
+description: "Метод для добавления динамического текстового объявления"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "body"
+  required: true
+  schema:
+    type: "object"
+    properties:
+      login:
+        type: "string"
+        example: "aaabbbq123@yandex.ru"
+#      token:
+#        type: "string"
+#        example: "xxx_YYYzzz1234ABCDefg"
+      ads_group_id:
+        type: "long"
+        example: 123456
+        description: Идентификатор группы, в которую добавляется объявление (обязательно)
+      text:
+        type: "string"
+        example: "some text какой-то текст"
+        description: Текст объявления (обязательно)
+      vcard_id:
+        type: "long"
+        example: 123456
+        description: Идентификатор виртуальной визитки
+      ad_image_hash:
+        type: "string"
+        example: "wodjwb979fcu131ewhfiw134"
+        description: Хэш изображения
+      sitelink_set_id:
+        type: "long"
+        example: 123456
+        description: Идентификатор набора быстрых ссылок. Не более 50 элементов в массиве.
+      ad_extension_ids:
+        type:
+          - array
+            - long
+        example: [ 12345, 7890 ]
+        description: Идентификаторы расширений
+responses:
+  200:
+    description: "OK"
+  400:
+    description: "Bad Request"
