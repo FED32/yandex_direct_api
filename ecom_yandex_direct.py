@@ -429,13 +429,13 @@ class YandexDirectEcomru:
                                 exclude_paused_competing_ads="NO",
                                 maintain_network_cpc="NO",
                                 require_servicing="NO",
-                                campain_exact_phrase_matching_enabled="NO",
+                                campaign_exact_phrase_matching_enabled="NO",
                                 counter_ids=None,
                                 #                                 rel_kw_budget_perc=None,
                                 #                                 rel_kw_opt_goal_id=0,
                                 goal_ids=None,
                                 goal_vals=None,
-                                attr_model="LYDC",
+                                attribution_model="LYDC",
                                 tracking_params: str = None
                                 # update=False
                                 ):
@@ -457,7 +457,7 @@ class YandexDirectEcomru:
             {"Option": "EXCLUDE_PAUSED_COMPETING_ADS", "Value": exclude_paused_competing_ads},
             {"Option": "MAINTAIN_NETWORK_CPC", "Value": maintain_network_cpc},
             {"Option": "REQUIRE_SERVICING", "Value": require_servicing},
-            {"Option": "CAMPAIGN_EXACT_PHRASE_MATCHING_ENABLED", "Value": campain_exact_phrase_matching_enabled}
+            {"Option": "CAMPAIGN_EXACT_PHRASE_MATCHING_ENABLED", "Value": campaign_exact_phrase_matching_enabled}
         ]
 
         if counter_ids is not None:
@@ -482,8 +482,8 @@ class YandexDirectEcomru:
                     'Не корректные параметры ключевых целей, на достижение которых направлена автоматическая '
                     'корректировка ставок')
 
-        if attr_model is not None:
-            result["TextCampaign"]["AttributionModel"] = attr_model
+        if attribution_model is not None:
+            result["TextCampaign"]["AttributionModel"] = attribution_model
 
         if tracking_params is not None:
             result["TextCampaign"]["TrackingParams"] = tracking_params
@@ -708,7 +708,7 @@ class YandexDirectEcomru:
                                 counter_ids=None,
                                 goal_ids=None,
                                 goal_vals=None,
-                                attr_model=None
+                                attribution_model=None
                                 ):
         """Возвращает словарь с параметрами для изменения текстовой кампании"""
 
@@ -766,9 +766,9 @@ class YandexDirectEcomru:
                 result["TextCampaign"].setdefault("PriorityGoals")
                 result["TextCampaign"]["PriorityGoals"] = {"Items": goals}
 
-        if attr_model is not None:
+        if attribution_model is not None:
             result["TextCampaign"].setdefault("AttributionModel")
-            result["TextCampaign"]["AttributionModel"] = attr_model
+            result["TextCampaign"]["AttributionModel"] = attribution_model
 
         # стратегия показа на поиске
         if s_bid_strat is not None:
@@ -1215,7 +1215,7 @@ class YandexDirectEcomru:
 
         return result
 
-    def add_camp(self, campaigns: list):
+    def add_camp(self, campaigns: list[dict]):
         """
         Создает кампании
         """
@@ -1225,7 +1225,7 @@ class YandexDirectEcomru:
                 }
         return self.exec_post_api5(service, self.head, body)
 
-    def update_camp(self, campaigns: list):
+    def update_camp(self, campaigns: list[dict]):
         """Обновляет параметры кампаний"""
 
         service = 'campaigns'
@@ -1234,7 +1234,7 @@ class YandexDirectEcomru:
                 }
         return self.exec_post_api5(service, self.head, body)
 
-    def manage_camps(self, campaigns: list, action: str):
+    def manage_camps(self, campaigns: list[int], action: str):
         """
         Удаляет, архивирует/разархивирует, останавливает/возобновляет показы кампании
         (delete, archive, unarchive, suspend, resume)
@@ -1245,7 +1245,7 @@ class YandexDirectEcomru:
                 }
         return self.exec_post_api5(service, self.head, body)
 
-    def get_stat_goals(self, campaigns: list):
+    def get_stat_goals(self, campaigns: list[int]):
         """
         Возвращает сведения о целях Яндекс Метрики, которые доступны для кампании
         """
@@ -1282,12 +1282,24 @@ class YandexDirectEcomru:
     @staticmethod
     def create_group(name: str,
                      campaign_id: int,
-                     region_ids: list,
-                     negative_keywords=None,
-                     negative_keyword_set_ids=None,
-                     tracking_params=None,
-                     text_feed_id=None,
-                     text_feed_category_ids=None
+                     region_ids: list[int],
+                     negative_keywords: list[str] = None,
+                     negative_keyword_set_ids: list[int] = None,
+                     tracking_params: str = None,
+                     text_feed_id: int = None,
+                     text_feed_category_ids: list[int] = None,
+                     dynamic_text_domain_urls: list[str] = None,
+                     dynamic_text_autotargeting_exact: list[str] = None,
+                     dynamic_text_autotargeting_alternative: list[str] = None,
+                     dynamic_text_autotargeting_competitor: list[str] = None,
+                     dynamic_text_autotargeting_broader: list[str] = None,
+                     dynamic_text_autotargeting_accessory: list[str] = None,
+                     dynamic_text_feed_ids: list[int] = None,
+                     dynamic_text_feed_autotargeting_exact: list[str] = None,
+                     dynamic_text_feed_autotargeting_alternative: list[str] = None,
+                     dynamic_text_feed_autotargeting_competitor: list[str] = None,
+                     dynamic_text_feed_autotargeting_broader: list[str] = None,
+                     dynamic_text_feed_autotargeting_accessory: list[str] = None
                      ):
         """
         Возвращает словарь с параметрами группы
@@ -1331,6 +1343,81 @@ class YandexDirectEcomru:
             result["TextAdGroupFeedParams"] = {"FeedId": text_feed_id}
             if text_feed_category_ids is not None:
                 result["TextAdGroupFeedParams"].setdefault("FeedCategoryIds", {"Items": text_feed_category_ids})
+
+        if dynamic_text_domain_urls is not None:
+            if (dynamic_text_autotargeting_exact is not None
+                    and dynamic_text_autotargeting_alternative is not None
+                    and dynamic_text_autotargeting_competitor is not None
+                    and dynamic_text_autotargeting_broader is not None
+                    and dynamic_text_autotargeting_accessory is not None):
+
+                if (len(dynamic_text_domain_urls) ==
+                        len(dynamic_text_autotargeting_exact) ==
+                        len(dynamic_text_autotargeting_alternative) ==
+                        len(dynamic_text_autotargeting_competitor) ==
+                        len(dynamic_text_autotargeting_broader) ==
+                        len(dynamic_text_autotargeting_accessory)):
+
+                    dynamic_text_params = [{"DomainUrl": url, "AutotargetingCategories":
+                        [{"Category": "EXACT", "Value": exact},
+                         {"Category": "ALTERNATIVE", "Value": alternative},
+                         {"Category": "COMPETITOR", "Value": competitor},
+                         {"Category": "BROADER", "Value": broader},
+                         {"Category": "ACCESSORY", "Value": accessory}]}
+                                           for url, exact, alternative, competitor, broader, accessory in
+                                           zip(dynamic_text_domain_urls,
+                                               dynamic_text_autotargeting_exact,
+                                               dynamic_text_autotargeting_alternative,
+                                               dynamic_text_autotargeting_competitor,
+                                               dynamic_text_autotargeting_broader,
+                                               dynamic_text_autotargeting_accessory)
+                                           ]
+
+                    result.setdefault("DynamicTextAdGroup", dynamic_text_params)
+
+                else:
+                    print("dynamic_text params incorrect")
+                    return None
+            else:
+                print("dynamic_text params incorrect")
+                return None
+
+        if dynamic_text_feed_ids is not None:
+            if (dynamic_text_feed_autotargeting_exact is not None
+                    and dynamic_text_feed_autotargeting_alternative is not None
+                    and dynamic_text_feed_autotargeting_competitor is not None
+                    and dynamic_text_feed_autotargeting_broader is not None
+                    and dynamic_text_feed_autotargeting_accessory is not None):
+
+                if (len(dynamic_text_feed_ids) ==
+                        len(dynamic_text_feed_autotargeting_exact) ==
+                        len(dynamic_text_feed_autotargeting_alternative) ==
+                        len(dynamic_text_feed_autotargeting_competitor) ==
+                        len(dynamic_text_feed_autotargeting_broader) ==
+                        len(dynamic_text_feed_autotargeting_accessory)):
+
+                    dynamic_text_feed_params = [{"FeedId": feed_id, "AutotargetingCategories":
+                        [{"Category": "EXACT", "Value": exact},
+                         {"Category": "ALTERNATIVE", "Value": alternative},
+                         {"Category": "COMPETITOR", "Value": competitor},
+                         {"Category": "BROADER", "Value": broader},
+                         {"Category": "ACCESSORY", "Value": accessory}]}
+                                           for feed_id, exact, alternative, competitor, broader, accessory in
+                                           zip(dynamic_text_feed_ids,
+                                               dynamic_text_feed_autotargeting_exact,
+                                               dynamic_text_feed_autotargeting_alternative,
+                                               dynamic_text_feed_autotargeting_competitor,
+                                               dynamic_text_feed_autotargeting_broader,
+                                               dynamic_text_feed_autotargeting_accessory)
+                                           ]
+                    result.setdefault("DynamicTextFeedAdGroup", dynamic_text_feed_params)
+
+                else:
+                    print("dynamic_text_feed params incorrect")
+                    return None
+            else:
+                print("dynamic_text_feed params incorrect")
+                return None
 
         return result
 
@@ -1458,18 +1545,18 @@ class YandexDirectEcomru:
 
     @staticmethod
     def create_ad_params(ads_group_id: int,
-                         txt_ad_title: str,
-                         txt_ad_title2=None,
-                         txt_ad_text=None,
-                         txt_mobile=None,
+                         title: str,
+                         title2=None,
+                         text=None,
+                         mobile=None,
                          href=None,
                          turbo_page_id=None,
                          vcard_id=None,
                          business_id=None,
                          prefer_vcard_over_business=None,
-                         txt_ad_image_hash=None,
+                         ad_image_hash=None,
                          sitelink_set_id=None,
-                         txt_display_url_path=None,
+                         display_url_path=None,
                          ad_extension_ids=None,
                          creative_id=None,
                          txt_price=None,
@@ -1483,59 +1570,74 @@ class YandexDirectEcomru:
         """
         result = {"AdGroupId": ads_group_id}
 
-        if txt_ad_title is not None and txt_ad_text is not None and txt_mobile is not None:
-            if len(txt_ad_title) > 56:
+        if title is not None and text is not None and mobile is not None:
+            if len(title) > 56:
                 print('Превышена суммарная длина заголовка1 (56 символов)')
                 return None
             else:
-                for word in txt_ad_title.split(' '):
+                for word in title.split(' '):
                     if len(word) > 22:
                         print(f'Превышена длина слова {word} заголовка1 (22 символа)')
                         return None
-            result["TextAd"] = {"Title": txt_ad_title}
+            result["TextAd"] = {"Title": title}
 
-            if txt_ad_title2 is not None:
-                if (len(re.findall(r'[^!,.;:"]', txt_ad_title2)) > 30 or
-                        len(re.findall(r'[!,.;:"]', txt_ad_title2)) > 15):
+            if title2 is not None:
+                if (len(re.findall(r'[^!,.;:"]', title2)) > 30 or
+                        len(re.findall(r'[!,.;:"]', title2)) > 15):
                     print('Не корректная длина заголовка2')
                     return None
                 else:
-                    for word in txt_ad_title2.split(' '):
+                    for word in title2.split(' '):
                         if len(word) > 22:
                             print(f'Превышена длина слова {word} заголовка2 (22 символа)')
                             return None
-                result["TextAd"].setdefault("Title2", txt_ad_title2)
+                result["TextAd"].setdefault("Title2", title2)
 
-            if (len(re.findall(r'[^!,.;:"]', txt_ad_text)) > 81 or
-                    len(re.findall(r'[!,.;:"]', txt_ad_text)) > 15):
+            if (len(re.findall(r'[^!,.;:"]', text)) > 81 or
+                    len(re.findall(r'[!,.;:"]', text)) > 15):
                 print('Не корректная длина текста объявления')
                 return None
             else:
-                for word in txt_ad_text.split(' '):
+                for word in text.split(' '):
                     if len(word) > 23:
                         print(f'Превышена длина слова {word} текста объявления (23 символа)')
                         return None
-            result["TextAd"].setdefault("Text", txt_ad_text)
-            result["TextAd"].setdefault("Mobile", txt_mobile)
+            result["TextAd"].setdefault("Text", text)
+            result["TextAd"].setdefault("Mobile", mobile)
 
             if href is not None:
                 if len(href) > 1024:
                     print('Длина ссылки более 1024 символов')
                     return None
                 else:
-                    link = f"{href}?utm_source=yandex&utm_medium=cpc&utm_campaign={{campaign_id}}&utm_content={{" \
-                           f"ad_id}}&utm_term={{keyword}}"
-                    ext_link = f"&type={{source_type}}&source={{source}}&block={{position_type}}&pos={{" \
-                               f"position}}&key={{keyword}}&campaign={{campaign_id}}&campaign_name={{" \
-                               f"campaign_name}}&name_lat={{campaign_name_lat}}&campaign_type={{" \
-                               f"campaign_type}}&creative_id={{creative_id}}&retargeting={{" \
-                               f"retargeting_id}}&coef_goal_context={{coef_goal_context_id}}&interest={{" \
-                               f"interest_id}}&match_type={{match_type}}&matched_keyword={{matched_keyword}}&ad={{" \
-                               f"ad_id}}&phrase={{phrase_id}}&gbid={{gbid}}&device={{device_type}}&region={{" \
-                               f"region_id}}&region_name={{region_name}}&yclid={{yclid}}"
+                    # link = f"{href}?utm_source=yandex&utm_medium=cpc&utm_campaign={{campaign_id}}&utm_content={{" \
+                    #        f"ad_id}}&utm_term={{keyword}}"
+                    # ext_link = f"&type={{source_type}}&source={{source}}&block={{position_type}}&pos={{" \
+                    #            f"position}}&key={{keyword}}&campaign={{campaign_id}}&campaign_name={{" \
+                    #            f"campaign_name}}&name_lat={{campaign_name_lat}}&campaign_type={{" \
+                    #            f"campaign_type}}&creative_id={{creative_id}}&retargeting={{" \
+                    #            f"retargeting_id}}&coef_goal_context={{coef_goal_context_id}}&interest={{" \
+                    #            f"interest_id}}&match_type={{match_type}}&matched_keyword={{matched_keyword}}&ad={{" \
+                    #            f"ad_id}}&phrase={{phrase_id}}&gbid={{gbid}}&device={{device_type}}&region={{" \
+                    #            f"region_id}}&region_name={{region_name}}&yclid={{yclid}}"
+                    #
+                    # if ext_link_params is True:
+                    #     link += ext_link
+
+                    ext_link1 = f"?utm_source=yandex&utm_medium=cpc&utm_campaign={{campaign_id}}&utm_content={{ad_id}}&utm_term={{keyword}}"
+                    ext_link2 = f"&type={{source_type}}&source={{source}}&block={{position_type}}&pos={{" \
+                                f"position}}&key={{keyword}}&campaign={{campaign_id}}&campaign_name={{" \
+                                f"campaign_name}}&name_lat={{campaign_name_lat}}&campaign_type={{" \
+                                f"campaign_type}}&creative_id={{creative_id}}&retargeting={{" \
+                                f"retargeting_id}}&coef_goal_context={{coef_goal_context_id}}&interest={{" \
+                                f"interest_id}}&match_type={{match_type}}&matched_keyword={{matched_keyword}}&ad={{" \
+                                f"ad_id}}&phrase={{phrase_id}}&gbid={{gbid}}&device={{device_type}}&region={{" \
+                                f"region_id}}&region_name={{region_name}}&yclid={{yclid}}"
 
                     if ext_link_params is True:
-                        link += ext_link
+                        link = href + ext_link1 + ext_link2
+                    else:
+                        link = href
 
                     result["TextAd"].setdefault("Href", link)
 
@@ -1553,22 +1655,22 @@ class YandexDirectEcomru:
             elif (vcard_id is not None and business_id is None) or (vcard_id is None and business_id is not None):
                 result["TextAd"].setdefault("PreferVCardOverBusiness", "NO")
 
-            if txt_ad_image_hash is not None:
-                result["TextAd"].setdefault("AdImageHash", txt_ad_image_hash)
+            if ad_image_hash is not None:
+                result["TextAd"].setdefault("AdImageHash", ad_image_hash)
 
             if (href is not None or turbo_page_id is not None) and sitelink_set_id is not None:
                 result["TextAd"].setdefault("SitelinkSetId", sitelink_set_id)
 
-            if href is not None and txt_display_url_path is not None:
-                if (len(txt_display_url_path) > 20 or
-                        (' ' in txt_display_url_path) or
-                        ('_' in txt_display_url_path) or
-                        ('--' in txt_display_url_path) or
-                        ('//' in txt_display_url_path)):
+            if href is not None and display_url_path is not None:
+                if (len(display_url_path) > 20 or
+                        (' ' in display_url_path) or
+                        ('_' in display_url_path) or
+                        ('--' in display_url_path) or
+                        ('//' in display_url_path)):
                     print('Не корректная отображаемая ссылка')
                     return None
                 else:
-                    result["TextAd"].setdefault("DisplayUrlPath", txt_display_url_path)
+                    result["TextAd"].setdefault("DisplayUrlPath", display_url_path)
 
             if ad_extension_ids is not None:
                 if len(ad_extension_ids) > 50:
@@ -1591,6 +1693,159 @@ class YandexDirectEcomru:
         else:
             print("Не заданы обязательные параметры")
             return None
+
+        return result
+
+
+    # @staticmethod
+    # def create_text_ad_params(adgroup_id: int,
+    #                           title: str,
+    #                           text: str,
+    #                           mobile: str,
+    #                           title2: str = None,
+    #                           href: str = None,
+    #                           display_url_path: str = None,
+    #                           vcard_id: int = None,
+    #                           turbo_page_id: int = None,
+    #                           business_id: int = None,
+    #                           ad_image_hash: str = None,
+    #                           sitelink_set_id: int = None,
+    #                           ad_extensions_ids: list[int] = None,
+    #                           video_extension_creative_id: int = None,
+    #                           prefer_vcard_over_business: str = None,
+    #                           price: int = None,
+    #                           old_price: int = None,
+    #                           price_qualifier: str = None,
+    #                           price_currency: str = None,
+    #                           ext_link_params: bool = False
+    #                           ):
+    #     """
+    #     Возвращает словарь с параметрами текстово-графического (обычного) объявления
+    #     """
+    #
+    #     result = {"AdGroupId": adgroup_id,
+    #               "TextAd": {"Title": title,
+    #                          "Text": text,
+    #                          "Mobile": mobile,
+    #                          }
+    #
+    #               }
+    #
+    #     if len(title) > 56:
+    #         print('Превышена суммарная длина заголовка1 (56 символов)')
+    #         return None
+    #     elif max([len(word) for word in title.split(' ')]) > 22:
+    #         print(f'Превышена длина слова заголовка1 (22 символа)')
+    #         return None
+    #     else:
+    #         pass
+    #
+    #     if len(re.findall(r'[^!,.;:"]', text)) > 81 or len(re.findall(r'[!,.;:"]', text)) > 15:
+    #         print('Не корректная длина текста объявления')
+    #         return None
+    #     elif max([len(word) for word in text.split(' ')]) > 23:
+    #         print(f'Превышена длина слова текста объявления (23 символа)')
+    #         return None
+    #     else:
+    #         pass
+    #
+    #     if title2 is not None:
+    #         if len(re.findall(r'[^!,.;:"]', title2)) > 30 or len(re.findall(r'[!,.;:"]', title2)) > 15:
+    #             print('Не корректная длина заголовка2')
+    #             return None
+    #         elif max([len(word) for word in title2.split(' ')]) > 22:
+    #             print('Превышена длина слова заголовка2 (22 символа)')
+    #             return None
+    #         else:
+    #             result["TextAd"].setdefault("Title2", title2)
+    #
+    #     if href is not None:
+    #         if len(href) > 1024:
+    #             print('Длина ссылки более 1024 символов')
+    #             return None
+    #         else:
+    #             # link = f"{href}?utm_source=yandex&utm_medium=cpc&utm_campaign={{campaign_id}}&utm_content={{" \
+    #             #        f"ad_id}}&utm_term={{keyword}}"
+    #             ext_link1 = f"?utm_source=yandex&utm_medium=cpc&utm_campaign={{campaign_id}}&utm_content={{ad_id}}&utm_term={{keyword}}"
+    #             ext_link2 = f"&type={{source_type}}&source={{source}}&block={{position_type}}&pos={{" \
+    #                        f"position}}&key={{keyword}}&campaign={{campaign_id}}&campaign_name={{" \
+    #                        f"campaign_name}}&name_lat={{campaign_name_lat}}&campaign_type={{" \
+    #                        f"campaign_type}}&creative_id={{creative_id}}&retargeting={{" \
+    #                        f"retargeting_id}}&coef_goal_context={{coef_goal_context_id}}&interest={{" \
+    #                        f"interest_id}}&match_type={{match_type}}&matched_keyword={{matched_keyword}}&ad={{" \
+    #                        f"ad_id}}&phrase={{phrase_id}}&gbid={{gbid}}&device={{device_type}}&region={{" \
+    #                        f"region_id}}&region_name={{region_name}}&yclid={{yclid}}"
+    #
+    #             if ext_link_params is True:
+    #                 link = href + ext_link1 + ext_link2
+    #             else:
+    #                 link = href
+    #
+    #             result["TextAd"].setdefault("Href", link)
+    #
+    #     if turbo_page_id is not None:
+    #         result["TextAd"].setdefault("TurboPageId", turbo_page_id)
+    #
+    #     if vcard_id is not None:
+    #         result["TextAd"].setdefault("VCardId", vcard_id)
+    #
+    #     if business_id is not None:
+    #         result["TextAd"].setdefault("BusinessId", business_id)
+    #
+    #     if vcard_id is not None and business_id is not None:
+    #         result["TextAd"].setdefault("PreferVCardOverBusiness", prefer_vcard_over_business)
+    #     elif (vcard_id is not None and business_id is None) or (vcard_id is None and business_id is not None):
+    #         result["TextAd"].setdefault("PreferVCardOverBusiness", "NO")
+    #
+    #     if ad_image_hash is not None:
+    #         result["TextAd"].setdefault("AdImageHash", ad_image_hash)
+    #
+    #     if (href is not None or turbo_page_id is not None) and sitelink_set_id is not None:
+    #         result["TextAd"].setdefault("SitelinkSetId", sitelink_set_id)
+    #
+    #
+    #
+    #     if display_url_path is not None:
+    #         result["TextAd"].setdefault("DisplayUrlPath", display_url_path)
+    @staticmethod
+    def create_dynamic_text_ad_params(ads_group_id: int,
+                                      text: str,
+                                      vcard_id: int = None,
+                                      ad_image_hash: str = None,
+                                      sitelink_set_id: str = None,
+                                      ad_extension_ids: list[int] = None
+                                      ):
+        """Возвращает словарь с параметрами динамического текстового объявления"""
+
+        result = {"AdGroupId": ads_group_id,
+                  "DynamicTextAd": {"Text": text
+                                    }
+                  }
+
+        if len(re.findall(r'[^!,.;:"]', text)) > 81 or len(re.findall(r'[!,.;:"]', text)) > 15:
+            print('Не корректная длина текста объявления')
+            return None
+        elif max([len(word) for word in text.split(' ')]) > 23:
+            print(f'Превышена длина слова текста объявления (23 символа)')
+            return None
+        else:
+            pass
+
+        if vcard_id is not None:
+            result["DynamicTextAd"].setdefault("VCardId", vcard_id)
+
+        if ad_image_hash is not None:
+            result["DynamicTextAd"].setdefault("AdImageHash", ad_image_hash)
+
+        if sitelink_set_id is not None:
+            result["DynamicTextAd"].setdefault("SitelinkSetId", sitelink_set_id)
+
+        if ad_extension_ids is not None:
+            if len(ad_extension_ids) > 50:
+                print(f'Превышено количество идентификаторов расширений')
+                return None
+            else:
+                result["DynamicTextAd"].setdefault("AdExtensionIds", ad_extension_ids)
 
         return result
 
@@ -2224,5 +2479,189 @@ class YandexDirectEcomru:
         head = {'Authorization': f'OAuth {token}'}
 
         return requests.get(url, headers=head)
+
+
+    @staticmethod
+    def create_dynamic_text_camp_params(s_bid_strat: str,
+                                        s_weekly_spend_limit: int = None,
+                                        s_bid_ceiling: int = None,
+                                        s_goal_id: int = None,
+                                        s_average_cpc: int = None,
+                                        s_average_cpa: int = None,
+                                        s_reserve_return: int = None,
+                                        s_roi_coef: int = None,
+                                        s_profitability: int = None,
+                                        s_crr: int = None,
+                                        s_cpa: int = None,
+                                        add_metrica_tag: str = None,
+                                        add_openstat_tag: str = None,
+                                        add_to_favorites: str = None,
+                                        enable_area_of_interest_targeting: str = None,
+                                        enable_company_info: str = None,
+                                        enable_site_monitoring: str = None,
+                                        require_servicing: str = None,
+                                        campaign_exact_phrase_matching_enabled: str = None,
+                                        placement_search_results: str = None,
+                                        placement_product_gallery: str = None,
+                                        counter_ids: list[int] = None,
+                                        goal_ids: list[int] = None,
+                                        goal_vals: list[int] = None,
+                                        goal_is_metrika_source_of_value: list[str] = None,
+                                        tracking_params: str = None,
+                                        attribution_model: str = None
+                                        ):
+        """Возвращает словарь с параметрами динамической текстовой кампании"""
+
+        result = {"DynamicTextCampaign": {"BiddingStrategy": {"Search": {},
+                                                              "Network": {"BiddingStrategyType": "SERVING_OFF"}
+                                                              }
+                                          }
+                  }
+
+        if add_metrica_tag is not None:
+            result["DynamicTextCampaign"].setdefault("Settings", [])
+            result["DynamicTextCampaign"]["Settings"].append({"Option": "ADD_METRICA_TAG", "Value": add_metrica_tag})
+        if add_openstat_tag is not None:
+            result["DynamicTextCampaign"].setdefault("Settings", [])
+            result["DynamicTextCampaign"]["Settings"].append({"Option": "ADD_OPENSTAT_TAG", "Value": add_openstat_tag})
+        if add_to_favorites is not None:
+            result["DynamicTextCampaign"].setdefault("Settings", [])
+            result["DynamicTextCampaign"]["Settings"].append({"Option": "ADD_TO_FAVORITES", "Value": add_to_favorites})
+        if enable_area_of_interest_targeting is not None:
+            result["DynamicTextCampaign"].setdefault("Settings", [])
+            result["DynamicTextCampaign"]["Settings"].append({"Option": "ENABLE_AREA_OF_INTEREST_TARGETING", "Value": enable_area_of_interest_targeting})
+        if enable_company_info is not None:
+            result["DynamicTextCampaign"].setdefault("Settings", [])
+            result["DynamicTextCampaign"]["Settings"].append({"Option": "ENABLE_COMPANY_INFO", "Value": enable_company_info})
+        if enable_site_monitoring is not None:
+            result["DynamicTextCampaign"].setdefault("Settings", [])
+            result["DynamicTextCampaign"]["Settings"].append({"Option": "ENABLE_SITE_MONITORING", "Value": enable_site_monitoring})
+        if require_servicing is not None:
+            result["DynamicTextCampaign"].setdefault("Settings", [])
+            result["DynamicTextCampaign"]["Settings"].append({"Option": "REQUIRE_SERVICING", "Value": require_servicing})
+        if campaign_exact_phrase_matching_enabled is not None:
+            result["DynamicTextCampaign"].setdefault("Settings", [])
+            result["DynamicTextCampaign"]["Settings"].append({"Option": "CAMPAIGN_EXACT_PHRASE_MATCHING_ENABLED", "Value": campaign_exact_phrase_matching_enabled})
+
+        if placement_search_results is not None:
+            result["DynamicTextCampaign"].setdefault("PlacementTypes", [])
+            result["DynamicTextCampaign"]["PlacementTypes"].append({"Type": "SEARCH_RESULTS", "Value": placement_search_results})
+        if placement_product_gallery is not None:
+            result["DynamicTextCampaign"].setdefault("PlacementTypes", [])
+            result["DynamicTextCampaign"]["PlacementTypes"].append({"Type": "PRODUCT_GALLERY", "Value": placement_product_gallery})
+
+        if counter_ids is not None:
+            result["DynamicTextCampaign"].setdefault("CounterIds", {"Items": counter_ids})
+
+        if goal_ids is not None and goal_vals is not None:
+            if len(goal_ids) == len(goal_vals):
+                if (s_bid_strat == "AVERAGE_CRR" or s_bid_strat == "PAY_FOR_CONVERSION_CRR" ) and goal_is_metrika_source_of_value is not None:
+                    if len(goal_is_metrika_source_of_value) == len(goal_ids):
+                        goals = [{"GoalId": goal_id, "Value": goal_val, "IsMetrikaSourceOfValue": is_metrika_source_of_value} for goal_id, goal_val, is_metrika_source_of_value in zip(goal_ids, goal_vals, goal_is_metrika_source_of_value)]
+                    else:
+                        return None
+                else:
+                    goals = [{"GoalId": goal_id, "Value": goal_val} for goal_id, goal_val in zip(goal_ids, goal_vals)]
+            else:
+                return None
+            result["DynamicTextCampaign"].setdefault("PriorityGoals", {"Items": goals})
+
+        if tracking_params is not None:
+            result["DynamicTextCampaign"].setdefault("TrackingParams", tracking_params)
+
+        if attribution_model is not None:
+            result["DynamicTextCampaign"].setdefault("AttributionModel", attribution_model)
+
+
+        if s_bid_strat == "HIGHEST_POSITION":
+            result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("BiddingStrategyType", s_bid_strat)
+
+        elif s_bid_strat == "WB_MAXIMUM_CLICKS":
+            result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("BiddingStrategyType", s_bid_strat)
+            if s_weekly_spend_limit is not None:
+                result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("WbMaximumClicks", {"WeeklySpendLimit": s_weekly_spend_limit})
+                if s_bid_ceiling is not None:
+                    result["DynamicTextCampaign"]["BiddingStrategy"]["Search"]["WbMaximumClicks"].setdefault("BidCeiling", s_bid_ceiling)
+            else:
+                return None
+
+        elif s_bid_strat == "WB_MAXIMUM_CONVERSION_RATE":
+            result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("BiddingStrategyType", s_bid_strat)
+            if s_weekly_spend_limit is not None and s_goal_id is not None:
+                result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("WbMaximumConversionRate", {"WeeklySpendLimit": s_weekly_spend_limit, "GoalId": s_goal_id})
+                if s_bid_ceiling is not None:
+                    result["DynamicTextCampaign"]["BiddingStrategy"]["Search"]["WbMaximumConversionRate"].setdefault("BidCeiling", s_bid_ceiling)
+            else:
+                return None
+
+        elif s_bid_strat == "AVERAGE_CPC":
+            result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("BiddingStrategyType", s_bid_strat)
+            if s_average_cpc is not None:
+                result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("AverageCpc", {"AverageCpc": s_average_cpc})
+                if s_weekly_spend_limit is not None:
+                    result["DynamicTextCampaign"]["BiddingStrategy"]["Search"]["AverageCpc"].setdefault("WeeklySpendLimit", s_weekly_spend_limit)
+            else:
+                return None
+
+        elif s_bid_strat == "AVERAGE_CPA":
+            result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("BiddingStrategyType", s_bid_strat)
+            if s_average_cpa is not None and s_goal_id is not None:
+                result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("AverageCpa", {"AverageCpa": s_average_cpa, "GoalId": s_goal_id})
+                if s_weekly_spend_limit is not None:
+                    result["DynamicTextCampaign"]["BiddingStrategy"]["Search"]["AverageCpa"].setdefault("WeeklySpendLimit", s_weekly_spend_limit)
+                if s_bid_ceiling is not None:
+                    result["DynamicTextCampaign"]["BiddingStrategy"]["Search"]["AverageCpa"].setdefault("BidCeiling", s_bid_ceiling)
+            else:
+                return None
+
+        elif s_bid_strat == "AVERAGE_ROI":
+            result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("BiddingStrategyType", s_bid_strat)
+            if s_reserve_return is not None and s_roi_coef is not None and s_goal_id is not None:
+                result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("AverageRoi", {"ReserveReturn": s_reserve_return, "RoiCoef": s_roi_coef, "GoalId": s_goal_id})
+                if s_weekly_spend_limit is not None:
+                    result["DynamicTextCampaign"]["BiddingStrategy"]["Search"]["AverageRoi"].setdefault("WeeklySpendLimit", s_weekly_spend_limit)
+                if s_bid_ceiling is not None:
+                    result["DynamicTextCampaign"]["BiddingStrategy"]["Search"]["AverageRoi"].setdefault("BidCeiling", s_bid_ceiling)
+                if s_profitability is not None:
+                    result["DynamicTextCampaign"]["BiddingStrategy"]["Search"]["AverageRoi"].setdefault("Profitability", s_profitability)
+            else:
+                return None
+
+        elif s_bid_strat == "AVERAGE_CRR":
+            result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("BiddingStrategyType", s_bid_strat)
+            if s_crr is not None and s_goal_id is not None:
+                result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("AverageCrr", {"Crr": s_crr, "GoalId": s_goal_id})
+                if s_weekly_spend_limit is not None:
+                    result["DynamicTextCampaign"]["BiddingStrategy"]["Search"]["AverageCrr"].setdefault("WeeklySpendLimit", s_weekly_spend_limit)
+            else:
+                return None
+
+        elif s_bid_strat == "PAY_FOR_CONVERSION":
+            result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("BiddingStrategyType", s_bid_strat)
+            if s_cpa is not None and s_goal_id is not None:
+                result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("PayForConversion", {"Cpa": s_cpa, "GoalId": s_goal_id})
+                if s_weekly_spend_limit is not None:
+                    result["DynamicTextCampaign"]["BiddingStrategy"]["Search"]["PayForConversion"].setdefault("WeeklySpendLimit", s_weekly_spend_limit)
+            else:
+                return None
+
+        elif s_bid_strat == "PAY_FOR_CONVERSION_CRR":
+            result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("BiddingStrategyType", s_bid_strat)
+            if s_crr is not None and s_goal_id is not None:
+                result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("PayForConversionCrr", {"Crr": s_crr, "GoalId": s_goal_id})
+                if s_weekly_spend_limit is not None:
+                    result["DynamicTextCampaign"]["BiddingStrategy"]["Search"]["PayForConversionCrr"].setdefault("WeeklySpendLimit", s_weekly_spend_limit)
+            else:
+                return None
+
+        return result
+
+
+
+
+
+
+
+
 
 

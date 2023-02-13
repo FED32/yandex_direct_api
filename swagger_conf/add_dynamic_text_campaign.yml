@@ -5,13 +5,13 @@ info:
     email: "s.fedyushin@ecomru.ru"
   basePath: "/swagger"
 paths:
-  "/yandexdirect/addtextcampaign":
+  "/yandexdirect/adddynamictextcampaign":
     post:
 tags:
   - campaigns
 #    - add
-summary: "Добавить текстовую кампанию"
-description: "Метод для добавления текстовой кампании"
+summary: "Добавить динамическую текстовую кампанию"
+description: "Метод для создания динамической текстовой кампании"
 consumes:
 - "application/json"
 produces:
@@ -42,24 +42,7 @@ parameters:
           - "AVERAGE_CRR"
           - "PAY_FOR_CONVERSION"
           - "PAY_FOR_CONVERSION_CRR"
-          - "SERVING_OFF"
-        description: Тип стратегии показа на поиске (обязательный параметр)
-      n_bid_strat:
-        type: "string"
-        example: "NETWORK_DEFAULT"
-        enum:
-          - "NETWORK_DEFAULT"
-          - "MAXIMUM_COVERAGE"
-          - "WB_MAXIMUM_CLICKS"
-          - "WB_MAXIMUM_CONVERSION_RATE"
-          - "AVERAGE_CPC"
-          - "AVERAGE_CPA"
-          - "AVERAGE_ROI"
-          - "AVERAGE_CRR"
-          - "PAY_FOR_CONVERSION"
-          - "PAY_FOR_CONVERSION_CRR"
-          - "SERVING_OFF"
-        description: Тип стратегии показа в сетях (обязательный параметр)
+        description: Стратегия показа. (обязательный параметр)
       s_weekly_spend_limit:
         type: "long"
         example: 500000000
@@ -100,50 +83,6 @@ parameters:
         type: "integer"
         example: 10
         description: Цена достижения цели в валюте рекламодателя, умноженная на 1000000 для стратегии показа на поиске PAY_FOR_CONVERSION
-      n_limit_percent:
-        type: "integer"
-        example: 100
-        description: Максимальный процент бюджета, расходуемый на показы в сетях для стратегии показа в сетях NETWORK_DEFAULT Значение кратно десяти 10, 20, ..., 100
-      n_weekly_spend_limit:
-        type: "long"
-        example: 500000000
-        description: Недельный бюджет в валюте рекламодателя, умноженный на 1000000 для стратегии показа в сетях WB_MAXIMUM_CLICKS, WB_MAXIMUM_CONVERSION_RATE, AVERAGE_CPC, AVERAGE_CPA, AVERAGE_ROI, AVERAGE_CRR, PAY_FOR_CONVERSION, PAY_FOR_CONVERSION_CRR
-      n_bid_ceiling:
-        type: "long"
-        example: 10000000
-        description: Максимальная ставка в валюте рекламодателя, умноженная на 1000000 для стратегии показа в сетях WB_MAXIMUM_CLICKS, WB_MAXIMUM_CONVERSION_RATE, AVERAGE_CPA, AVERAGE_ROI
-      n_goal_id:
-        type: "integer"
-        example: 13
-        description: Идентификатор цели Яндекc Метрики для стратегии показа в сетях WB_MAXIMUM_CONVERSION_RATE, AVERAGE_CPA, AVERAGE_ROI, PAY_FOR_CONVERSION, PAY_FOR_CONVERSION_CRR
-      n_average_cpc:
-        type: "long"
-        example: 10000000
-        description: Средняя цена клика в валюте рекламодателя, умноженная на 1000000 для стратегии показа в сетях AVERAGE_CPC
-      n_average_cpa:
-        type: "long"
-        example: 10000000
-        description: Средняя цена достижения цели в валюте рекламодателя, умноженная на 1000000 для стратегии показа в сетях AVERAGE_CPA
-      n_reserve_return:
-        type: "integer"
-        example: 10
-        description: Максимальный процент сэкономленных средств, который можно возвращать в рекламу (расходовать) в случае, если прогнозируемое значение рентабельности превышает значение параметра RoiCoef для стратегии показа в сетях AVERAGE_ROI. Значение от 0 до 100, кратное десяти 0, 10, 20... 100.
-      n_roi_coef:
-        type: "long"
-        example: 10000
-        description: Желаемая средняя рентабельность инвестиций за неделю для стратегии показа в сетях AVERAGE_ROI
-      n_profitability:
-        type: "long"
-        example: 10000
-        description: Процент выручки, являющийся себестоимостью товаров или услуг для стратегии показа в сетях AVERAGE_ROI
-      n_crr:
-        type: "integer"
-        example: 10
-        description: Средняя доля расходов для стратегии показа в сетях AVERAGE_CRR, PAY_FOR_CONVERSION_CRR
-      n_cpa:
-        type: "integer"
-        example: 10
-        description: Цена достижения цели в валюте рекламодателя, умноженная на 1000000 для стратегии показа в сетях PAY_FOR_CONVERSION
       add_metrica_tag:
         type: "string"
         example: "YES"
@@ -186,20 +125,6 @@ parameters:
           - "YES"
           - "NO"
         description: Останавливать показы при недоступности сайта рекламодателя
-      exclude_paused_competing_ads:
-        type: "string"
-        example: "NO"
-        enum:
-          - "YES"
-          - "NO"
-        description: Рассчитывать прогнозируемые ставки без учета ставок в объявлениях конкурентов, остановленных в соответствии с временным таргетингом
-      maintain_network_cpc:
-        type: "string"
-        example: "NO"
-        enum:
-          - "YES"
-          - "NO"
-        description: Удерживать среднюю цену клика в сетях ниже средней цены на поиске
       require_servicing:
         type: "string"
         example: "NO"
@@ -210,33 +135,61 @@ parameters:
       campaign_exact_phrase_matching_enabled:
         type: "string"
         example: "NO"
+        enum:
+          - "YES"
+          - "NO"
         description: Включает отбор фразы по точности соответствия внутри кампании
+      placement_search_results:
+        type: "string"
+        example: "YES"
+        enum:
+          - "YES"
+          - "NO"
+        description: Тип места показа рекламы на поиске — в результатах поиска.
+      placement_product_gallery:
+        type: "string"
+        example: "YES"
+        enum:
+          - "YES"
+          - "NO"
+        description: Тип места показа рекламы на поиске — в Товарной галерее.
       counter_ids:
         type:
           - array
             - long
-        example: [123, 456, 789]
+        example: [ 123, 456, 789 ]
         description: Идентификаторы счетчиков Яндекс Метрики, установленных на сайте рекламодателя (не обязательно)
       goal_ids:
         type:
           - array
             - long
-        example: [123, 456, 789]
+        example: [ 123, 456, 789 ]
         description: Идентификаторы целей Яндекс Метрики, на достижение которых будет направлена автоматическая корректировка ставок
       goal_vals:
         type:
           - array
             - long
-        example: [1000000, 2000000, 3000000]
+        example: [ 1000000, 2000000, 3000000 ]
         description: Ценности конверсий — денежная оценка выгоды, получаемой рекламодателем при достижении указанных целей, в валюте рекламодателя, умноженная на 1000000
-      attribution_model:
-        type: "string"
-        example: "LYDC"
-        description: Модель атрибуции, используемая для оптимизации конверсий. Возможные значения FC — первый переход, LC — последний переход, LSC — последний значимый переход, LYDC — последний переход из Яндекс Директа
+      goal_is_metrika_source_of_value:
+        type:
+          - array
+            - string
+        example: ["NO", "YES", "NO"]
+        description: Источник ключевой цели — цель Метрики. При значении AVERAGE_CRR или PAY_FOR_CONVERSION_CRR в параметре BiddingStrategyType.
       tracking_params:
         type: "string"
         example: "from=direct&ad={ad_id}"
-        description: Параметры URL для шаблонов (не обязательно)
+        description: Параметры URL для шаблонов
+      attribution_model:
+        type: "string"
+        example: "LYDC"
+        enum:
+          - "FC"
+          - "LC"
+          - "LSC"
+          - "LYDC"
+        description: Модель атрибуции, используемая для оптимизации конверсий. Возможные значения FC — первый переход, LC — последний переход, LSC — последний значимый переход, LYDC — последний переход из Яндекс Директа
       name:
         type: "string"
         example: "abcdefабвгд"
@@ -257,7 +210,7 @@ parameters:
         type:
           - array
             - string
-        example: ["MONITORING", "MODERATION", "MONEY_IN", "MONEY_OUT", "FINISHED"]
+        example: [ "MONITORING", "MODERATION", "MONEY_IN", "MONEY_OUT", "FINISHED" ]
         description: События, о которых необходимо информировать по SMS (не обязательно)
       sms_time_from:
         type: "string"
@@ -312,13 +265,13 @@ parameters:
         type:
           - array
             - string
-        example: ["купить кровать", "купить диван", "купить шкаф"]
+        example: [ "купить кровать", "купить диван", "купить шкаф" ]
         description: Массив минус-фраз, общих для всех ключевых фраз кампании (не обязательно)
       blocked_ips:
         type:
           - array
             - string
-        example: ["10.20.30.40", "50.60.70.80"]
+        example: [ "10.20.30.40", "50.60.70.80" ]
         description: Массив IP-адресов, которым не нужно показывать объявления (не обязательно)
       excluded_sites:
         type:
@@ -360,3 +313,6 @@ responses:
     description: "OK"
   400:
     description: "Bad Request"
+
+
+
