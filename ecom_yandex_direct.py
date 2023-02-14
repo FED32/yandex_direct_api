@@ -2143,7 +2143,7 @@ class YandexDirectEcomru:
         (delete/resume/suspend)
         """
 
-        service = 'ads'
+        service = 'keywords'
         body = {"method": action,
                 "params": {"SelectionCriteria": {"Ids": ids}}
                 }
@@ -2655,6 +2655,182 @@ class YandexDirectEcomru:
                 return None
 
         return result
+
+    def get_feeds(self,
+                  ids: list[int] = None,
+                  limit: int = None,
+                  offset: int = None
+                  ):
+        """Получить фиды"""
+
+        service = 'feeds'
+
+        body = {"method": "get",
+                "params": {"FieldNames": ["Id", "Name", "BusinessType", "SourceType", "FilterSchema", "UpdatedAt",
+                                          "CampaignIds", "NumberOfItems", "Status" ]
+                           }
+
+
+                }
+
+        if ids is not None:
+            body["params"].setdefault("SelectionCriteria", {"Ids": ids})
+
+        if limit is not None:
+            body["params"].setdefault("Page", {})
+            body["params"]["Page"].setdefault("Limit", limit)
+            if offset is not None:
+                body["params"]["Page"].setdefault("Offset", offset)
+
+        return self.exec_post_api5(service, self.head, body)
+
+    @staticmethod
+    def create_feed_params(name: str,
+                           business_type: str,
+                           source_type: str,
+                           url_feed_url: str = None,
+                           url_feed_remove_utm: str = None,
+                           url_feed_login: str = None,
+                           url_feed_password: str = None,
+                           file_feed_data: str = None,
+                           file_feed_filename: str = None
+                           ):
+        """Возвращает словарь с параметрами фида"""
+
+        result = {"Name": name,
+                  "BusinessType": business_type,
+                  "SourceType": source_type
+                  }
+
+        if len(name) > 255:
+            return None
+        else:
+            pass
+
+        if source_type == "URL" and url_feed_url is not None:
+            if len(url_feed_url) > 1024:
+                return None
+            else:
+                result.setdefault("UrlFeed", {"Url": url_feed_url})
+
+                if url_feed_remove_utm is not None:
+                    result["UrlFeed"].setdefault("RemoveUtmTags", url_feed_remove_utm)
+                if url_feed_login is not None:
+                    if len(url_feed_login) > 255:
+                        return None
+                    else:
+                        result["UrlFeed"].setdefault("Login", url_feed_login)
+
+                        if url_feed_password is not None:
+                            if len(url_feed_password) > 255:
+                                return None
+                            else:
+                                result["UrlFeed"].setdefault("Password", url_feed_password)
+
+                return result
+
+        elif source_type == "FILE" and file_feed_data is not None and file_feed_filename is not  None:
+            if len(file_feed_filename) > 255:
+                return None
+            else:
+                result.setdefault("FileFeed", {"Data": file_feed_data, "Filename": file_feed_filename})
+
+                return result
+
+        else:
+            return None
+
+    def add_feeds(self, feeds: list[dict]):
+        """Добавляет фиды"""
+
+        service = 'feeds'
+
+        body = {"method": "add",
+                "params": {"Feeds": feeds}
+                }
+
+        return self.exec_post_api5(service, self.head, body)
+
+
+    def delete_feeds(self, ids: list):
+        """
+        Удаляет фиды
+        """
+
+        service = 'feeds'
+        body = {"method": "delete",
+                "params": {"SelectionCriteria": {"Ids": ids}}
+                }
+
+        return self.exec_post_api5(service, self.head, body)
+
+
+
+    @staticmethod
+    def update_feed_params(feed_id: int,
+                           name: str = None,
+                           url_feed_url: str = None,
+                           url_feed_remove_utm: str = None,
+                           url_feed_login: str = None,
+                           url_feed_password: str = None,
+                           file_feed_data: str = None,
+                           file_feed_filename: str = None):
+        """Возвращает словарь с параметрами фида для обновления"""
+
+        result = {"Id": feed_id}
+
+        if name is not None:
+            if len(name) > 255:
+                return None
+            else:
+                result.setdefault("Name", name)
+
+        if url_feed_url is not None:
+            if len(url_feed_url) > 1024:
+                return None
+            else:
+                result.setdefault("UrlFeed", {"Url": url_feed_url})
+
+        if url_feed_remove_utm is not None:
+            result.setdefault("UrlFeed", {})
+            result["UrlFeed"].setdefault("RemoveUtmTags", url_feed_remove_utm)
+
+        if url_feed_login is not None:
+            if len(url_feed_login) > 255:
+                return None
+            else:
+                result.setdefault("UrlFeed", {})
+                result["UrlFeed"].setdefault("Login", url_feed_login)
+
+        if url_feed_password is not None:
+            if len(url_feed_password) > 255:
+                return None
+            else:
+                result.setdefault("UrlFeed", {})
+                result["UrlFeed"].setdefault("Password", url_feed_password)
+
+        if file_feed_data is not None and file_feed_filename is not None:
+            if len(file_feed_filename) > 255:
+                return None
+            else:
+                result.setdefault("FileFeed", {"Data": file_feed_data, "Filename": file_feed_filename})
+
+        return result
+
+    def update_feeds(self, feeds: list[dict]):
+        """Изменяет параметры фидов"""
+
+        service = 'feeds'
+
+        body = {"method": "update",
+                "params": {"Feeds": feeds}
+                }
+
+        return self.exec_post_api5(service, self.head, body)
+
+
+
+
 
 
 

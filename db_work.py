@@ -10,7 +10,7 @@ def put_query(engine,
               logger,
               json_file,
               table_name: str,
-              attempts: int = 1,
+              attempts: int = 2,
               result=None
               ):
     """Загружает запрос в БД"""
@@ -40,6 +40,7 @@ def put_query(engine,
     dataset['date_time'] = datetime.now()
 
     # print(dataset['res_warnings'][0])
+    # print(json_file)
 
     with engine.begin() as connection:
         n = 0

@@ -1,0 +1,43 @@
+swagger: "2.0"
+info:
+  title: "Yandex Direct Ecom API Documentation"
+  contact:
+    email: "s.fedyushin@ecomru.ru"
+  basePath: "/swagger"
+paths:
+  "/yandexdirect/getfeeds":
+    post:
+tags:
+  - feeds
+#    - info
+summary: "Получить параметры фидов пользователя"
+description: "Метод для получения параметров фидов пользователя"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "body"
+  required: true
+  schema:
+    type: "object"
+    properties:
+      login:
+        type: "string"
+        example: "aaabbbq123@yandex.ru"
+#      token:
+#        type: "string"
+#        example: "xxx_YYYzzz1234ABCDefg"
+      ids:
+        type:
+          - array
+            - long
+        example: [1234567890, 0987654321]
+        description: Отбирать фиды с указанными идентификаторами (не обязательно)
+responses:
+  200:
+    description: "OK"
+  400:
+    description: "Bad Request"
+

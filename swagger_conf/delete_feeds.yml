@@ -1,0 +1,42 @@
+swagger: "2.0"
+info:
+  title: "Yandex Direct Ecom API Documentation"
+  contact:
+    email: "s.fedyushin@ecomru.ru"
+  basePath: "/swagger"
+paths:
+  "/yandexdirect/deletefeeds":
+    post:
+tags:
+  - feeds
+#    - manage
+summary: "Удаление фидов"
+description: "Метод для удаления фидов"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "body"
+  required: true
+  schema:
+    type: "object"
+    properties:
+      login:
+        type: "string"
+        example: "aaabbbq123@yandex.ru"
+#      token:
+#        type: "string"
+#        example: "xxx_YYYzzz1234ABCDefg"
+      ids:
+        type:
+          - array
+            - long
+        example: [ 123456789, 789012345 ]
+        description: Идентификаторы фидов, которые требуется удалить (не более 50).
+responses:
+  200:
+    description: "OK"
+  400:
+    description: "Bad Request"

@@ -1,0 +1,71 @@
+swagger: "2.0"
+info:
+  title: "Yandex Direct Ecom API Documentation"
+  contact:
+    email: "s.fedyushin@ecomru.ru"
+  basePath: "/swagger"
+paths:
+  "/yandexdirect/updatefeed":
+    post:
+tags:
+  - feeds
+#    - add
+summary: "Изменить параметры фида"
+description: "Метод для изменения параметров фида"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "body"
+  required: true
+  schema:
+    type: "object"
+    properties:
+      login:
+        type: "string"
+        example: "aaabbbq123@yandex.ru"
+#      token:
+#        type: "string"
+#        example: "xxx_YYYzzz1234ABCDefg"
+      feed_id:
+        type: "long"
+        example: 12345
+        description: Идентификатор фида. (обязательно)
+      name:
+        type: "string"
+        example: "assddf"
+        description: Название фида. Не более 255 символов.
+      url_feed_url:
+        type: "string"
+        example: "https://site.com"
+        description: Ссылка на фид. Не более 1024 символов. Должна содержать протокол и доменное имя.
+      url_feed_remove_utm:
+        type: "string"
+        example: "NO"
+        enum:
+          - "YES"
+          - "NO"
+        description: Автоматически удалять UTM-метки из ссылок в фиде.
+      url_feed_login:
+        type: "string"
+        example: "sdwfe"
+        description: Логин для доступа к фиду (если требуется). Не более 255 символов.
+      url_feed_password:
+        type: "string"
+        example: "aaaasssd"
+        description: Пароль для доступа к фиду (если требуется). Не более 255 символов.
+      file_feed_data:
+        type: "string"
+        example: ""
+        description: Загружаемый фид, закодированный в base64. Размер фида ограничен общим размером запроса — не более 50 Мб.
+      file_feed_filename:
+        type: "string"
+        example: "lkkj"
+        description: Имя файла фида. Не более 255 символов.
+responses:
+  200:
+    description: "OK"
+  400:
+    description: "Bad Request"

@@ -1457,6 +1457,184 @@ def add_dynamic_text_campaign():
         raise HttpError(400, f'{ex}')
 
 
+@app.route('/yandexdirect/getfeeds', methods=['POST'])
+@swag_from("swagger_conf/get_feeds.yml")
+def get_feeds():
+    """Метод для получения информации о фидах пользователя"""
+
+    try:
+        json_file = request.get_json(force=False)
+        login = json_file["login"]
+        # token = json_file["token"]
+        token = get_token_from_db(client_login=login, engine=engine, logger=logger)
+
+        direct = YandexDirectEcomru(login, token)
+
+        ids = json_file.get("ids", None)
+
+        result = direct.get_feeds(ids=ids)
+
+        if result is None:
+            logger.error("get feeds: yandex direct error")
+            return jsonify({'error': 'yandex direct error'})
+        else:
+            logger.info(f"get feeds: {result.status_code}")
+            return jsonify(result.json())
+
+    except BadRequestKeyError:
+        logger.error("get feeds: BadRequest")
+        return Response(None, 400)
+
+    except KeyError:
+        logger.error("get feeds: KeyError")
+        return Response(None, 400)
+
+    except BaseException as ex:
+        logger.error(f'get feeds: {ex}')
+        raise HttpError(400, f'{ex}')
+
+@app.route('/yandexdirect/addfeeds', methods=['POST'])
+@swag_from("swagger_conf/add_feed.yml")
+def add_feeds():
+    """Метод для добавления фида"""
+
+    try:
+        json_file = request.get_json(force=False)
+        login = json_file["login"]
+        # token = json_file["token"]
+        token = get_token_from_db(client_login=login, engine=engine, logger=logger)
+
+        direct = YandexDirectEcomru(login, token)
+
+        name = json_file["name"]
+        business_type = json_file["business_type"]
+        source_type = json_file["source_type"]
+        url_feed_url = json_file.get("url_feed_url", None)
+        url_feed_remove_utm = json_file.get("url_feed_remove_utm", None)
+        url_feed_login = json_file.get("url_feed_login", None)
+        url_feed_password = json_file.get("url_feed_password", None)
+        file_feed_data = json_file.get("file_feed_data", None)
+        file_feed_filename = json_file.get("file_feed_filename", None)
+
+        feed_params = direct.create_feed_params(name, business_type, source_type, url_feed_url, url_feed_remove_utm,
+                                                url_feed_login, url_feed_password, file_feed_data, file_feed_filename)
+
+        if feed_params is None:
+            logger.error("add feed: feed_params incorrect")
+            return jsonify({'error': 'feed params incorrect'})
+        else:
+            result = direct.add_feeds(feeds=[feed_params])
+            if result is None:
+                logger.error("add feed: yandex direct error")
+                return jsonify({'error': 'yandex direct error'})
+            else:
+                logger.info(f"add feed: {result.status_code}")
+
+                # put_query(json_file=json_file, table_name='ya_ads_addfeeds', result=result, engine=engine,
+                #           logger=logger)
+
+                return jsonify(result.json())
+
+    except BadRequestKeyError:
+        logger.error("add feeds: BadRequest")
+        return Response(None, 400)
+
+    except KeyError:
+        logger.error("add feeds: KeyError")
+        return Response(None, 400)
+
+    except BaseException as ex:
+        logger.error(f'add feeds: {ex}')
+        raise HttpError(400, f'{ex}')
+
+@app.route('/yandexdirect/deletefeeds', methods=['POST'])
+@swag_from("swagger_conf/delete_feeds.yml")
+def delete_feeds():
+    """Метод для удаления фидов"""
+
+    try:
+        json_file = request.get_json(force=False)
+        login = json_file["login"]
+        # token = json_file["token"]
+        token = get_token_from_db(client_login=login, engine=engine, logger=logger)
+
+        direct = YandexDirectEcomru(login, token)
+
+        ids = json_file["ids"]
+
+        result = direct.delete_feeds(ids=ids)
+
+        if result is None:
+            logger.error("delete feeds: yandex direct error")
+            return jsonify({'error': 'yandex direct error'})
+        else:
+            logger.info(f"delete feeds: {result.status_code}")
+            return jsonify(result.json())
+
+    except BadRequestKeyError:
+        logger.error("delete feeds: BadRequest")
+        return Response(None, 400)
+
+    except KeyError:
+        logger.error("delete feeds: KeyError")
+        return Response(None, 400)
+
+    except BaseException as ex:
+        logger.error(f'delete feeds: {ex}')
+        raise HttpError(400, f'{ex}')
+
+@app.route('/yandexdirect/updatefeed', methods=['POST'])
+@swag_from("swagger_conf/update_feed.yml")
+def update_feed():
+    """Метод для изменения параметров фида"""
+
+    try:
+        json_file = request.get_json(force=False)
+        login = json_file["login"]
+        # token = json_file["token"]
+        token = get_token_from_db(client_login=login, engine=engine, logger=logger)
+
+        direct = YandexDirectEcomru(login, token)
+
+        feed_id = json_file["feed_id"]
+        name = json_file.get("name", None)
+        url_feed_url = json_file.get("url_feed_url", None)
+        url_feed_remove_utm = json_file.get("url_feed_remove_utm", None)
+        url_feed_login = json_file.get("url_feed_login", None)
+        url_feed_password = json_file.get("url_feed_password", None)
+        file_feed_data = json_file.get("file_feed_data", None)
+        file_feed_filename = json_file.get("file_feed_filename", None)
+
+        feed_params = direct.update_feed_params(feed_id, name, url_feed_url, url_feed_remove_utm, url_feed_login,
+                                                url_feed_password, file_feed_data, file_feed_filename)
+
+        if feed_params is None:
+            logger.error("update feed: feed_params incorrect")
+            return jsonify({'error': 'feed params incorrect'})
+        else:
+            result = direct.update_feeds(feeds=[feed_params])
+            if result is None:
+                logger.error("update feed: yandex direct error")
+                return jsonify({'error': 'yandex direct error'})
+            else:
+                logger.info(f"update feed: {result.status_code}")
+
+                return jsonify(result.json())
+
+    except BadRequestKeyError:
+        logger.error("update feed: BadRequest")
+        return Response(None, 400)
+
+    except KeyError:
+        logger.error("update feed: KeyError")
+        return Response(None, 400)
+
+    except BaseException as ex:
+        logger.error(f'update feed: {ex}')
+        raise HttpError(400, f'{ex}')
+
+
+
 
 
 
