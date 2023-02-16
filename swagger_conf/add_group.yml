@@ -70,103 +70,127 @@ parameters:
         example: [ 123, 456, 789 ]
         description: Идентификаторы категорий товаров, на основе которых требуется сгенерировать текстово-графические объявления.  (не обязательно)
       dynamic_text_domain_urls:
-        type:
-          - array
-            - string
-        example: ["www.site.ru", "www.site.com"]
+#        type:
+#          - array
+#            - string
+#        example: ["www.site.ru", "www.site.com"]
+        type: "string"
+        example: "www.site.com"
         description: Доменные имена сайтов, для которых требуется сгенерировать динамические объявления (не более 100 символов). Протокол указывать не нужно.
       dynamic_text_autotargeting_exact:
-        type:
-          - array
-            - string
-        example: ["YES", "NO"]
+#        type:
+#          - array
+#            - string
+#        example: ["YES", "NO"]
+        type: "string"
+        example: "YES"
         enum:
           - "YES"
           - "NO"
         description: Значения автотаргетинга объявлений для сайтов. EXACT — целевые запросы. Рекламное объявление точно отвечает на запросы пользователя
       dynamic_text_autotargeting_alternative:
-        type:
-          - array
-            - string
-        example: ["YES", "NO"]
+#        type:
+#          - array
+#            - string
+#        example: ["YES", "NO"]
+        type: "string"
+        example: "YES"
         enum:
           - "YES"
           - "NO"
         description: Значения автотаргетинга объявлений для сайтов. ALTERNATIVE — альтернативные запросы. Пользователь ищет продукт, который можно заменить рекламируемым. При этом объявление также может удовлетворить запрос
       dynamic_text_autotargeting_competitor:
-        type:
-          - array
-            - string
-        example: ["YES", "NO"]
+#        type:
+#          - array
+#            - string
+#        example: ["YES", "NO"]
+        type: "string"
+        example: "YES"
         enum:
           - "YES"
           - "NO"
         description: Значения автотаргетинга объявлений для сайтов. COMPETITOR — запросы с упоминанием конкурентов. Поиск рекламируемого продукта у конкурентов
       dynamic_text_autotargeting_broader:
-        type:
-          - array
-            - string
-        example: ["YES", "NO"]
+#        type:
+#          - array
+#            - string
+#        example: ["YES", "NO"]
+        type: "string"
+        example: "YES"
         enum:
           - "YES"
           - "NO"
         description: Значения автотаргетинга объявлений для сайтов. BROADER — широкие запросы. Запросы с интересом к продукту, примером которого является рекламное предложение
       dynamic_text_autotargeting_accessory:
-        type:
-          - array
-            - string
-        example: ["YES", "NO"]
+#        type:
+#          - array
+#            - string
+#        example: ["YES", "NO"]
+        type: "string"
+        example: "YES"
         enum:
           - "YES"
           - "NO"
         description: Значения автотаргетинга объявлений для сайтов. ACCESSORY — сопутствующие запросы. Запросы по продуктам, которые могут быть интересны вместе с рекламируемым товаром или услугой
       dynamic_text_feed_ids:
-        type:
-          - array
-            - long
-        example: [123321, 456654]
+#        type:
+#          - array
+#            - long
+#        example: [123321, 456654]
+        type: "long"
+        example: 12321
         description: Идентификаторы фидов, на основе которых требуется сгенерировать динамические объявления.
       dynamic_text_feed_autotargeting_exact:
-        type:
-          - array
-            - string
-        example: ["YES", "NO"]
+#        type:
+#          - array
+#            - string
+#        example: ["YES", "NO"]
+        type: "string"
+        example: "YES"
         enum:
           - "YES"
           - "NO"
         description: Значения автотаргетинга для объявлений фидов. EXACT — целевые запросы. Рекламное объявление точно отвечает на запросы пользователя
       dynamic_text_feed_autotargeting_alternative:
-        type:
-          - array
-            - string
-        example: ["YES", "NO"]
+#        type:
+#          - array
+#            - string
+#        example: ["YES", "NO"]
+        type: "string"
+        example: "YES"
         enum:
           - "YES"
           - "NO"
         description: Значения автотаргетинга для объявлений фидов. ALTERNATIVE — альтернативные запросы. Пользователь ищет продукт, который можно заменить рекламируемым. При этом объявление также может удовлетворить запрос
       dynamic_text_feed_autotargeting_competitor:
-        type:
-          - array
-            - string
-        example: ["YES", "NO"]
+#        type:
+#          - array
+#            - string
+#        example: ["YES", "NO"]
+        type: "string"
+        example: "YES"
         enum:
           - "YES"
           - "NO"
         description: Значения автотаргетинга для объявлений фидов. COMPETITOR — запросы с упоминанием конкурентов. Поиск рекламируемого продукта у конкурентов
       dynamic_text_feed_autotargeting_broader:
-        type:
-          - array
-            - string
-        example: ["YES", "NO"]
+#        type:
+#          - array
+#            - string
+#        example: ["YES", "NO"]
+        type: "string"
+        example: "YES"
         enum:
           - "YES"
           - "NO"
         description: Значения автотаргетинга для объявлений фидов. BROADER — широкие запросы. Запросы с интересом к продукту, примером которого является рекламное предложение
       dynamic_text_feed_autotargeting_accessory:
-        type:
-          - array
-            - string
-        example: ["YES", "NO"]
+#        type:
+#          - array
+#            - string
+#        example: ["YES", "NO"]
+        type: "string"
+        example: "YES"
         enum:
           - "YES"
           - "NO"

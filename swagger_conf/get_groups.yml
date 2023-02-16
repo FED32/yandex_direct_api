@@ -30,11 +30,35 @@ parameters:
 #        type: "string"
 #        example: "xxx_YYYzzz1234ABCDefg"
       campaigns:
-        type: "array"
-        example: [ "1234567890", "0987654321" ]
+        type:
+          - array
+            - long
+        example: [1234567890, 0987654321]
         description: список id кампаний (не более 10)
+      text_feed_params:
+        type: "string"
+        example: "false"
+        enum:
+          - "true"
+          - "false"
+        description: Выводить параметры группы текстово-графических объявлений
+      dynamic_text_params:
+        type: "string"
+        example: "false"
+        enum:
+          - "true"
+          - "false"
+        description: Выводить параметры группы динамических объявлений, для которых источником данных является сайт
+      dynamic_text_feed_params:
+        type: "string"
+        example: "false"
+        enum:
+          - "true"
+          - "false"
+        description: Выводить параметры группы динамических объявлений, для которых источником данных является фид
 responses:
   200:
     description: "OK"
   400:
     description: "Bad Request"
+
