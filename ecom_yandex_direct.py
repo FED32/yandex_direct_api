@@ -128,7 +128,10 @@ class YandexDirectEcomru:
             print("Произошла непредвиденная ошибка.")
             return None
 
-    def get_campaigns(self, criteries=None):
+    def get_campaigns(self, criteries: dict = None,
+                      text_params: bool = None,
+                      dynamic_text_params: bool = None
+                      ):
         """
         Возвращает параметры кампаний, отвечающих заданным критериям.
         Структура описания критериев:
@@ -149,9 +152,24 @@ class YandexDirectEcomru:
                            # "FieldNames": ["Id", "Name"]
                            }
                 }
+
+        if text_params is True:
+            text_fields = [
+                "CounterIds", "RelevantKeywords", "Settings", "BiddingStrategy", "PriorityGoals", "AttributionModel"]
+            body["params"].setdefault("TextCampaignFieldNames", text_fields)
+
+        if dynamic_text_params is True:
+            dynamic_text_fields = [
+                "CounterIds", "Settings", "PlacementTypes", "BiddingStrategy", "PriorityGoals", "AttributionModel"]
+            body["params"].setdefault("DynamicTextCampaignFieldNames", dynamic_text_fields)
+
         return self.exec_post_api5(service, self.head, body)
 
-    def get_groups(self, campaigns: list):
+    def get_groups(self, campaigns: list[int],
+                   text_feed_params: bool = None,
+                   dynamic_text_params: bool = None,
+                   dynamic_text_feed_params: bool = None
+                   ):
         """
         Возвращает параметры групп, отвечающих заданным критериям
         """
@@ -167,6 +185,18 @@ class YandexDirectEcomru:
                            "FieldNames": fieldnames
                            }
                 }
+
+        if text_feed_params is True:
+            text_feed_fields = ["FeedId", "FeedCategoryIds"]
+            body["params"].setdefault("TextAdGroupFeedParamsFieldNames", text_feed_fields)
+
+        if dynamic_text_params is True:
+            dynamic_text_fields = ["DomainUrl", "DomainUrlProcessingStatus", "AutotargetingCategories"]
+            body["params"].setdefault("DynamicTextAdGroupFieldNames", dynamic_text_fields)
+
+        if dynamic_text_feed_params is True:
+            dynamic_text_feed_fields = ["Source", "FeedId", "SourceType", "SourceProcessingStatus", "AutotargetingCategories"]
+            body["params"].setdefault("DynamicTextFeedAdGroupFieldNames", dynamic_text_feed_fields)
 
         return self.exec_post_api5(service, self.head, body)
 
@@ -1288,18 +1318,30 @@ class YandexDirectEcomru:
                      tracking_params: str = None,
                      text_feed_id: int = None,
                      text_feed_category_ids: list[int] = None,
-                     dynamic_text_domain_urls: list[str] = None,
-                     dynamic_text_autotargeting_exact: list[str] = None,
-                     dynamic_text_autotargeting_alternative: list[str] = None,
-                     dynamic_text_autotargeting_competitor: list[str] = None,
-                     dynamic_text_autotargeting_broader: list[str] = None,
-                     dynamic_text_autotargeting_accessory: list[str] = None,
-                     dynamic_text_feed_ids: list[int] = None,
-                     dynamic_text_feed_autotargeting_exact: list[str] = None,
-                     dynamic_text_feed_autotargeting_alternative: list[str] = None,
-                     dynamic_text_feed_autotargeting_competitor: list[str] = None,
-                     dynamic_text_feed_autotargeting_broader: list[str] = None,
-                     dynamic_text_feed_autotargeting_accessory: list[str] = None
+                     # dynamic_text_domain_urls: list[str] = None,
+                     # dynamic_text_autotargeting_exact: list[str] = None,
+                     # dynamic_text_autotargeting_alternative: list[str] = None,
+                     # dynamic_text_autotargeting_competitor: list[str] = None,
+                     # dynamic_text_autotargeting_broader: list[str] = None,
+                     # dynamic_text_autotargeting_accessory: list[str] = None,
+                     # dynamic_text_feed_ids: list[int] = None,
+                     # dynamic_text_feed_autotargeting_exact: list[str] = None,
+                     # dynamic_text_feed_autotargeting_alternative: list[str] = None,
+                     # dynamic_text_feed_autotargeting_competitor: list[str] = None,
+                     # dynamic_text_feed_autotargeting_broader: list[str] = None,
+                     # dynamic_text_feed_autotargeting_accessory: list[str] = None,
+                     dynamic_text_domain_urls: str = None,
+                     dynamic_text_autotargeting_exact: str = None,
+                     dynamic_text_autotargeting_alternative: str = None,
+                     dynamic_text_autotargeting_competitor: str = None,
+                     dynamic_text_autotargeting_broader: str = None,
+                     dynamic_text_autotargeting_accessory: str = None,
+                     dynamic_text_feed_ids: int = None,
+                     dynamic_text_feed_autotargeting_exact: str = None,
+                     dynamic_text_feed_autotargeting_alternative: str = None,
+                     dynamic_text_feed_autotargeting_competitor: str = None,
+                     dynamic_text_feed_autotargeting_broader: str = None,
+                     dynamic_text_feed_autotargeting_accessory: str = None
                      ):
         """
         Возвращает словарь с параметрами группы
@@ -1346,79 +1388,120 @@ class YandexDirectEcomru:
 
         if dynamic_text_domain_urls is not None:
             if (dynamic_text_autotargeting_exact is not None
-                    and dynamic_text_autotargeting_alternative is not None
-                    and dynamic_text_autotargeting_competitor is not None
-                    and dynamic_text_autotargeting_broader is not None
-                    and dynamic_text_autotargeting_accessory is not None):
+                                and dynamic_text_autotargeting_alternative is not None
+                                and dynamic_text_autotargeting_competitor is not None
+                                and dynamic_text_autotargeting_broader is not None
+                                and dynamic_text_autotargeting_accessory is not None):
 
-                if (len(dynamic_text_domain_urls) ==
-                        len(dynamic_text_autotargeting_exact) ==
-                        len(dynamic_text_autotargeting_alternative) ==
-                        len(dynamic_text_autotargeting_competitor) ==
-                        len(dynamic_text_autotargeting_broader) ==
-                        len(dynamic_text_autotargeting_accessory)):
+                dynamic_text_params = {"DomainUrl": dynamic_text_domain_urls, "AutotargetingCategories":
+                            [{"Category": "EXACT", "Value": dynamic_text_autotargeting_exact},
+                             {"Category": "ALTERNATIVE", "Value": dynamic_text_autotargeting_alternative},
+                             {"Category": "COMPETITOR", "Value": dynamic_text_autotargeting_competitor},
+                             {"Category": "BROADER", "Value": dynamic_text_autotargeting_broader},
+                             {"Category": "ACCESSORY", "Value": dynamic_text_autotargeting_accessory}]}
 
-                    dynamic_text_params = [{"DomainUrl": url, "AutotargetingCategories":
-                        [{"Category": "EXACT", "Value": exact},
-                         {"Category": "ALTERNATIVE", "Value": alternative},
-                         {"Category": "COMPETITOR", "Value": competitor},
-                         {"Category": "BROADER", "Value": broader},
-                         {"Category": "ACCESSORY", "Value": accessory}]}
-                                           for url, exact, alternative, competitor, broader, accessory in
-                                           zip(dynamic_text_domain_urls,
-                                               dynamic_text_autotargeting_exact,
-                                               dynamic_text_autotargeting_alternative,
-                                               dynamic_text_autotargeting_competitor,
-                                               dynamic_text_autotargeting_broader,
-                                               dynamic_text_autotargeting_accessory)
-                                           ]
+                result.setdefault("DynamicTextAdGroup", dynamic_text_params)
 
-                    result.setdefault("DynamicTextAdGroup", dynamic_text_params)
-
-                else:
-                    print("dynamic_text params incorrect")
-                    return None
             else:
                 print("dynamic_text params incorrect")
                 return None
 
         if dynamic_text_feed_ids is not None:
             if (dynamic_text_feed_autotargeting_exact is not None
-                    and dynamic_text_feed_autotargeting_alternative is not None
-                    and dynamic_text_feed_autotargeting_competitor is not None
-                    and dynamic_text_feed_autotargeting_broader is not None
-                    and dynamic_text_feed_autotargeting_accessory is not None):
+                        and dynamic_text_feed_autotargeting_alternative is not None
+                        and dynamic_text_feed_autotargeting_competitor is not None
+                        and dynamic_text_feed_autotargeting_broader is not None
+                        and dynamic_text_feed_autotargeting_accessory is not None):
 
-                if (len(dynamic_text_feed_ids) ==
-                        len(dynamic_text_feed_autotargeting_exact) ==
-                        len(dynamic_text_feed_autotargeting_alternative) ==
-                        len(dynamic_text_feed_autotargeting_competitor) ==
-                        len(dynamic_text_feed_autotargeting_broader) ==
-                        len(dynamic_text_feed_autotargeting_accessory)):
+                dynamic_text_feed_params = {"FeedId": dynamic_text_feed_ids, "AutotargetingCategories":
+                                [{"Category": "EXACT", "Value": dynamic_text_feed_autotargeting_exact},
+                                 {"Category": "ALTERNATIVE", "Value": dynamic_text_feed_autotargeting_alternative},
+                                 {"Category": "COMPETITOR", "Value": dynamic_text_feed_autotargeting_competitor},
+                                 {"Category": "BROADER", "Value": dynamic_text_feed_autotargeting_broader},
+                                 {"Category": "ACCESSORY", "Value": dynamic_text_feed_autotargeting_accessory}]}
 
-                    dynamic_text_feed_params = [{"FeedId": feed_id, "AutotargetingCategories":
-                        [{"Category": "EXACT", "Value": exact},
-                         {"Category": "ALTERNATIVE", "Value": alternative},
-                         {"Category": "COMPETITOR", "Value": competitor},
-                         {"Category": "BROADER", "Value": broader},
-                         {"Category": "ACCESSORY", "Value": accessory}]}
-                                           for feed_id, exact, alternative, competitor, broader, accessory in
-                                           zip(dynamic_text_feed_ids,
-                                               dynamic_text_feed_autotargeting_exact,
-                                               dynamic_text_feed_autotargeting_alternative,
-                                               dynamic_text_feed_autotargeting_competitor,
-                                               dynamic_text_feed_autotargeting_broader,
-                                               dynamic_text_feed_autotargeting_accessory)
-                                           ]
-                    result.setdefault("DynamicTextFeedAdGroup", dynamic_text_feed_params)
+                result.setdefault("DynamicTextFeedAdGroup", dynamic_text_feed_params)
 
-                else:
-                    print("dynamic_text_feed params incorrect")
-                    return None
             else:
                 print("dynamic_text_feed params incorrect")
                 return None
 
+
+        # if dynamic_text_domain_urls is not None:
+        #     if (dynamic_text_autotargeting_exact is not None
+        #             and dynamic_text_autotargeting_alternative is not None
+        #             and dynamic_text_autotargeting_competitor is not None
+        #             and dynamic_text_autotargeting_broader is not None
+        #             and dynamic_text_autotargeting_accessory is not None):
+        #
+        #         if (len(dynamic_text_domain_urls) ==
+        #                 len(dynamic_text_autotargeting_exact) ==
+        #                 len(dynamic_text_autotargeting_alternative) ==
+        #                 len(dynamic_text_autotargeting_competitor) ==
+        #                 len(dynamic_text_autotargeting_broader) ==
+        #                 len(dynamic_text_autotargeting_accessory)):
+        #
+        #             dynamic_text_params = [{"DomainUrl": url, "AutotargetingCategories":
+        #                 [{"Category": "EXACT", "Value": exact},
+        #                  {"Category": "ALTERNATIVE", "Value": alternative},
+        #                  {"Category": "COMPETITOR", "Value": competitor},
+        #                  {"Category": "BROADER", "Value": broader},
+        #                  {"Category": "ACCESSORY", "Value": accessory}]}
+        #                                    for url, exact, alternative, competitor, broader, accessory in
+        #                                    zip(dynamic_text_domain_urls,
+        #                                        dynamic_text_autotargeting_exact,
+        #                                        dynamic_text_autotargeting_alternative,
+        #                                        dynamic_text_autotargeting_competitor,
+        #                                        dynamic_text_autotargeting_broader,
+        #                                        dynamic_text_autotargeting_accessory)
+        #                                    ]
+        #
+        #             result.setdefault("DynamicTextAdGroup", dynamic_text_params)
+        #
+        #         else:
+        #             print("dynamic_text params incorrect")
+        #             return None
+        #     else:
+        #         print("dynamic_text params incorrect")
+        #         return None
+        #
+        # if dynamic_text_feed_ids is not None:
+        #     if (dynamic_text_feed_autotargeting_exact is not None
+        #             and dynamic_text_feed_autotargeting_alternative is not None
+        #             and dynamic_text_feed_autotargeting_competitor is not None
+        #             and dynamic_text_feed_autotargeting_broader is not None
+        #             and dynamic_text_feed_autotargeting_accessory is not None):
+        #
+        #         if (len(dynamic_text_feed_ids) ==
+        #                 len(dynamic_text_feed_autotargeting_exact) ==
+        #                 len(dynamic_text_feed_autotargeting_alternative) ==
+        #                 len(dynamic_text_feed_autotargeting_competitor) ==
+        #                 len(dynamic_text_feed_autotargeting_broader) ==
+        #                 len(dynamic_text_feed_autotargeting_accessory)):
+        #
+        #             dynamic_text_feed_params = [{"FeedId": feed_id, "AutotargetingCategories":
+        #                 [{"Category": "EXACT", "Value": exact},
+        #                  {"Category": "ALTERNATIVE", "Value": alternative},
+        #                  {"Category": "COMPETITOR", "Value": competitor},
+        #                  {"Category": "BROADER", "Value": broader},
+        #                  {"Category": "ACCESSORY", "Value": accessory}]}
+        #                                    for feed_id, exact, alternative, competitor, broader, accessory in
+        #                                    zip(dynamic_text_feed_ids,
+        #                                        dynamic_text_feed_autotargeting_exact,
+        #                                        dynamic_text_feed_autotargeting_alternative,
+        #                                        dynamic_text_feed_autotargeting_competitor,
+        #                                        dynamic_text_feed_autotargeting_broader,
+        #                                        dynamic_text_feed_autotargeting_accessory)
+        #                                    ]
+        #             result.setdefault("DynamicTextFeedAdGroup", dynamic_text_feed_params)
+        #
+        #         else:
+        #             print("dynamic_text_feed params incorrect")
+        #             return None
+        #     else:
+        #         print("dynamic_text_feed params incorrect")
+        #         return None
+        # print(result)
         return result
 
     def add_groups(self, groups: list):
@@ -1429,6 +1512,7 @@ class YandexDirectEcomru:
         body = {"method": "add",
                 "params": {"AdGroups": groups}
                 }
+        print(body)
         return self.exec_post_api5(service, self.head, body)
 
     def delete_groups(self, groups: list):
@@ -1859,7 +1943,12 @@ class YandexDirectEcomru:
                 }
         return self.exec_post_api5(service, self.head, body)
 
-    def get_ads(self, ids=None, groups=None, campaigns=None, text_params=True):
+    def get_ads(self, ids: list[int] = None,
+                groups: list[int] = None,
+                campaigns: list[int] = None,
+                text_params: bool = None,
+                dynamic_text_params: bool = None
+                ):
         """
         Возвращает параметры объявлений, отвечающих заданным критериям
         """
@@ -1902,6 +1991,13 @@ class YandexDirectEcomru:
                 "AdExtensions", "DisplayUrlPathModeration", "VideoExtension", "TurboPageId", "TurboPageModeration",
                 "BusinessId"]
             body["params"].setdefault("TextAdFieldNames", text_fields)
+
+        if dynamic_text_params is True:
+            dynamic_text_fields = [
+                "AdImageHash", "SitelinkSetId", "Text", "VCardId", "AdImageModeration", "SitelinksModeration",
+                "VCardModeration", "AdExtensions"]
+
+            body["params"].setdefault("DynamicTextAdFieldNames", dynamic_text_fields)
 
         return self.exec_post_api5(service, self.head, body)
 

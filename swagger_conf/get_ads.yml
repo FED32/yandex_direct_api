@@ -49,8 +49,18 @@ parameters:
         description: Отбирать объявления указанных кампаний.  От 1 до 10 элементов в массиве. Хотя бы один из параметров ids, groups и campaigns (могут присутствовать все)
       text_params:
         type: "string"
-        example: "true"
+        example: "false"
+        enum:
+          - "true"
+          - "false"
         description: Выводить поле параметров текстово-графических объявлений
+      dynamic_text_params:
+        type: "string"
+        example: "false"
+        enum:
+          - "true"
+          - "false"
+        description: Выводить поле параметров динамических объявлений
 responses:
   200:
     description: "OK"

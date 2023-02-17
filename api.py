@@ -63,6 +63,15 @@ class HttpError(Exception):
         self.message = message
 
 
+def to_boolean(x):
+    if x == "true":
+        return True
+    elif x == "false":
+        return False
+    else:
+        return None
+
+
 @app.route('/yandexdirect/authlink', methods=['GET'])
 @swag_from("swagger_conf/authlink.yml")
 def gen_auth_link():
@@ -128,7 +137,17 @@ def get_campaigns():
 
         direct = YandexDirectEcomru(login, token)
 
-        return jsonify(direct.get_campaigns().json())
+        text_params = to_boolean(json_file.get("text_params", "false"))
+        dynamic_text_params = to_boolean(json_file.get("dynamic_text_params", "false"))
+
+        campaigns = direct.get_campaigns(text_params=text_params, dynamic_text_params=dynamic_text_params)
+
+        if campaigns is not None:
+            logger.info("get campaigns: OK")
+            return jsonify(campaigns.json())
+        else:
+            logger.error("get campaigns: yandex direct api error")
+            return jsonify({'error': 'yandex direct api error'})
 
     except BadRequestKeyError:
         logger.error("get campaigns: BadRequest")
@@ -154,11 +173,16 @@ def get_groups():
         # token = json_file["token"]
         token = get_token_from_db(client_login=login, engine=engine, logger=logger)
 
-        campaigns = json_file["campaigns"]
-
         direct = YandexDirectEcomru(login, token)
 
-        groups = direct.get_groups(campaigns=campaigns)
+        campaigns = json_file["campaigns"]
+        text_feed_params = to_boolean(json_file.get("text_feed_params", "false"))
+        dynamic_text_params = to_boolean(json_file.get("dynamic_text_params", "false"))
+        dynamic_text_feed_params = to_boolean(json_file.get("dynamic_text_feed_params", "false"))
+
+        groups = direct.get_groups(campaigns=campaigns, text_feed_params=text_feed_params,
+                                   dynamic_text_params=dynamic_text_params,
+                                   dynamic_text_feed_params=dynamic_text_feed_params)
 
         if groups is not None:
             logger.info("get groups: OK")
@@ -196,16 +220,11 @@ def get_ads():
         ids = json_file.get("ids", None)
         groups = json_file.get("groups", None)
         campaigns = json_file.get("campaigns", None)
-        text_params = json_file.get("text_params", True)
+        text_params = to_boolean(json_file.get("text_params", "false"))
+        dynamic_text_params = to_boolean(json_file.get("dynamic_text_params", "false"))
 
-        if text_params is True or text_params == "true":
-            text_params_ = True
-        elif text_params == "false":
-            text_params_ = False
-        else:
-            text_params_ = False
-
-        result = direct.get_ads(ids=ids, groups=groups, campaigns=campaigns, text_params=text_params_)
+        result = direct.get_ads(ids=ids, groups=groups, campaigns=campaigns, text_params=text_params,
+                                dynamic_text_params=dynamic_text_params)
 
         if result is None:
             logger.error("get ads: incorrect params or yandex direct error")
