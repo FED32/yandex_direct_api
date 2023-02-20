@@ -33,7 +33,7 @@ parameters:
         type:
           - array
             - long
-        example: [1234567890, 0987654321]
+        example: [1234567890, 987654321]
         description: список id кампаний (не более 10)
       text_feed_params:
         type: "string"
