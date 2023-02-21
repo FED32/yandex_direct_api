@@ -72,8 +72,10 @@ def to_boolean(x):
         return None
 
 @app.after_request
-def apply_caching(response):
+def apply_headers(response):
     response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "content-type"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST"
     return response
 
 
