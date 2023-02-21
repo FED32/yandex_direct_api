@@ -71,6 +71,11 @@ def to_boolean(x):
     else:
         return None
 
+@app.after_request
+def apply_caching(response):
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    return response
+
 
 @app.route('/yandexdirect/authlink', methods=['GET'])
 @swag_from("swagger_conf/authlink.yml")
