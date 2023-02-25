@@ -1,0 +1,40 @@
+swagger: "2.0"
+info:
+  title: "Yandex Direct Ecom API Documentation"
+  contact:
+    email: "s.fedyushin@ecomru.ru"
+  basePath: "/swagger"
+paths:
+  "/yandexdirect/getregions":
+    post:
+tags:
+  - info
+#    - info
+summary: "Получить справочные данные: регионы"
+description: "Метод для получения регионов с обновлением данных в БД"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "body"
+  required: true
+  schema:
+    type: "object"
+    properties:
+      login:
+        type: "string"
+        example: "aaabbbq123@yandex.ru"
+      update_db:
+        type: "string"
+        example: "false"
+        enum:
+          - "false"
+          - "true"
+        description: Обновление данных в БД
+responses:
+  200:
+    description: "OK"
+  400:
+    description: "Bad Request"

@@ -80,18 +80,16 @@ class YandexDirectEcomru:
 
     @staticmethod
     def u(x):
-        """
-        Вспомогательная функция кодировки
-        """
+        """Вспомогательная функция кодировки"""
+
         if type(x) == type(b''):
             return x.decode('utf8')
         else:
             return x
 
     def add_into_counter(self, response):
-        """
-        Функция для добавления данных в счетчик запросов
-        """
+        """Функция для добавления данных в счетчик запросов"""
+
         self.counter.append({'timestamp': str(datetime.now()),
                              'request_id': response.headers.get("RequestId", None),
                              'status_code': response.status_code,
@@ -99,9 +97,8 @@ class YandexDirectEcomru:
 
     @staticmethod
     def print_response_info(response):
-        """
-        Функция для вывода сообщений о ходе запроса
-        """
+        """Функция для вывода сообщений о ходе запроса"""
+
         if response.status_code != 200 or response.json().get("error", False):
             print("Произошла ошибка при обращении к серверу API Директа.")
             print("Код ошибки: {}".format(response.json()["error"]["error_code"]))
@@ -112,9 +109,8 @@ class YandexDirectEcomru:
             print("Информация о баллах: {}".format(response.headers.get("Units", False)))
 
     def exec_post_api5(self, service, headers, body):
-        """
-        Метод для выполнения POST запроса к API версии 5
-        """
+        """Метод для выполнения POST запроса к API версии 5"""
+
         try:
             response = requests.post(self.urls[2] + service, headers=headers,
                                      data=json.dumps(body, ensure_ascii=False).encode('utf8'))
@@ -170,9 +166,7 @@ class YandexDirectEcomru:
                    dynamic_text_params: bool = None,
                    dynamic_text_feed_params: bool = None
                    ):
-        """
-        Возвращает параметры групп, отвечающих заданным критериям
-        """
+        """Возвращает параметры групп, отвечающих заданным критериям"""
 
         service = 'adgroups'
 
@@ -240,9 +234,8 @@ class YandexDirectEcomru:
             return None
 
     def get_wordstat_report_list(self):
-        """
-        Возвращает список сформированных и формируемых отчетов о статистике поисковых запросов
-        """
+        """Возвращает список сформированных и формируемых отчетов о статистике поисковых запросов"""
+
         body = {"method": "GetWordstatReportList",
                 "token": self.token}
         try:
@@ -264,9 +257,8 @@ class YandexDirectEcomru:
             return None
 
     def get_wordstat_report(self, report_id: int):
-        """
-        Возвращает отчет о статистике поисковых запросов
-        """
+        """Возвращает отчет о статистике поисковых запросов"""
+
         body = {"method": "GetWordstatReport",
                 "param": int(report_id),
                 "token": self.token}
@@ -289,9 +281,8 @@ class YandexDirectEcomru:
             return None
 
     def delete_wordstat_report(self, report_id):
-        """
-        Удаляет отчет о статистике поисковых запросов
-        """
+        """Удаляет отчет о статистике поисковых запросов"""
+
         body = {"method": "DeleteWordstatReport",
                 "param": int(report_id),
                 "token": self.token}
@@ -374,9 +365,8 @@ class YandexDirectEcomru:
             return None
 
     def get_forecast(self, forecast_id):
-        """
-        Возвращает сформированный прогноз показов, кликов и затрат по его идентификатору
-        """
+        """Возвращает сформированный прогноз показов, кликов и затрат по его идентификатору"""
+
         body = {"method": "GetForecast",
                 "param": int(forecast_id),
                 "token": self.token
@@ -400,9 +390,8 @@ class YandexDirectEcomru:
             return None
 
     def delete_forecast_report(self, forecast_id):
-        """
-        Удаляет отчет о прогнозируемом количестве показов и кликов, затратах на кампанию
-        """
+        """Удаляет отчет о прогнозируемом количестве показов и кликов, затратах на кампанию"""
+
         body = {"method": "DeleteForecastReport",
                 "param": int(forecast_id),
                 "token": self.token
@@ -469,9 +458,7 @@ class YandexDirectEcomru:
                                 tracking_params: str = None
                                 # update=False
                                 ):
-        """
-        Возвращает словарь с параметрами текстовой кампании
-        """
+        """Возвращает словарь с параметрами текстовой кампании"""
 
         result = {"TextCampaign": {"BiddingStrategy": {"Search": {},
                                                        "Network": {}}
@@ -499,10 +486,6 @@ class YandexDirectEcomru:
         #                                                           "OptimizeGoalId": rel_kw_opt_goal_id}
         if goal_ids is not None and goal_vals is not None:
             try:
-                # if update is True:
-                #     goals = [{"GoalId": goal_id, "Value": goal_val, "Operation": "SET", "IsMetrikaSourceOfValue": "NO"}
-                #              for goal_id, goal_val in zip(goal_ids, goal_vals)]
-                # else:
                 goals = [{"GoalId": goal_id, "Value": goal_val, "IsMetrikaSourceOfValue": "NO"}
                          for goal_id, goal_val in zip(goal_ids, goal_vals)]
 
@@ -525,14 +508,12 @@ class YandexDirectEcomru:
                 if s_bid_ceiling is not None:
                     result["TextCampaign"]["BiddingStrategy"]["Search"] = {"BiddingStrategyType": s_bid_strat,
                                                                            "WbMaximumClicks":
-                                                                               {
-                                                                                   'WeeklySpendLimit': s_weekly_spend_limit,
-                                                                                   'BidCeiling': s_bid_ceiling}}
+                                                                               {'WeeklySpendLimit': s_weekly_spend_limit,
+                                                                                'BidCeiling': s_bid_ceiling}}
                 else:
                     result["TextCampaign"]["BiddingStrategy"]["Search"] = {"BiddingStrategyType": s_bid_strat,
                                                                            "WbMaximumClicks":
-                                                                               {
-                                                                                   "WeeklySpendLimit": s_weekly_spend_limit}}
+                                                                               {"WeeklySpendLimit": s_weekly_spend_limit}}
             elif s_bid_strat == 'WB_MAXIMUM_CONVERSION_RATE':
                 result["TextCampaign"]["BiddingStrategy"]["Search"] = {"BiddingStrategyType": s_bid_strat,
                                                                        "WbMaximumConversionRate": {
@@ -541,7 +522,7 @@ class YandexDirectEcomru:
                 if s_bid_ceiling is not None:
                     result["TextCampaign"]["BiddingStrategy"]["Search"]["WbMaximumConversionRate"].setdefault(
                         "BidCeiling",
-                        s_bid_ceiling * 1e6)
+                        s_bid_ceiling)
 
             elif s_bid_strat == 'AVERAGE_CPC':
                 result["TextCampaign"]["BiddingStrategy"]["Search"] = {"BiddingStrategyType": s_bid_strat,
@@ -622,24 +603,19 @@ class YandexDirectEcomru:
                 result["TextCampaign"]["BiddingStrategy"]["Network"] = {"BiddingStrategyType": n_bid_strat}
             elif n_bid_strat == 'WB_MAXIMUM_CLICKS':
                 result["TextCampaign"]["BiddingStrategy"]["Network"] = {"BiddingStrategyType": n_bid_strat,
-                                                                        "WbMaximumClicks": {
-                                                                            "WeeklySpendLimit": n_weekly_spend_limit}}
+                                                                        "WbMaximumClicks": {"WeeklySpendLimit": n_weekly_spend_limit}}
                 if n_bid_ceiling is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Network"]["WbMaximumClicks"].setdefault("BidCeiling",
-                                                                                                       n_bid_ceiling)
+                    result["TextCampaign"]["BiddingStrategy"]["Network"]["WbMaximumClicks"].setdefault("BidCeiling", n_bid_ceiling)
             elif n_bid_strat == 'WB_MAXIMUM_CONVERSION_RATE':
                 result["TextCampaign"]["BiddingStrategy"]["Network"] = {"BiddingStrategyType": n_bid_strat,
                                                                         "WbMaximumConversionRate": {
                                                                             "WeeklySpendLimit": n_weekly_spend_limit,
                                                                             "GoalId": n_goal_id}}
                 if n_bid_ceiling is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Network"]["WbMaximumConversionRate"].setdefault(
-                        "BidCeiling",
-                        n_bid_ceiling)
+                    result["TextCampaign"]["BiddingStrategy"]["Network"]["WbMaximumConversionRate"].setdefault("BidCeiling", n_bid_ceiling)
             elif n_bid_strat == 'AVERAGE_CPC':
                 result["TextCampaign"]["BiddingStrategy"]["Network"] = {"BiddingStrategyType": n_bid_strat,
-                                                                        "AverageCpc": {
-                                                                            "AverageCpc": n_average_cpc}}
+                                                                        "AverageCpc": {"AverageCpc": n_average_cpc}}
                 if n_weekly_spend_limit is not None:
                     result["TextCampaign"]["BiddingStrategy"]["Network"]["AverageCpc"].setdefault("WeeklySpendLimit",
                                                                                                   n_weekly_spend_limit)
@@ -664,37 +640,29 @@ class YandexDirectEcomru:
                     result["TextCampaign"]["BiddingStrategy"]["Network"]["AverageRoi"].setdefault("WeeklySpendLimit",
                                                                                                   n_weekly_spend_limit)
                 if n_bid_ceiling is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Network"]["AverageRoi"].setdefault("BidCeiling",
-                                                                                                  n_bid_ceiling)
+                    result["TextCampaign"]["BiddingStrategy"]["Network"]["AverageRoi"].setdefault("BidCeiling", n_bid_ceiling)
                 if n_profitability is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Network"]["AverageRoi"].setdefault("Profitability",
-                                                                                                  n_profitability)
+                    result["TextCampaign"]["BiddingStrategy"]["Network"]["AverageRoi"].setdefault("Profitability", n_profitability)
             elif n_bid_strat == 'AVERAGE_CRR':
                 result["TextCampaign"]["BiddingStrategy"]["Network"] = {"BiddingStrategyType": n_bid_strat,
                                                                         "AverageCrr": {
                                                                             "Crr": n_crr,
                                                                             "GoalId": n_goal_id}}
                 if n_weekly_spend_limit is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Network"]["AverageCrr"].setdefault("WeeklySpendLimit",
-                                                                                                  n_weekly_spend_limit)
+                    result["TextCampaign"]["BiddingStrategy"]["Network"]["AverageCrr"].setdefault("WeeklySpendLimit", n_weekly_spend_limit)
             elif n_bid_strat == 'PAY_FOR_CONVERSION':
                 result["TextCampaign"]["BiddingStrategy"]["Network"] = {"BiddingStrategyType": n_bid_strat,
                                                                         "PayForConversion": {
                                                                             "Cpa": n_cpa,
                                                                             "GoalId": n_goal_id}}
                 if n_weekly_spend_limit is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Network"]["PayForConversion"].setdefault(
-                        "WeeklySpendLimit",
-                        n_weekly_spend_limit)
+                    result["TextCampaign"]["BiddingStrategy"]["Network"]["PayForConversion"].setdefault("WeeklySpendLimit", n_weekly_spend_limit)
             elif n_bid_strat == 'PAY_FOR_CONVERSION_CRR':
                 result["TextCampaign"]["BiddingStrategy"]["Network"] = {"BiddingStrategyType": n_bid_strat,
-                                                                        "PayForConversionCrr": {
-                                                                            "Crr": n_crr,
-                                                                            "GoalId": n_goal_id}}
+                                                                        "PayForConversionCrr": {"Crr": n_crr,
+                                                                                                "GoalId": n_goal_id}}
                 if n_weekly_spend_limit is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Network"]["PayForConversionCrr"].setdefault(
-                        "WeeklySpendLimit",
-                        n_weekly_spend_limit)
+                    result["TextCampaign"]["BiddingStrategy"]["Network"]["PayForConversionCrr"].setdefault("WeeklySpendLimit", n_weekly_spend_limit)
             elif n_bid_strat == 'SERVING_OFF':
                 result["TextCampaign"]["BiddingStrategy"]["Network"] = {"BiddingStrategyType": n_bid_strat}
         except TypeError:
@@ -880,9 +848,11 @@ class YandexDirectEcomru:
                 if s_weekly_spend_limit is not None:
                     result["TextCampaign"]["BiddingStrategy"]["Search"]["PayForConversion"].setdefault("WeeklySpendLimit", s_weekly_spend_limit)
 
-            # elif s_bid_strat == "HIGHEST_POSITION":
-            #
-            # elif s_bid_strat == "SERVING_OFF":
+            elif s_bid_strat == "HIGHEST_POSITION":
+                pass
+
+            elif s_bid_strat == "SERVING_OFF":
+                pass
 
             else:
                 print("Не корректный тип стратегии на поиске")
@@ -897,7 +867,8 @@ class YandexDirectEcomru:
                 if n_limit_percent is not None:
                     result["TextCampaign"]["BiddingStrategy"]["Network"]["NetworkDefault"].setdefault("LimitPercent", n_limit_percent)
 
-            # elif n_bid_strat == "MAXIMUM_COVERAGE":
+            elif n_bid_strat == "MAXIMUM_COVERAGE":
+                pass
 
             elif n_bid_strat == "WB_MAXIMUM_CLICKS":
                 result["TextCampaign"]["BiddingStrategy"]["Network"].setdefault("WbMaximumClicks", dict())
@@ -975,7 +946,8 @@ class YandexDirectEcomru:
                 if n_weekly_spend_limit is not None:
                     result["TextCampaign"]["BiddingStrategy"]["Network"]["PayForConversionCrr"].setdefault("WeeklySpendLimit", n_weekly_spend_limit)
 
-            # elif n_bid_strat == "SERVING_OFF":
+            elif n_bid_strat == "SERVING_OFF":
+                pass
 
             else:
                 print("Не корректный тип стратегии в сетях")
@@ -1014,9 +986,8 @@ class YandexDirectEcomru:
                         time_targeting_start_hour=None,
                         time_targeting_end_hour=None
                         ):
-        """
-        Возвращает словарь с параметрами кампании
-        """
+        """Возвращает словарь с параметрами кампании"""
+
         result = {"Name": name,
                   "StartDate": start_date}
 
@@ -1294,7 +1265,7 @@ class YandexDirectEcomru:
         self.print_response_info(response)
         return response
 
-    def dictionaries(self, dict_names: list):
+    def dictionaries(self, dict_names: list[str]):
         """
         Возвращает справочные данные: регионы, часовые пояса, курсы валют,
         список станций метрополитена, ограничения на значения параметров, внешние сети (SSP),
