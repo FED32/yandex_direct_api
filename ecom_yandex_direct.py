@@ -11,7 +11,7 @@ from time import sleep
 
 
 class YandexDirectEcomru:
-    def __init__(self, login=None, token=None, sandbox=False, use_operator_units='false'):
+    def __init__(self, login=None, token=None, sandbox=False, use_operator_units='false', lang="en"):
         self.login = login
         self.token = token
         self.client_id = None
@@ -27,7 +27,7 @@ class YandexDirectEcomru:
                         'https://api-sandbox.direct.yandex.com/json/v5/']
 
         self.head = {"Authorization": f'Bearer {self.token}',
-                     "Accept-Language": "en",
+                     "Accept-Language": f"{lang}",
                      "Client-Login": self.login,
                      "Content-Type": "application/json; charset=utf-8",
                      "Use-Operator-Units": use_operator_units
