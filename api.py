@@ -1678,7 +1678,7 @@ def get_regions():
         token = get_token_from_db(client_login=login, engine=engine, logger=logger)
         update_db = to_boolean(json_file.get("update_db", "false"))
 
-        direct = YandexDirectEcomru(login, token)
+        direct = YandexDirectEcomru(login, token, lang="ru")
 
         result = direct.dictionaries(dict_names=["GeoRegions"])
 
