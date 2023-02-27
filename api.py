@@ -9,7 +9,7 @@ import os
 import time
 import pandas as pd
 from get_token_from_db import get_token_from_db
-from db_work import put_query, get_clients, get_objects_from_db
+from db_work import put_query, get_clients, get_objects_from_db, add_regions, get_table_from_db
 from sqlalchemy import create_engine
 
 
@@ -70,6 +70,7 @@ def to_boolean(x):
         return False
     else:
         return None
+
 
 @app.after_request
 def apply_headers(response):
@@ -1330,6 +1331,8 @@ def get_campaigns_db():
 
         res = get_objects_from_db(login=login, table_name='ya_ads_addcampaigns', engine=engine, logger=logger)
 
+        # print(type(res))
+
         if res is None:
             raise HttpError(400, f'accounts database error')
 
@@ -1348,6 +1351,7 @@ def get_campaigns_db():
     except BaseException as ex:
         logger.error(f'get_campaigns_db: {ex}')
         raise HttpError(400, f'{ex}')
+
 
 @app.route('/yandexdirect/adddynamictextcampaign', methods=['POST'])
 @swag_from("swagger_conf/add_dynamic_text_campaign.yml")
@@ -1519,6 +1523,7 @@ def get_feeds():
         logger.error(f'get feeds: {ex}')
         raise HttpError(400, f'{ex}')
 
+
 @app.route('/yandexdirect/addfeeds', methods=['POST'])
 @swag_from("swagger_conf/add_feed.yml")
 def add_feeds():
@@ -1609,6 +1614,7 @@ def delete_feeds():
         logger.error(f'delete feeds: {ex}')
         raise HttpError(400, f'{ex}')
 
+
 @app.route('/yandexdirect/updatefeed', methods=['POST'])
 @swag_from("swagger_conf/update_feed.yml")
 def update_feed():
@@ -1660,12 +1666,73 @@ def update_feed():
         raise HttpError(400, f'{ex}')
 
 
+@app.route('/yandexdirect/getregions', methods=['POST'])
+@swag_from("swagger_conf/get_regions.yml")
+def get_regions():
+    """Метод для получения регионов с сервера яндекса и занесения их в базу данных"""
+
+    try:
+        json_file = request.get_json(force=False)
+
+        login = json_file["login"]
+        token = get_token_from_db(client_login=login, engine=engine, logger=logger)
+        update_db = to_boolean(json_file.get("update_db", "false"))
+
+        direct = YandexDirectEcomru(login, token)
+
+        result = direct.dictionaries(dict_names=["GeoRegions"])
+
+        if result is None:
+            logger.error("get regions: yandex direct error")
+            return jsonify({'error': 'yandex direct error'})
+        else:
+            logger.info(f"get regions: {result.status_code}")
+
+            if update_db is True:
+                data = result.json()["result"]["GeoRegions"]
+                add_regions(engine, logger, data, table_name="ya_ads_regions")
+
+            return jsonify(result.json())
+
+    except BadRequestKeyError:
+        logger.error("get regions: BadRequest")
+        return Response(None, 400)
+
+    except KeyError:
+        logger.error("get regions: KeyError")
+        return Response(None, 400)
+
+    except BaseException as ex:
+        logger.error(f'get regions: {ex}')
+        raise HttpError(400, f'{ex}')
 
 
+@app.route('/yandexdirect/getregionsdb', methods=['GET'])
+@swag_from("swagger_conf/get_regions_db.yml")
+def get_regions_db():
+    """Метод для получения регионов из базы данных"""
 
+    try:
+        res = get_table_from_db(table_name='ya_ads_regions', engine=engine, logger=logger)
 
+        print(type(res))
 
+        if res is None:
+            raise HttpError(400, f'database error')
 
+        else:
+            logger.info(f"get_regions_db: OK")
+            return jsonify({'result': res})
 
+    except BadRequestKeyError:
+        logger.error("get_regions_db: BadRequest")
+        return Response(None, 400)
 
+    except KeyError:
+        logger.error("get_regions_db: KeyError")
+        return Response(None, 400)
+
+    except BaseException as ex:
+        logger.error(f'get_regions_db: {ex}')
+        raise HttpError(400, f'{ex}')
 
