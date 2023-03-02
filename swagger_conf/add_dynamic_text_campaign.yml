@@ -211,6 +211,12 @@ parameters:
           - array
             - string
         example: [ "MONITORING", "MODERATION", "MONEY_IN", "MONEY_OUT", "FINISHED" ]
+        enum:
+          - "MONITORING"
+          - "MODERATION"
+          - "MONEY_IN"
+          - "MONEY_OUT"
+          - "FINISHED"
         description: События, о которых необходимо информировать по SMS (не обязательно)
       sms_time_from:
         type: "string"
@@ -288,6 +294,9 @@ parameters:
       time_targeting_cons_working_weekends:
         type: "string"
         example: "YES"
+        enum:
+          - "YES"
+          - "NO"
         description: Менять ли расписание показов при переносе рабочего дня на субботу или воскресенье
       time_targeting_suspend_on_holidays:
         type: "string"
