@@ -11,6 +11,8 @@ import pandas as pd
 from get_token_from_db import get_token_from_db
 from db_work import put_query, get_clients, get_objects_from_db, add_regions, get_table_from_db
 from sqlalchemy import create_engine
+import requests
+from fake_useragent import UserAgent
 
 
 host = os.environ.get('ECOMRU_PG_HOST', None)
@@ -1578,6 +1580,7 @@ def add_feeds():
         logger.error(f'add feeds: {ex}')
         raise HttpError(400, f'{ex}')
 
+
 @app.route('/yandexdirect/deletefeeds', methods=['POST'])
 @swag_from("swagger_conf/delete_feeds.yml")
 def delete_feeds():
@@ -1735,4 +1738,51 @@ def get_regions_db():
     except BaseException as ex:
         logger.error(f'get_regions_db: {ex}')
         raise HttpError(400, f'{ex}')
+
+
+@app.route('/yandexdirect/gethtmlbyurl/url=<path:url>', methods=['GET'])
+@swag_from("swagger_conf/get_html.yml")
+def get_html_by_url(url):
+    """Принимает url, возвращает страницу"""
+
+    try:
+        print(url)
+        # response = redirect(f'https://{url}')
+        ua = UserAgent()
+        header = {"User-Agent": str(ua.firefox)}
+
+        print(header)
+
+        resp = requests.get(url, headers=header)
+
+        print(resp.status_code)
+
+        excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
+        headers = [(name, value) for (name, value) in resp.raw.headers.items() if name.lower() not in excluded_headers]
+        response = Response(resp.content, resp.status_code, headers=headers)
+        # response = Response(resp.content, resp.status_code)
+
+        return response
+
+    except BadRequestKeyError:
+        logger.error("get html: BadRequest")
+        return Response(None, 400)
+
+    except KeyError:
+        logger.error("get html: KeyError")
+        return Response(None, 400)
+
+    except BaseException as ex:
+        logger.error(f'get html: {ex}')
+        raise HttpError(400, f'{ex}')
+
+    except ConnectionError:
+        logger.error(f'get html: {ex}')
+        raise HttpError(400, f'{ex}')
+
+
+
+
+
+
 
