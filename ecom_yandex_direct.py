@@ -446,7 +446,7 @@ class YandexDirectEcomru:
                                 enable_company_info="YES",
                                 enable_site_monitoring="NO",
                                 exclude_paused_competing_ads="NO",
-                                maintain_network_cpc="NO",
+                                # maintain_network_cpc="NO",
                                 require_servicing="NO",
                                 campaign_exact_phrase_matching_enabled="NO",
                                 counter_ids=None,
@@ -472,7 +472,7 @@ class YandexDirectEcomru:
             {"Option": "ENABLE_COMPANY_INFO", "Value": enable_company_info},
             {"Option": "ENABLE_SITE_MONITORING", "Value": enable_site_monitoring},
             {"Option": "EXCLUDE_PAUSED_COMPETING_ADS", "Value": exclude_paused_competing_ads},
-            {"Option": "MAINTAIN_NETWORK_CPC", "Value": maintain_network_cpc},
+            # {"Option": "MAINTAIN_NETWORK_CPC", "Value": maintain_network_cpc},
             {"Option": "REQUIRE_SERVICING", "Value": require_servicing},
             {"Option": "CAMPAIGN_EXACT_PHRASE_MATCHING_ENABLED", "Value": campaign_exact_phrase_matching_enabled}
         ]

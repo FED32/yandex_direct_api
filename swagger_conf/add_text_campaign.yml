@@ -193,13 +193,13 @@ parameters:
           - "YES"
           - "NO"
         description: Рассчитывать прогнозируемые ставки без учета ставок в объявлениях конкурентов, остановленных в соответствии с временным таргетингом
-      maintain_network_cpc:
-        type: "string"
-        example: "NO"
-        enum:
-          - "YES"
-          - "NO"
-        description: Удерживать среднюю цену клика в сетях ниже средней цены на поиске
+#      maintain_network_cpc:
+#        type: "string"
+#        example: "NO"
+#        enum:
+#          - "YES"
+#          - "NO"
+#        description: Удерживать среднюю цену клика в сетях ниже средней цены на поиске
       require_servicing:
         type: "string"
         example: "NO"

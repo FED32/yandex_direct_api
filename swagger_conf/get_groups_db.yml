@@ -1,0 +1,41 @@
+swagger: "2.0"
+info:
+  title: "Yandex Direct Ecom API Documentation"
+  contact:
+    email: "s.fedyushin@ecomru.ru"
+  basePath: "/swagger"
+paths:
+  "/yandexdirect/getgroupsdb":
+    post:
+tags:
+  - adgroups
+#    - info
+summary: "Получить группы из БД"
+description: "Метод для получения групп клиента из БД"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "body"
+  required: true
+  schema:
+    type: "object"
+    properties:
+      login:
+        type: "string"
+        example: "aaabbbq123@yandex.ru"
+      campaign_id:
+        type: integer
+        example: 12345
+        description: ID кампании (не обязательно)
+      group_id:
+        type: integer
+        example: 12345
+        description: ID группы (не обязательно)
+responses:
+  200:
+    description: "OK"
+  400:
+    description: "Bad Request"
