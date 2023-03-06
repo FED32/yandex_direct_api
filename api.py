@@ -2,14 +2,14 @@ from flask import Flask, jsonify, request
 from flask import Response
 from werkzeug.exceptions import BadRequestKeyError
 from flasgger import Swagger, swag_from
-from config import Configuration
+from config import Configuration, errors_warnings_sourse
 import logger_api
 from ecom_yandex_direct import YandexDirectEcomru
 import os
 import time
 import pandas as pd
 from get_token_from_db import get_token_from_db
-from db_work import put_query, get_clients, get_objects_from_db, add_regions, get_table_from_db
+from db_work import put_query, get_clients, get_objects_from_db, get_groups_from_db, get_ads_from_db, add_regions, get_table_from_db, response_result
 from sqlalchemy import create_engine
 import requests
 from fake_useragent import UserAgent
@@ -31,6 +31,13 @@ target_session_attrs = 'read-write'
 
 db_params = f"postgresql://{user}:{password}@{host}:{port}/{db_name}"
 engine = create_engine(db_params)
+
+if errors_warnings_sourse == 'db':
+    errors_table = get_table_from_db('ya_ads_errors', engine, logger=logger_api, type='df')
+    warnings_table = get_table_from_db('ya_ads_warnings', engine, logger=logger_api, type='df')
+else:
+    errors_table = None
+    warnings_table = None
 
 
 app = Flask(__name__)
@@ -302,7 +309,7 @@ def add_text_campaign():
         enable_company_info = json_file.get("enable_company_info", "YES")
         enable_site_monitoring = json_file.get("enable_site_monitoring", "NO")
         exclude_paused_competing_ads = json_file.get("exclude_paused_competing_ads", "NO")
-        maintain_network_cpc = json_file.get("maintain_network_cpc", "NO")
+        # maintain_network_cpc = json_file.get("maintain_network_cpc", "NO") больше не поддерживается
         require_servicing = json_file.get("require_servicing", "NO")
         campaign_exact_phrase_matching_enabled = json_file.get("campaign_exact_phrase_matching_enabled", "NO")
 
@@ -345,7 +352,7 @@ def add_text_campaign():
                                                          enable_company_info= enable_company_info,
                                                          enable_site_monitoring=enable_site_monitoring,
                                                          exclude_paused_competing_ads=exclude_paused_competing_ads,
-                                                         maintain_network_cpc=maintain_network_cpc,
+                                                         # maintain_network_cpc=maintain_network_cpc,
                                                          require_servicing=require_servicing,
                                                          campaign_exact_phrase_matching_enabled=campaign_exact_phrase_matching_enabled,
                                                          counter_ids=counter_ids,
@@ -421,10 +428,17 @@ def add_text_campaign():
             else:
                 logger.info(f"add text campaign: {result.status_code}")
 
-                put_query(json_file=json_file, table_name='ya_ads_addcampaigns', result=result, engine=engine,
+                # put_query(json_file=json_file, table_name='ya_ads_addcampaigns', result=result.json(), engine=engine,
+                #           logger=logger)
+                # return jsonify(result.json())
+
+                parsed_result = response_result(response=result, sourсe=errors_warnings_sourse,
+                                                   errors_table=errors_table, warnings_table=warnings_table)
+
+                put_query(json_file=json_file, table_name='ya_ads_addcampaigns', result=parsed_result, engine=engine,
                           logger=logger)
 
-                return jsonify(result.json())
+                return jsonify(parsed_result)
 
     except BadRequestKeyError:
         logger.error("add text campaign: BadRequest")
@@ -633,10 +647,18 @@ def add_group():
             else:
                 logger.info(f"add group: {result.status_code}")
 
-                put_query(json_file=json_file, table_name='ya_ads_addgroups', result=result, engine=engine,
+                # put_query(json_file=json_file, table_name='ya_ads_addgroups', result=result.json(), engine=engine,
+                #           logger=logger)
+                #
+                # return jsonify(result.json())
+
+                parsed_result = response_result(response=result, sourсe=errors_warnings_sourse,
+                                                errors_table=errors_table, warnings_table=warnings_table)
+
+                put_query(json_file=json_file, table_name='ya_ads_addgroups', result=parsed_result, engine=engine,
                           logger=logger)
 
-                return jsonify(result.json())
+                return jsonify(parsed_result)
 
     except BadRequestKeyError:
         logger.error("add group: BadRequest")
@@ -726,10 +748,18 @@ def add_text_ad():
             else:
                 logger.info(f"add text ad: {result.status_code}")
 
-                put_query(json_file=json_file, table_name='ya_ads_addads', result=result, engine=engine,
+                # put_query(json_file=json_file, table_name='ya_ads_addads', result=result.json(), engine=engine,
+                #           logger=logger)
+                #
+                # return jsonify(result.json())
+
+                parsed_result = response_result(response=result, sourсe=errors_warnings_sourse,
+                                                errors_table=errors_table, warnings_table=warnings_table)
+
+                put_query(json_file=json_file, table_name='ya_ads_addads', result=parsed_result, engine=engine,
                           logger=logger)
 
-                return jsonify(result.json())
+                return jsonify(parsed_result)
 
     except BadRequestKeyError:
         logger.error("add text ad: BadRequest")
@@ -780,10 +810,18 @@ def add_dynamic_text_ad():
             else:
                 logger.info(f"add dynamic text ad: {result.status_code}")
 
-                put_query(json_file=json_file, table_name='ya_ads_addads', result=result, engine=engine,
+                # put_query(json_file=json_file, table_name='ya_ads_addads', result=result.json(), engine=engine,
+                #           logger=logger)
+                #
+                # return jsonify(result.json())
+
+                parsed_result = response_result(response=result, sourсe=errors_warnings_sourse,
+                                                errors_table=errors_table, warnings_table=warnings_table)
+
+                put_query(json_file=json_file, table_name='ya_ads_addads', result=parsed_result, engine=engine,
                           logger=logger)
 
-                return jsonify(result.json())
+                return jsonify(parsed_result)
 
     except BadRequestKeyError:
         logger.error("add dynamic text ad: BadRequest")
@@ -796,7 +834,6 @@ def add_dynamic_text_ad():
     except BaseException as ex:
         logger.error(f'add dynamic text ad: {ex}')
         raise HttpError(400, f'{ex}')
-
 
 
 @app.route('/yandexdirect/managecamps', methods=['POST'])
@@ -1041,10 +1078,18 @@ def add_keyword():
             else:
                 logger.info(f"add keyword: {result.status_code}")
 
-                put_query(json_file=json_file, table_name='ya_ads_addkeywords', result=result, engine=engine,
+                # put_query(json_file=json_file, table_name='ya_ads_addkeywords', result=result.json(), engine=engine,
+                #           logger=logger)
+                #
+                # return jsonify(result.json())
+
+                parsed_result = response_result(response=result, sourсe=errors_warnings_sourse,
+                                                errors_table=errors_table, warnings_table=warnings_table)
+
+                put_query(json_file=json_file, table_name='ya_ads_addkeywords', result=parsed_result, engine=engine,
                           logger=logger)
 
-                return jsonify(result.json())
+                return jsonify(parsed_result)
 
     except BadRequestKeyError:
         logger.error("add keyword: BadRequest")
@@ -1355,6 +1400,73 @@ def get_campaigns_db():
         raise HttpError(400, f'{ex}')
 
 
+@app.route('/yandexdirect/getgroupsdb', methods=['POST'])
+@swag_from("swagger_conf/get_groups_db.yml")
+def get_groups_db():
+    """Получить группы из БД"""
+
+    try:
+        json_file = request.get_json(force=False)
+        login = json_file["login"]
+        campaign_id = json_file.get("campaign_id", None)
+        group_id = json_file.get("group_id", None)
+
+        res = get_groups_from_db(login=login, campaign_id=campaign_id, group_id=group_id, table_name='ya_ads_addgroups', engine=engine, logger=logger)
+
+        if res is None:
+            raise HttpError(400, f'accounts database error')
+
+        else:
+            logger.info(f"get_campaigns_db: OK")
+            return jsonify({'result': res})
+
+    except BadRequestKeyError:
+        logger.error("get_groups_db: BadRequest")
+        return Response(None, 400)
+
+    except KeyError:
+        logger.error("get_groups_db: KeyError")
+        return Response(None, 400)
+
+    except BaseException as ex:
+        logger.error(f'get_groups_db: {ex}')
+        raise HttpError(400, f'{ex}')
+
+
+@app.route('/yandexdirect/getadsdb', methods=['POST'])
+@swag_from("swagger_conf/get_ads_db.yml")
+def get_ads_db():
+    """Получить объявления из БД"""
+
+    try:
+        json_file = request.get_json(force=False)
+        login = json_file["login"]
+        group_id = json_file.get("group_id", None)
+        ad_id = json_file.get("ad_id", None)
+
+        res = get_ads_from_db(login=login, group_id=group_id, ad_id=ad_id, table_name='ya_ads_addads', engine=engine,
+                              logger=logger)
+
+        if res is None:
+            raise HttpError(400, f'accounts database error')
+
+        else:
+            logger.info(f"get_ads_db: OK")
+            return jsonify({'result': res})
+
+    except BadRequestKeyError:
+        logger.error("get_ads_db: BadRequest")
+        return Response(None, 400)
+
+    except KeyError:
+        logger.error("get_ads_db: KeyError")
+        return Response(None, 400)
+
+    except BaseException as ex:
+        logger.error(f'get_ads_db: {ex}')
+        raise HttpError(400, f'{ex}')
+
+
 @app.route('/yandexdirect/adddynamictextcampaign', methods=['POST'])
 @swag_from("swagger_conf/add_dynamic_text_campaign.yml")
 def add_dynamic_text_campaign():
@@ -1471,10 +1583,18 @@ def add_dynamic_text_campaign():
             else:
                 logger.info(f"add dynamic text campaign: {result.status_code}")
 
-                put_query(json_file=json_file, table_name='ya_ads_addcampaigns', result=result, engine=engine,
+                # put_query(json_file=json_file, table_name='ya_ads_addcampaigns', result=result.json(), engine=engine,
+                #           logger=logger)
+                #
+                # return jsonify(result.json())
+
+                parsed_result = response_result(response=result, sourсe=errors_warnings_sourse,
+                                                errors_table=errors_table, warnings_table=warnings_table)
+
+                put_query(json_file=json_file, table_name='ya_ads_addcampaigns', result=parsed_result, engine=engine,
                           logger=logger)
 
-                return jsonify(result.json())
+                return jsonify(parsed_result)
 
     except BadRequestKeyError:
         logger.error("add dynamic text campaign: BadRequest")
@@ -1563,7 +1683,7 @@ def add_feeds():
             else:
                 logger.info(f"add feed: {result.status_code}")
 
-                # put_query(json_file=json_file, table_name='ya_ads_addfeeds', result=result, engine=engine,
+                # put_query(json_file=json_file, table_name='ya_ads_addfeeds', result=result.json(), engine=engine,
                 #           logger=logger)
 
                 return jsonify(result.json())
@@ -1746,16 +1866,15 @@ def get_html_by_url(url):
     """Принимает url, возвращает страницу"""
 
     try:
-        print(url)
-        # response = redirect(f'https://{url}')
+        # print(url)
         ua = UserAgent()
         header = {"User-Agent": str(ua.firefox)}
 
-        print(header)
+        # print(header)
 
         resp = requests.get(url, headers=header)
 
-        print(resp.status_code)
+        # print(resp.status_code)
 
         excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
         headers = [(name, value) for (name, value) in resp.raw.headers.items() if name.lower() not in excluded_headers]
