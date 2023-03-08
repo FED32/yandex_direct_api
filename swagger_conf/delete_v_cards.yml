@@ -1,0 +1,41 @@
+swagger: "2.0"
+info:
+  title: "Yandex Direct Ecom API Documentation"
+  contact:
+    email: "s.fedyushin@ecomru.ru"
+  basePath: "/swagger"
+paths:
+  "/yandexdirect/deletevcards":
+    post:
+tags:
+  - vcards
+summary: "Удаление виртуальных визиток"
+description: "Метод для удаления виртуальных визиток"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "body"
+  required: true
+  schema:
+    type: "object"
+    properties:
+      login:
+        type: "string"
+        example: "aaabbbq123@yandex.ru"
+#      token:
+#        type: "string"
+#        example: "xxx_YYYzzz1234ABCDefg"
+      v_card_ids:
+        type:
+          - array
+            - long
+        example: [123456789, 789012345]
+        description: Идентификаторы визиток, которые требуется удалить (не более 1000).
+responses:
+  200:
+    description: "OK"
+  400:
+    description: "Bad Request"

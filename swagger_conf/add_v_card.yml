@@ -1,0 +1,139 @@
+swagger: "2.0"
+info:
+  title: "Yandex Direct Ecom API Documentation"
+  contact:
+    email: "s.fedyushin@ecomru.ru"
+  basePath: "/swagger"
+paths:
+  "/yandexdirect/addvcard":
+    post:
+tags:
+  - vcards
+summary: "Создать виртуальную визитку"
+description: "Метод cоздает виртуальную визитку"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "body"
+  required: true
+  schema:
+    type: "object"
+    properties:
+      login:
+        type: "string"
+        example: "aaabbbq123@yandex.ru"
+      campaign_id:
+        type: "long"
+        example: 12345
+        description: Идентификатор кампании. (обязательно)
+      country:
+        type: "string"
+        example: "usa"
+        description: Страна. Не более 50 символов. (обязательно)
+      city:
+        type: "string"
+        example: "New York"
+        description: Город. Не более 55 символов. (обязательно)
+      company_name:
+        type: "string"
+        example: "Рога и копыта"
+        description: Название организации. Не более 255 символов. (обязательно)
+      work_time:
+        type: "string"
+        example: "0;4;10;0;18;0;5;6;11;0;16;0"
+        description: Режим работы организации или режим обслуживания клиентов. Задается как строка, в которой указан диапазон дней недели, рабочих часов и минут. Дни недели обозначаются цифрами от 0 до 6, где 0 — понедельник, 6 — воскресенье. Минуты задают кратно 15 - 0, 15, 30 или 45. Формат строки "день_с;день_по;час_с;минуты_с;час_до;мин_до". Режим может состоять из нескольких строк указанного формата, например "0;4;10;0;18;0;5;6;11;0;16;0". (обязательно)
+      phone_country_code:
+        type: "string"
+        example: "+1"
+        description: Телефонный код страны. Должен содержать от 1 до 5 символов. Допустимы значения начинающиеся со знака «+» и состоящие из цифр; значение «8» в сочетании с кодом города «800». Например, «+7» для России. (обязательно)
+      phone_city_code:
+        type: "string"
+        example: "495"
+        description: Телефонный код города. От 1 до 5 цифр. Должен быть отличен от 0. (обязательно)
+      phone_number:
+        type: "string"
+        example: "1234567"
+        description: Телефонный номер для связи. От 5 до 9 цифр, суммарно с кодом страны и города — от 8 до 17 цифр. (обязательно)
+      phone_extension:
+        type: "string"
+        example: "234"
+        description: Добавочный телефонный номер для соединения через офисную АТС. От 1 до 6 цифр.
+      street:
+        type: "string"
+        example: "Свободы"
+        description: Улица. Не более 55 символов.
+      house:
+        type: "string"
+        example: "101"
+        description: Номер дома. Не более 30 символов.
+      building:
+        type: "string"
+        example: "к2с1"
+        description: Номер строения или корпуса. Не более 10 символов.
+      apartment:
+        type: "string"
+        example: "А151"
+        description: Номер квартиры или офиса. Не более 100 символов.
+      instant_messenger_client:
+        type: "string"
+        example: "skype"
+        description: Тип системы мгновенного обмена сообщениями — icq, jabber, skype, mail_agent.
+      instant_messenger_login:
+        type: "string"
+        example: "12344ad"
+        description: Логин (идентификатор) в системе мгновенного обмена сообщениями. Не более 255 символов.
+      extra_message:
+        type: "string"
+        example: "Лучшее предложение"
+        description: Дополнительная информация о рекламируемом товаре или услуге. Не более 200 символов.
+      contact_email:
+        type: "string"
+        example: "example@example.com"
+        description: Адрес электронной почты. Не более 255 символов.
+      ogrn:
+        type: "string"
+        example: "1234567890"
+        description: Код ОГРН для юридических лиц. Не более 255 символов.
+      metro_station_id:
+        type: "long"
+        example: "12345"
+        description: Идентификатор станции метрополитена.
+      map_point_x:
+        type: "float"
+        example: 37.620058
+        description: Долгота точки. От -180 до 180.
+      map_point_y:
+        type: "float"
+        example: 55.753967
+        description: Широта точки. От -90 до 90.
+      map_point_x1:
+        type: "float"
+        example: 37.612757
+        description: Долгота левого нижнего угла области на карте. От -180 до 180.
+      map_point_y1:
+        type: "float"
+        example: 55.752440
+        description: Широта левого нижнего угла области на карте. От -90 до 90.
+      map_point_x2:
+        type: "float"
+        example: 37.612757
+        description: Долгота правого верхнего угла области на карте. От -180 до 180.
+      map_point_y2:
+        type: "float"
+        example: 55.752440
+        description: Широта правого верхнего угла области на карте. От -90 до 90.
+      contact_person:
+        type: "string"
+        example: "Иван Иванов"
+        description: Контактное лицо. Не более 155 символов.
+responses:
+  200:
+    description: "OK"
+  400:
+    description: "Bad Request"
+
+
+

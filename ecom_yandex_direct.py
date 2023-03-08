@@ -68,7 +68,7 @@ class YandexDirectEcomru:
             "code": code,
             "client_id": self.client_id,
             "client_secret": self.client_secret
-                }
+        }
         response = requests.post(url, data=json.dumps(body))
         # response = requests.post(url, headers=head, data=json.dumps(body))
         # response = requests.post(url, headers=head, data=json.dumps(body, ensure_ascii=False).encode('utf8'))
@@ -189,7 +189,8 @@ class YandexDirectEcomru:
             body["params"].setdefault("DynamicTextAdGroupFieldNames", dynamic_text_fields)
 
         if dynamic_text_feed_params is True:
-            dynamic_text_feed_fields = ["Source", "FeedId", "SourceType", "SourceProcessingStatus", "AutotargetingCategories"]
+            dynamic_text_feed_fields = ["Source", "FeedId", "SourceType", "SourceProcessingStatus",
+                                        "AutotargetingCategories"]
             body["params"].setdefault("DynamicTextFeedAdGroupFieldNames", dynamic_text_feed_fields)
 
         return self.exec_post_api5(service, self.head, body)
@@ -414,6 +415,36 @@ class YandexDirectEcomru:
             print("Произошла непредвиденная ошибка.")
             return None
 
+    def get_stat_goals(self, campaign_ids: list[int]):
+        """
+        Возвращает сведения о целях Яндекс Метрики, которые доступны для кампании
+        https://yandex.ru/dev/direct/doc/dg-v4/live/GetStatGoals.html
+        """
+
+        body = {
+            "method": "GetStatGoals",
+            "param": {"CampaignIDS": campaign_ids},
+            "token": self.token
+        }
+
+        try:
+            response = requests.post(self.urls[1], data=json.dumps(body))
+            self.add_into_counter(response)
+            if response.status_code != 200 or response.json().get("error", False):
+                print("Произошла ошибка при обращении к серверу API Директа.")
+            #             print("Код ошибки: {}".format(response.json()["error"]["error_code"]))
+            #             print("Описание ошибки: {}".format(self.u(response.json()["error"]["error_detail"])))
+            #             print("RequestId: {}".format(response.headers.get("RequestId", False)))
+            else:
+                print("RequestId: {}".format(response.headers.get("RequestId", False)))
+            return response
+        except ConnectionError:
+            print("Произошла ошибка соединения с сервером API.")
+            return None
+        except:
+            print("Произошла непредвиденная ошибка.")
+            return None
+
     @staticmethod
     def create_text_camp_params(s_bid_strat: str,
                                 n_bid_strat: str,
@@ -508,12 +539,14 @@ class YandexDirectEcomru:
                 if s_bid_ceiling is not None:
                     result["TextCampaign"]["BiddingStrategy"]["Search"] = {"BiddingStrategyType": s_bid_strat,
                                                                            "WbMaximumClicks":
-                                                                               {'WeeklySpendLimit': s_weekly_spend_limit,
-                                                                                'BidCeiling': s_bid_ceiling}}
+                                                                               {
+                                                                                   'WeeklySpendLimit': s_weekly_spend_limit,
+                                                                                   'BidCeiling': s_bid_ceiling}}
                 else:
                     result["TextCampaign"]["BiddingStrategy"]["Search"] = {"BiddingStrategyType": s_bid_strat,
                                                                            "WbMaximumClicks":
-                                                                               {"WeeklySpendLimit": s_weekly_spend_limit}}
+                                                                               {
+                                                                                   "WeeklySpendLimit": s_weekly_spend_limit}}
             elif s_bid_strat == 'WB_MAXIMUM_CONVERSION_RATE':
                 result["TextCampaign"]["BiddingStrategy"]["Search"] = {"BiddingStrategyType": s_bid_strat,
                                                                        "WbMaximumConversionRate": {
@@ -603,16 +636,19 @@ class YandexDirectEcomru:
                 result["TextCampaign"]["BiddingStrategy"]["Network"] = {"BiddingStrategyType": n_bid_strat}
             elif n_bid_strat == 'WB_MAXIMUM_CLICKS':
                 result["TextCampaign"]["BiddingStrategy"]["Network"] = {"BiddingStrategyType": n_bid_strat,
-                                                                        "WbMaximumClicks": {"WeeklySpendLimit": n_weekly_spend_limit}}
+                                                                        "WbMaximumClicks": {
+                                                                            "WeeklySpendLimit": n_weekly_spend_limit}}
                 if n_bid_ceiling is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Network"]["WbMaximumClicks"].setdefault("BidCeiling", n_bid_ceiling)
+                    result["TextCampaign"]["BiddingStrategy"]["Network"]["WbMaximumClicks"].setdefault("BidCeiling",
+                                                                                                       n_bid_ceiling)
             elif n_bid_strat == 'WB_MAXIMUM_CONVERSION_RATE':
                 result["TextCampaign"]["BiddingStrategy"]["Network"] = {"BiddingStrategyType": n_bid_strat,
                                                                         "WbMaximumConversionRate": {
                                                                             "WeeklySpendLimit": n_weekly_spend_limit,
                                                                             "GoalId": n_goal_id}}
                 if n_bid_ceiling is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Network"]["WbMaximumConversionRate"].setdefault("BidCeiling", n_bid_ceiling)
+                    result["TextCampaign"]["BiddingStrategy"]["Network"]["WbMaximumConversionRate"].setdefault(
+                        "BidCeiling", n_bid_ceiling)
             elif n_bid_strat == 'AVERAGE_CPC':
                 result["TextCampaign"]["BiddingStrategy"]["Network"] = {"BiddingStrategyType": n_bid_strat,
                                                                         "AverageCpc": {"AverageCpc": n_average_cpc}}
@@ -640,29 +676,34 @@ class YandexDirectEcomru:
                     result["TextCampaign"]["BiddingStrategy"]["Network"]["AverageRoi"].setdefault("WeeklySpendLimit",
                                                                                                   n_weekly_spend_limit)
                 if n_bid_ceiling is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Network"]["AverageRoi"].setdefault("BidCeiling", n_bid_ceiling)
+                    result["TextCampaign"]["BiddingStrategy"]["Network"]["AverageRoi"].setdefault("BidCeiling",
+                                                                                                  n_bid_ceiling)
                 if n_profitability is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Network"]["AverageRoi"].setdefault("Profitability", n_profitability)
+                    result["TextCampaign"]["BiddingStrategy"]["Network"]["AverageRoi"].setdefault("Profitability",
+                                                                                                  n_profitability)
             elif n_bid_strat == 'AVERAGE_CRR':
                 result["TextCampaign"]["BiddingStrategy"]["Network"] = {"BiddingStrategyType": n_bid_strat,
                                                                         "AverageCrr": {
                                                                             "Crr": n_crr,
                                                                             "GoalId": n_goal_id}}
                 if n_weekly_spend_limit is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Network"]["AverageCrr"].setdefault("WeeklySpendLimit", n_weekly_spend_limit)
+                    result["TextCampaign"]["BiddingStrategy"]["Network"]["AverageCrr"].setdefault("WeeklySpendLimit",
+                                                                                                  n_weekly_spend_limit)
             elif n_bid_strat == 'PAY_FOR_CONVERSION':
                 result["TextCampaign"]["BiddingStrategy"]["Network"] = {"BiddingStrategyType": n_bid_strat,
                                                                         "PayForConversion": {
                                                                             "Cpa": n_cpa,
                                                                             "GoalId": n_goal_id}}
                 if n_weekly_spend_limit is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Network"]["PayForConversion"].setdefault("WeeklySpendLimit", n_weekly_spend_limit)
+                    result["TextCampaign"]["BiddingStrategy"]["Network"]["PayForConversion"].setdefault(
+                        "WeeklySpendLimit", n_weekly_spend_limit)
             elif n_bid_strat == 'PAY_FOR_CONVERSION_CRR':
                 result["TextCampaign"]["BiddingStrategy"]["Network"] = {"BiddingStrategyType": n_bid_strat,
                                                                         "PayForConversionCrr": {"Crr": n_crr,
                                                                                                 "GoalId": n_goal_id}}
                 if n_weekly_spend_limit is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Network"]["PayForConversionCrr"].setdefault("WeeklySpendLimit", n_weekly_spend_limit)
+                    result["TextCampaign"]["BiddingStrategy"]["Network"]["PayForConversionCrr"].setdefault(
+                        "WeeklySpendLimit", n_weekly_spend_limit)
             elif n_bid_strat == 'SERVING_OFF':
                 result["TextCampaign"]["BiddingStrategy"]["Network"] = {"BiddingStrategyType": n_bid_strat}
         except TypeError:
@@ -730,7 +771,8 @@ class YandexDirectEcomru:
 
         if enable_area_of_interest_targeting is not None:
             result["TextCampaign"].setdefault("Settings", [])
-            result["TextCampaign"]["Settings"].append({"Option": "ENABLE_AREA_OF_INTEREST_TARGETING", "Value": enable_area_of_interest_targeting})
+            result["TextCampaign"]["Settings"].append(
+                {"Option": "ENABLE_AREA_OF_INTEREST_TARGETING", "Value": enable_area_of_interest_targeting})
 
         if enable_company_info is not None:
             result["TextCampaign"].setdefault("Settings", [])
@@ -738,11 +780,13 @@ class YandexDirectEcomru:
 
         if enable_site_monitoring is not None:
             result["TextCampaign"].setdefault("Settings", [])
-            result["TextCampaign"]["Settings"].append({"Option": "ENABLE_SITE_MONITORING", "Value": enable_site_monitoring})
+            result["TextCampaign"]["Settings"].append(
+                {"Option": "ENABLE_SITE_MONITORING", "Value": enable_site_monitoring})
 
         if exclude_paused_competing_ads is not None:
             result["TextCampaign"].setdefault("Settings", [])
-            result["TextCampaign"]["Settings"].append({"Option": "EXCLUDE_PAUSED_COMPETING_ADS", "Value": exclude_paused_competing_ads})
+            result["TextCampaign"]["Settings"].append(
+                {"Option": "EXCLUDE_PAUSED_COMPETING_ADS", "Value": exclude_paused_competing_ads})
 
         if require_servicing is not None:
             result["TextCampaign"].setdefault("Settings", [])
@@ -775,51 +819,65 @@ class YandexDirectEcomru:
             if s_bid_strat == "WB_MAXIMUM_CLICKS":
                 result["TextCampaign"]["BiddingStrategy"]["Search"].setdefault("WbMaximumClicks", dict())
                 if s_weekly_spend_limit is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Search"]["WbMaximumClicks"].setdefault("WeeklySpendLimit", s_weekly_spend_limit)
+                    result["TextCampaign"]["BiddingStrategy"]["Search"]["WbMaximumClicks"].setdefault(
+                        "WeeklySpendLimit", s_weekly_spend_limit)
                 if s_bid_ceiling is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Search"]["WbMaximumClicks"].setdefault("BidCeiling", s_bid_ceiling)
+                    result["TextCampaign"]["BiddingStrategy"]["Search"]["WbMaximumClicks"].setdefault("BidCeiling",
+                                                                                                      s_bid_ceiling)
 
             elif s_bid_strat == "WB_MAXIMUM_CONVERSION_RATE":
                 result["TextCampaign"]["BiddingStrategy"]["Search"].setdefault("WbMaximumConversionRate", dict())
                 if s_weekly_spend_limit is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Search"]["WbMaximumConversionRate"].setdefault("WeeklySpendLimit", s_weekly_spend_limit)
+                    result["TextCampaign"]["BiddingStrategy"]["Search"]["WbMaximumConversionRate"].setdefault(
+                        "WeeklySpendLimit", s_weekly_spend_limit)
                 if s_bid_ceiling is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Search"]["WbMaximumConversionRate"].setdefault("BidCeiling", s_bid_ceiling)
+                    result["TextCampaign"]["BiddingStrategy"]["Search"]["WbMaximumConversionRate"].setdefault(
+                        "BidCeiling", s_bid_ceiling)
                 if s_goal_id is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Search"]["WbMaximumConversionRate"].setdefault("GoalId", s_goal_id)
+                    result["TextCampaign"]["BiddingStrategy"]["Search"]["WbMaximumConversionRate"].setdefault("GoalId",
+                                                                                                              s_goal_id)
 
             elif s_bid_strat == "AVERAGE_CPC":
                 result["TextCampaign"]["BiddingStrategy"]["Search"].setdefault("AverageCpc", dict())
                 if s_average_cpc is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Search"]["AverageCpc"].setdefault("AverageCpc", s_average_cpc)
+                    result["TextCampaign"]["BiddingStrategy"]["Search"]["AverageCpc"].setdefault("AverageCpc",
+                                                                                                 s_average_cpc)
                 if s_weekly_spend_limit is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Search"]["AverageCpc"].setdefault("WeeklySpendLimit", s_weekly_spend_limit)
+                    result["TextCampaign"]["BiddingStrategy"]["Search"]["AverageCpc"].setdefault("WeeklySpendLimit",
+                                                                                                 s_weekly_spend_limit)
 
             elif s_bid_strat == "AVERAGE_CPA":
                 result["TextCampaign"]["BiddingStrategy"]["Search"].setdefault("AverageCpa", dict())
                 if s_average_cpa is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Search"]["AverageCpa"].setdefault("AverageCpa", s_average_cpa)
+                    result["TextCampaign"]["BiddingStrategy"]["Search"]["AverageCpa"].setdefault("AverageCpa",
+                                                                                                 s_average_cpa)
                 if s_goal_id is not None:
                     result["TextCampaign"]["BiddingStrategy"]["Search"]["AverageCpa"].setdefault("GoalId", s_goal_id)
                 if s_weekly_spend_limit is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Search"]["AverageCpa"].setdefault("WeeklySpendLimit", s_weekly_spend_limit)
+                    result["TextCampaign"]["BiddingStrategy"]["Search"]["AverageCpa"].setdefault("WeeklySpendLimit",
+                                                                                                 s_weekly_spend_limit)
                 if s_bid_ceiling is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Search"]["AverageCpa"].setdefault("BidCeiling", s_bid_ceiling)
+                    result["TextCampaign"]["BiddingStrategy"]["Search"]["AverageCpa"].setdefault("BidCeiling",
+                                                                                                 s_bid_ceiling)
 
             elif s_bid_strat == "AVERAGE_ROI":
                 result["TextCampaign"]["BiddingStrategy"]["Search"].setdefault("AverageRoi", dict())
                 if s_reserve_return is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Search"]["AverageRoi"].setdefault("ReserveReturn", s_reserve_return)
+                    result["TextCampaign"]["BiddingStrategy"]["Search"]["AverageRoi"].setdefault("ReserveReturn",
+                                                                                                 s_reserve_return)
                 if s_roi_coef is not None:
                     result["TextCampaign"]["BiddingStrategy"]["Search"]["AverageRoi"].setdefault("RoiCoef", s_roi_coef)
                 if s_goal_id is not None:
                     result["TextCampaign"]["BiddingStrategy"]["Search"]["AverageRoi"].setdefault("GoalId", s_goal_id)
                 if s_weekly_spend_limit is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Search"]["AverageRoi"].setdefault("WeeklySpendLimit", s_weekly_spend_limit)
+                    result["TextCampaign"]["BiddingStrategy"]["Search"]["AverageRoi"].setdefault("WeeklySpendLimit",
+                                                                                                 s_weekly_spend_limit)
                 if s_bid_ceiling is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Search"]["AverageRoi"].setdefault("BidCeiling", s_bid_ceiling)
+                    result["TextCampaign"]["BiddingStrategy"]["Search"]["AverageRoi"].setdefault("BidCeiling",
+                                                                                                 s_bid_ceiling)
                 if s_profitability is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Search"]["AverageRoi"].setdefault("Profitability", s_profitability)
+                    result["TextCampaign"]["BiddingStrategy"]["Search"]["AverageRoi"].setdefault("Profitability",
+                                                                                                 s_profitability)
 
             elif s_bid_strat == "AVERAGE_CRR":
                 result["TextCampaign"]["BiddingStrategy"]["Search"].setdefault("AverageCrr", dict())
@@ -828,25 +886,30 @@ class YandexDirectEcomru:
                 if s_goal_id is not None:
                     result["TextCampaign"]["BiddingStrategy"]["Search"]["AverageCrr"].setdefault("GoalId", s_goal_id)
                 if s_weekly_spend_limit is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Search"]["AverageCrr"].setdefault("WeeklySpendLimit", s_weekly_spend_limit)
+                    result["TextCampaign"]["BiddingStrategy"]["Search"]["AverageCrr"].setdefault("WeeklySpendLimit",
+                                                                                                 s_weekly_spend_limit)
 
             elif s_bid_strat == "PAY_FOR_CONVERSION_CRR":
                 result["TextCampaign"]["BiddingStrategy"]["Search"].setdefault("PayForConversionCrr", dict())
                 if s_crr is not None:
                     result["TextCampaign"]["BiddingStrategy"]["Search"]["PayForConversionCrr"].setdefault("Crr", s_crr)
                 if s_goal_id is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Search"]["PayForConversionCrr"].setdefault("GoalId", s_goal_id)
+                    result["TextCampaign"]["BiddingStrategy"]["Search"]["PayForConversionCrr"].setdefault("GoalId",
+                                                                                                          s_goal_id)
                 if s_weekly_spend_limit is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Search"]["PayForConversionCrr"].setdefault("WeeklySpendLimit", s_weekly_spend_limit)
+                    result["TextCampaign"]["BiddingStrategy"]["Search"]["PayForConversionCrr"].setdefault(
+                        "WeeklySpendLimit", s_weekly_spend_limit)
 
             elif s_bid_strat == "PAY_FOR_CONVERSION":
                 result["TextCampaign"]["BiddingStrategy"]["Search"].setdefault("PayForConversion", dict())
                 if s_cpa is not None:
                     result["TextCampaign"]["BiddingStrategy"]["Search"]["PayForConversion"].setdefault("Cpa", s_cpa)
                 if s_goal_id is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Search"]["PayForConversion"].setdefault("GoalId", s_goal_id)
+                    result["TextCampaign"]["BiddingStrategy"]["Search"]["PayForConversion"].setdefault("GoalId",
+                                                                                                       s_goal_id)
                 if s_weekly_spend_limit is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Search"]["PayForConversion"].setdefault("WeeklySpendLimit", s_weekly_spend_limit)
+                    result["TextCampaign"]["BiddingStrategy"]["Search"]["PayForConversion"].setdefault(
+                        "WeeklySpendLimit", s_weekly_spend_limit)
 
             elif s_bid_strat == "HIGHEST_POSITION":
                 pass
@@ -865,7 +928,8 @@ class YandexDirectEcomru:
             if n_bid_strat == "NETWORK_DEFAULT":
                 result["TextCampaign"]["BiddingStrategy"]["Network"].setdefault("NetworkDefault", dict())
                 if n_limit_percent is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Network"]["NetworkDefault"].setdefault("LimitPercent", n_limit_percent)
+                    result["TextCampaign"]["BiddingStrategy"]["Network"]["NetworkDefault"].setdefault("LimitPercent",
+                                                                                                      n_limit_percent)
 
             elif n_bid_strat == "MAXIMUM_COVERAGE":
                 pass
@@ -873,51 +937,65 @@ class YandexDirectEcomru:
             elif n_bid_strat == "WB_MAXIMUM_CLICKS":
                 result["TextCampaign"]["BiddingStrategy"]["Network"].setdefault("WbMaximumClicks", dict())
                 if n_weekly_spend_limit is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Network"]["WbMaximumClicks"].setdefault("WeeklySpendLimit", n_weekly_spend_limit)
+                    result["TextCampaign"]["BiddingStrategy"]["Network"]["WbMaximumClicks"].setdefault(
+                        "WeeklySpendLimit", n_weekly_spend_limit)
                 if n_bid_ceiling is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Network"]["WbMaximumClicks"].setdefault("BidCeiling", n_bid_ceiling)
+                    result["TextCampaign"]["BiddingStrategy"]["Network"]["WbMaximumClicks"].setdefault("BidCeiling",
+                                                                                                       n_bid_ceiling)
 
             elif n_bid_strat == "WB_MAXIMUM_CONVERSION_RATE":
                 result["TextCampaign"]["BiddingStrategy"]["Network"].setdefault("WbMaximumConversionRate", dict())
                 if n_weekly_spend_limit is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Network"]["WbMaximumConversionRate"].setdefault("WeeklySpendLimit", n_weekly_spend_limit)
+                    result["TextCampaign"]["BiddingStrategy"]["Network"]["WbMaximumConversionRate"].setdefault(
+                        "WeeklySpendLimit", n_weekly_spend_limit)
                 if n_bid_ceiling is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Network"]["WbMaximumConversionRate"].setdefault("BidCeiling", n_bid_ceiling)
+                    result["TextCampaign"]["BiddingStrategy"]["Network"]["WbMaximumConversionRate"].setdefault(
+                        "BidCeiling", n_bid_ceiling)
                 if n_goal_id is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Network"]["WbMaximumConversionRate"].setdefault("GoalId", n_goal_id)
+                    result["TextCampaign"]["BiddingStrategy"]["Network"]["WbMaximumConversionRate"].setdefault("GoalId",
+                                                                                                               n_goal_id)
 
             elif n_bid_strat == "AVERAGE_CPC":
                 result["TextCampaign"]["BiddingStrategy"]["Network"].setdefault("AverageCpc", dict())
                 if n_average_cpc is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Network"]["AverageCpc"].setdefault("AverageCpc", n_average_cpc)
+                    result["TextCampaign"]["BiddingStrategy"]["Network"]["AverageCpc"].setdefault("AverageCpc",
+                                                                                                  n_average_cpc)
                 if n_weekly_spend_limit is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Network"]["AverageCpc"].setdefault("WeeklySpendLimit", n_weekly_spend_limit)
+                    result["TextCampaign"]["BiddingStrategy"]["Network"]["AverageCpc"].setdefault("WeeklySpendLimit",
+                                                                                                  n_weekly_spend_limit)
 
             elif n_bid_strat == "AVERAGE_CPA":
                 result["TextCampaign"]["BiddingStrategy"]["Network"].setdefault("AverageCpa", dict())
                 if n_average_cpa is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Network"]["AverageCpa"].setdefault("AverageCpa", n_average_cpa)
+                    result["TextCampaign"]["BiddingStrategy"]["Network"]["AverageCpa"].setdefault("AverageCpa",
+                                                                                                  n_average_cpa)
                 if n_goal_id is not None:
                     result["TextCampaign"]["BiddingStrategy"]["Network"]["AverageCpa"].setdefault("GoalId", n_goal_id)
                 if n_weekly_spend_limit is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Network"]["AverageCpa"].setdefault("WeeklySpendLimit", n_weekly_spend_limit)
+                    result["TextCampaign"]["BiddingStrategy"]["Network"]["AverageCpa"].setdefault("WeeklySpendLimit",
+                                                                                                  n_weekly_spend_limit)
                 if n_bid_ceiling is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Network"]["AverageCpa"].setdefault("BidCeiling", n_bid_ceiling)
+                    result["TextCampaign"]["BiddingStrategy"]["Network"]["AverageCpa"].setdefault("BidCeiling",
+                                                                                                  n_bid_ceiling)
 
             elif n_bid_strat == "AVERAGE_ROI":
                 result["TextCampaign"]["BiddingStrategy"]["Network"].setdefault("AverageRoi", dict())
                 if n_reserve_return is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Network"]["AverageRoi"].setdefault("ReserveReturn", n_reserve_return)
+                    result["TextCampaign"]["BiddingStrategy"]["Network"]["AverageRoi"].setdefault("ReserveReturn",
+                                                                                                  n_reserve_return)
                 if n_roi_coef is not None:
                     result["TextCampaign"]["BiddingStrategy"]["Network"]["AverageRoi"].setdefault("RoiCoef", n_roi_coef)
                 if n_goal_id is not None:
                     result["TextCampaign"]["BiddingStrategy"]["Network"]["AverageRoi"].setdefault("GoalId", n_goal_id)
                 if n_weekly_spend_limit is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Network"]["AverageRoi"].setdefault("WeeklySpendLimit", n_weekly_spend_limit)
+                    result["TextCampaign"]["BiddingStrategy"]["Network"]["AverageRoi"].setdefault("WeeklySpendLimit",
+                                                                                                  n_weekly_spend_limit)
                 if n_bid_ceiling is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Network"]["AverageRoi"].setdefault("BidCeiling", n_bid_ceiling)
+                    result["TextCampaign"]["BiddingStrategy"]["Network"]["AverageRoi"].setdefault("BidCeiling",
+                                                                                                  n_bid_ceiling)
                 if n_profitability is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Network"]["AverageRoi"].setdefault("Profitability", n_profitability)
+                    result["TextCampaign"]["BiddingStrategy"]["Network"]["AverageRoi"].setdefault("Profitability",
+                                                                                                  n_profitability)
 
             elif n_bid_strat == "AVERAGE_CRR":
                 result["TextCampaign"]["BiddingStrategy"]["Network"].setdefault("AverageCrr", dict())
@@ -926,25 +1004,30 @@ class YandexDirectEcomru:
                 if n_goal_id is not None:
                     result["TextCampaign"]["BiddingStrategy"]["Network"]["AverageCrr"].setdefault("GoalId", n_goal_id)
                 if n_weekly_spend_limit is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Network"]["AverageCrr"].setdefault("WeeklySpendLimit", n_weekly_spend_limit)
+                    result["TextCampaign"]["BiddingStrategy"]["Network"]["AverageCrr"].setdefault("WeeklySpendLimit",
+                                                                                                  n_weekly_spend_limit)
 
             elif n_bid_strat == "PAY_FOR_CONVERSION":
                 result["TextCampaign"]["BiddingStrategy"]["Search"].setdefault("PayForConversion", dict())
                 if n_cpa is not None:
                     result["TextCampaign"]["BiddingStrategy"]["Network"]["PayForConversion"].setdefault("Cpa", n_cpa)
                 if n_goal_id is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Network"]["PayForConversion"].setdefault("GoalId", n_goal_id)
+                    result["TextCampaign"]["BiddingStrategy"]["Network"]["PayForConversion"].setdefault("GoalId",
+                                                                                                        n_goal_id)
                 if n_weekly_spend_limit is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Network"]["PayForConversion"].setdefault("WeeklySpendLimit", n_weekly_spend_limit)
+                    result["TextCampaign"]["BiddingStrategy"]["Network"]["PayForConversion"].setdefault(
+                        "WeeklySpendLimit", n_weekly_spend_limit)
 
             elif n_bid_strat == "PAY_FOR_CONVERSION_CRR":
                 result["TextCampaign"]["BiddingStrategy"]["Network"].setdefault("PayForConversionCrr", dict())
                 if n_crr is not None:
                     result["TextCampaign"]["BiddingStrategy"]["Network"]["PayForConversionCrr"].setdefault("Crr", n_crr)
                 if n_goal_id is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Network"]["PayForConversionCrr"].setdefault("GoalId", n_goal_id)
+                    result["TextCampaign"]["BiddingStrategy"]["Network"]["PayForConversionCrr"].setdefault("GoalId",
+                                                                                                           n_goal_id)
                 if n_weekly_spend_limit is not None:
-                    result["TextCampaign"]["BiddingStrategy"]["Network"]["PayForConversionCrr"].setdefault("WeeklySpendLimit", n_weekly_spend_limit)
+                    result["TextCampaign"]["BiddingStrategy"]["Network"]["PayForConversionCrr"].setdefault(
+                        "WeeklySpendLimit", n_weekly_spend_limit)
 
             elif n_bid_strat == "SERVING_OFF":
                 pass
@@ -1197,7 +1280,8 @@ class YandexDirectEcomru:
         if time_targeting_suspend_on_holidays is not None:
             result.setdefault("TimeTargeting", dict())
             result["TimeTargeting"].setdefault("HolidaysSchedule", dict())
-            result["TimeTargeting"]["HolidaysSchedule"].setdefault("SuspendOnHolidays", time_targeting_suspend_on_holidays)
+            result["TimeTargeting"]["HolidaysSchedule"].setdefault("SuspendOnHolidays",
+                                                                   time_targeting_suspend_on_holidays)
 
         if time_targeting_bid_percent is not None:
             result.setdefault("TimeTargeting", dict())
@@ -1359,17 +1443,17 @@ class YandexDirectEcomru:
 
         if dynamic_text_domain_urls is not None:
             if (dynamic_text_autotargeting_exact is not None
-                                and dynamic_text_autotargeting_alternative is not None
-                                and dynamic_text_autotargeting_competitor is not None
-                                and dynamic_text_autotargeting_broader is not None
-                                and dynamic_text_autotargeting_accessory is not None):
+                    and dynamic_text_autotargeting_alternative is not None
+                    and dynamic_text_autotargeting_competitor is not None
+                    and dynamic_text_autotargeting_broader is not None
+                    and dynamic_text_autotargeting_accessory is not None):
 
                 dynamic_text_params = {"DomainUrl": dynamic_text_domain_urls, "AutotargetingCategories":
-                            [{"Category": "EXACT", "Value": dynamic_text_autotargeting_exact},
-                             {"Category": "ALTERNATIVE", "Value": dynamic_text_autotargeting_alternative},
-                             {"Category": "COMPETITOR", "Value": dynamic_text_autotargeting_competitor},
-                             {"Category": "BROADER", "Value": dynamic_text_autotargeting_broader},
-                             {"Category": "ACCESSORY", "Value": dynamic_text_autotargeting_accessory}]}
+                    [{"Category": "EXACT", "Value": dynamic_text_autotargeting_exact},
+                     {"Category": "ALTERNATIVE", "Value": dynamic_text_autotargeting_alternative},
+                     {"Category": "COMPETITOR", "Value": dynamic_text_autotargeting_competitor},
+                     {"Category": "BROADER", "Value": dynamic_text_autotargeting_broader},
+                     {"Category": "ACCESSORY", "Value": dynamic_text_autotargeting_accessory}]}
 
                 result.setdefault("DynamicTextAdGroup", dynamic_text_params)
 
@@ -1379,24 +1463,23 @@ class YandexDirectEcomru:
 
         if dynamic_text_feed_ids is not None:
             if (dynamic_text_feed_autotargeting_exact is not None
-                        and dynamic_text_feed_autotargeting_alternative is not None
-                        and dynamic_text_feed_autotargeting_competitor is not None
-                        and dynamic_text_feed_autotargeting_broader is not None
-                        and dynamic_text_feed_autotargeting_accessory is not None):
+                    and dynamic_text_feed_autotargeting_alternative is not None
+                    and dynamic_text_feed_autotargeting_competitor is not None
+                    and dynamic_text_feed_autotargeting_broader is not None
+                    and dynamic_text_feed_autotargeting_accessory is not None):
 
                 dynamic_text_feed_params = {"FeedId": dynamic_text_feed_ids, "AutotargetingCategories":
-                                [{"Category": "EXACT", "Value": dynamic_text_feed_autotargeting_exact},
-                                 {"Category": "ALTERNATIVE", "Value": dynamic_text_feed_autotargeting_alternative},
-                                 {"Category": "COMPETITOR", "Value": dynamic_text_feed_autotargeting_competitor},
-                                 {"Category": "BROADER", "Value": dynamic_text_feed_autotargeting_broader},
-                                 {"Category": "ACCESSORY", "Value": dynamic_text_feed_autotargeting_accessory}]}
+                    [{"Category": "EXACT", "Value": dynamic_text_feed_autotargeting_exact},
+                     {"Category": "ALTERNATIVE", "Value": dynamic_text_feed_autotargeting_alternative},
+                     {"Category": "COMPETITOR", "Value": dynamic_text_feed_autotargeting_competitor},
+                     {"Category": "BROADER", "Value": dynamic_text_feed_autotargeting_broader},
+                     {"Category": "ACCESSORY", "Value": dynamic_text_feed_autotargeting_accessory}]}
 
                 result.setdefault("DynamicTextFeedAdGroup", dynamic_text_feed_params)
 
             else:
                 print("dynamic_text_feed params incorrect")
                 return None
-
 
         # if dynamic_text_domain_urls is not None:
         #     if (dynamic_text_autotargeting_exact is not None
@@ -1751,7 +1834,6 @@ class YandexDirectEcomru:
 
         return result
 
-
     # @staticmethod
     # def create_text_ad_params(adgroup_id: int,
     #                           title: str,
@@ -2059,7 +2141,7 @@ class YandexDirectEcomru:
                 "params": {"SelectionCriteria": {},
                            "FieldNames": ["Id", "Keyword", "State", "Status", "ServingStatus", "AdGroupId",
                                           "CampaignId", "Bid", "ContextBid", "StrategyPriority", "UserParam1",
-                                          "UserParam2", "Productivity","StatisticsSearch", "StatisticsNetwork",
+                                          "UserParam2", "Productivity", "StatisticsSearch", "StatisticsNetwork",
                                           "AutotargetingCategories"]
                            }
                 }
@@ -2469,7 +2551,7 @@ class YandexDirectEcomru:
         # Если получен HTTP-код 201 или 202, выполняются повторные запросы
         while True:
             try:
-                req = requests.post(self.urls[2]+service, headers=head,
+                req = requests.post(self.urls[2] + service, headers=head,
                                     data=json.dumps(body, indent=4).encode('utf8'))
                 req.encoding = 'utf-8'  # Принудительная обработка ответа в кодировке "UTF-8"
                 self.add_into_counter(response=req)
@@ -2507,7 +2589,8 @@ class YandexDirectEcomru:
                 #                     break
                 elif req.status_code == 502:
                     print("Время формирования отчета превысило серверное ограничение.")
-                    print("Пожалуйста, попробуйте изменить параметры запроса - уменьшить период и количество запрашиваемых данных.")
+                    print(
+                        "Пожалуйста, попробуйте изменить параметры запроса - уменьшить период и количество запрашиваемых данных.")
                     print("JSON-код запроса: {}".format(body))
                     print("RequestId: {}".format(req.headers.get("RequestId", False)))
                     print("JSON-код ответа сервера: \n{}".format(self.u(req.json())))
@@ -2546,7 +2629,6 @@ class YandexDirectEcomru:
         head = {'Authorization': f'OAuth {token}'}
 
         return requests.get(url, headers=head)
-
 
     @staticmethod
     def create_dynamic_text_camp_params(s_bid_strat: str,
@@ -2596,35 +2678,46 @@ class YandexDirectEcomru:
             result["DynamicTextCampaign"]["Settings"].append({"Option": "ADD_TO_FAVORITES", "Value": add_to_favorites})
         if enable_area_of_interest_targeting is not None:
             result["DynamicTextCampaign"].setdefault("Settings", [])
-            result["DynamicTextCampaign"]["Settings"].append({"Option": "ENABLE_AREA_OF_INTEREST_TARGETING", "Value": enable_area_of_interest_targeting})
+            result["DynamicTextCampaign"]["Settings"].append(
+                {"Option": "ENABLE_AREA_OF_INTEREST_TARGETING", "Value": enable_area_of_interest_targeting})
         if enable_company_info is not None:
             result["DynamicTextCampaign"].setdefault("Settings", [])
-            result["DynamicTextCampaign"]["Settings"].append({"Option": "ENABLE_COMPANY_INFO", "Value": enable_company_info})
+            result["DynamicTextCampaign"]["Settings"].append(
+                {"Option": "ENABLE_COMPANY_INFO", "Value": enable_company_info})
         if enable_site_monitoring is not None:
             result["DynamicTextCampaign"].setdefault("Settings", [])
-            result["DynamicTextCampaign"]["Settings"].append({"Option": "ENABLE_SITE_MONITORING", "Value": enable_site_monitoring})
+            result["DynamicTextCampaign"]["Settings"].append(
+                {"Option": "ENABLE_SITE_MONITORING", "Value": enable_site_monitoring})
         if require_servicing is not None:
             result["DynamicTextCampaign"].setdefault("Settings", [])
-            result["DynamicTextCampaign"]["Settings"].append({"Option": "REQUIRE_SERVICING", "Value": require_servicing})
+            result["DynamicTextCampaign"]["Settings"].append(
+                {"Option": "REQUIRE_SERVICING", "Value": require_servicing})
         if campaign_exact_phrase_matching_enabled is not None:
             result["DynamicTextCampaign"].setdefault("Settings", [])
-            result["DynamicTextCampaign"]["Settings"].append({"Option": "CAMPAIGN_EXACT_PHRASE_MATCHING_ENABLED", "Value": campaign_exact_phrase_matching_enabled})
+            result["DynamicTextCampaign"]["Settings"].append(
+                {"Option": "CAMPAIGN_EXACT_PHRASE_MATCHING_ENABLED", "Value": campaign_exact_phrase_matching_enabled})
 
         if placement_search_results is not None:
             result["DynamicTextCampaign"].setdefault("PlacementTypes", [])
-            result["DynamicTextCampaign"]["PlacementTypes"].append({"Type": "SEARCH_RESULTS", "Value": placement_search_results})
+            result["DynamicTextCampaign"]["PlacementTypes"].append(
+                {"Type": "SEARCH_RESULTS", "Value": placement_search_results})
         if placement_product_gallery is not None:
             result["DynamicTextCampaign"].setdefault("PlacementTypes", [])
-            result["DynamicTextCampaign"]["PlacementTypes"].append({"Type": "PRODUCT_GALLERY", "Value": placement_product_gallery})
+            result["DynamicTextCampaign"]["PlacementTypes"].append(
+                {"Type": "PRODUCT_GALLERY", "Value": placement_product_gallery})
 
         if counter_ids is not None:
             result["DynamicTextCampaign"].setdefault("CounterIds", {"Items": counter_ids})
 
         if goal_ids is not None and goal_vals is not None:
             if len(goal_ids) == len(goal_vals):
-                if (s_bid_strat == "AVERAGE_CRR" or s_bid_strat == "PAY_FOR_CONVERSION_CRR" ) and goal_is_metrika_source_of_value is not None:
+                if (
+                        s_bid_strat == "AVERAGE_CRR" or s_bid_strat == "PAY_FOR_CONVERSION_CRR") and goal_is_metrika_source_of_value is not None:
                     if len(goal_is_metrika_source_of_value) == len(goal_ids):
-                        goals = [{"GoalId": goal_id, "Value": goal_val, "IsMetrikaSourceOfValue": is_metrika_source_of_value} for goal_id, goal_val, is_metrika_source_of_value in zip(goal_ids, goal_vals, goal_is_metrika_source_of_value)]
+                        goals = [
+                            {"GoalId": goal_id, "Value": goal_val, "IsMetrikaSourceOfValue": is_metrika_source_of_value}
+                            for goal_id, goal_val, is_metrika_source_of_value in
+                            zip(goal_ids, goal_vals, goal_is_metrika_source_of_value)]
                     else:
                         return None
                 else:
@@ -2639,85 +2732,105 @@ class YandexDirectEcomru:
         if attribution_model is not None:
             result["DynamicTextCampaign"].setdefault("AttributionModel", attribution_model)
 
-
         if s_bid_strat == "HIGHEST_POSITION":
             result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("BiddingStrategyType", s_bid_strat)
 
         elif s_bid_strat == "WB_MAXIMUM_CLICKS":
             result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("BiddingStrategyType", s_bid_strat)
             if s_weekly_spend_limit is not None:
-                result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("WbMaximumClicks", {"WeeklySpendLimit": s_weekly_spend_limit})
+                result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("WbMaximumClicks", {
+                    "WeeklySpendLimit": s_weekly_spend_limit})
                 if s_bid_ceiling is not None:
-                    result["DynamicTextCampaign"]["BiddingStrategy"]["Search"]["WbMaximumClicks"].setdefault("BidCeiling", s_bid_ceiling)
+                    result["DynamicTextCampaign"]["BiddingStrategy"]["Search"]["WbMaximumClicks"].setdefault(
+                        "BidCeiling", s_bid_ceiling)
             else:
                 return None
 
         elif s_bid_strat == "WB_MAXIMUM_CONVERSION_RATE":
             result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("BiddingStrategyType", s_bid_strat)
             if s_weekly_spend_limit is not None and s_goal_id is not None:
-                result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("WbMaximumConversionRate", {"WeeklySpendLimit": s_weekly_spend_limit, "GoalId": s_goal_id})
+                result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("WbMaximumConversionRate", {
+                    "WeeklySpendLimit": s_weekly_spend_limit, "GoalId": s_goal_id})
                 if s_bid_ceiling is not None:
-                    result["DynamicTextCampaign"]["BiddingStrategy"]["Search"]["WbMaximumConversionRate"].setdefault("BidCeiling", s_bid_ceiling)
+                    result["DynamicTextCampaign"]["BiddingStrategy"]["Search"]["WbMaximumConversionRate"].setdefault(
+                        "BidCeiling", s_bid_ceiling)
             else:
                 return None
 
         elif s_bid_strat == "AVERAGE_CPC":
             result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("BiddingStrategyType", s_bid_strat)
             if s_average_cpc is not None:
-                result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("AverageCpc", {"AverageCpc": s_average_cpc})
+                result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("AverageCpc",
+                                                                                      {"AverageCpc": s_average_cpc})
                 if s_weekly_spend_limit is not None:
-                    result["DynamicTextCampaign"]["BiddingStrategy"]["Search"]["AverageCpc"].setdefault("WeeklySpendLimit", s_weekly_spend_limit)
+                    result["DynamicTextCampaign"]["BiddingStrategy"]["Search"]["AverageCpc"].setdefault(
+                        "WeeklySpendLimit", s_weekly_spend_limit)
             else:
                 return None
 
         elif s_bid_strat == "AVERAGE_CPA":
             result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("BiddingStrategyType", s_bid_strat)
             if s_average_cpa is not None and s_goal_id is not None:
-                result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("AverageCpa", {"AverageCpa": s_average_cpa, "GoalId": s_goal_id})
+                result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("AverageCpa",
+                                                                                      {"AverageCpa": s_average_cpa,
+                                                                                       "GoalId": s_goal_id})
                 if s_weekly_spend_limit is not None:
-                    result["DynamicTextCampaign"]["BiddingStrategy"]["Search"]["AverageCpa"].setdefault("WeeklySpendLimit", s_weekly_spend_limit)
+                    result["DynamicTextCampaign"]["BiddingStrategy"]["Search"]["AverageCpa"].setdefault(
+                        "WeeklySpendLimit", s_weekly_spend_limit)
                 if s_bid_ceiling is not None:
-                    result["DynamicTextCampaign"]["BiddingStrategy"]["Search"]["AverageCpa"].setdefault("BidCeiling", s_bid_ceiling)
+                    result["DynamicTextCampaign"]["BiddingStrategy"]["Search"]["AverageCpa"].setdefault("BidCeiling",
+                                                                                                        s_bid_ceiling)
             else:
                 return None
 
         elif s_bid_strat == "AVERAGE_ROI":
             result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("BiddingStrategyType", s_bid_strat)
             if s_reserve_return is not None and s_roi_coef is not None and s_goal_id is not None:
-                result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("AverageRoi", {"ReserveReturn": s_reserve_return, "RoiCoef": s_roi_coef, "GoalId": s_goal_id})
+                result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("AverageRoi", {
+                    "ReserveReturn": s_reserve_return, "RoiCoef": s_roi_coef, "GoalId": s_goal_id})
                 if s_weekly_spend_limit is not None:
-                    result["DynamicTextCampaign"]["BiddingStrategy"]["Search"]["AverageRoi"].setdefault("WeeklySpendLimit", s_weekly_spend_limit)
+                    result["DynamicTextCampaign"]["BiddingStrategy"]["Search"]["AverageRoi"].setdefault(
+                        "WeeklySpendLimit", s_weekly_spend_limit)
                 if s_bid_ceiling is not None:
-                    result["DynamicTextCampaign"]["BiddingStrategy"]["Search"]["AverageRoi"].setdefault("BidCeiling", s_bid_ceiling)
+                    result["DynamicTextCampaign"]["BiddingStrategy"]["Search"]["AverageRoi"].setdefault("BidCeiling",
+                                                                                                        s_bid_ceiling)
                 if s_profitability is not None:
-                    result["DynamicTextCampaign"]["BiddingStrategy"]["Search"]["AverageRoi"].setdefault("Profitability", s_profitability)
+                    result["DynamicTextCampaign"]["BiddingStrategy"]["Search"]["AverageRoi"].setdefault("Profitability",
+                                                                                                        s_profitability)
             else:
                 return None
 
         elif s_bid_strat == "AVERAGE_CRR":
             result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("BiddingStrategyType", s_bid_strat)
             if s_crr is not None and s_goal_id is not None:
-                result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("AverageCrr", {"Crr": s_crr, "GoalId": s_goal_id})
+                result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("AverageCrr", {"Crr": s_crr,
+                                                                                                     "GoalId": s_goal_id})
                 if s_weekly_spend_limit is not None:
-                    result["DynamicTextCampaign"]["BiddingStrategy"]["Search"]["AverageCrr"].setdefault("WeeklySpendLimit", s_weekly_spend_limit)
+                    result["DynamicTextCampaign"]["BiddingStrategy"]["Search"]["AverageCrr"].setdefault(
+                        "WeeklySpendLimit", s_weekly_spend_limit)
             else:
                 return None
 
         elif s_bid_strat == "PAY_FOR_CONVERSION":
             result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("BiddingStrategyType", s_bid_strat)
             if s_cpa is not None and s_goal_id is not None:
-                result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("PayForConversion", {"Cpa": s_cpa, "GoalId": s_goal_id})
+                result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("PayForConversion", {"Cpa": s_cpa,
+                                                                                                           "GoalId": s_goal_id})
                 if s_weekly_spend_limit is not None:
-                    result["DynamicTextCampaign"]["BiddingStrategy"]["Search"]["PayForConversion"].setdefault("WeeklySpendLimit", s_weekly_spend_limit)
+                    result["DynamicTextCampaign"]["BiddingStrategy"]["Search"]["PayForConversion"].setdefault(
+                        "WeeklySpendLimit", s_weekly_spend_limit)
             else:
                 return None
 
         elif s_bid_strat == "PAY_FOR_CONVERSION_CRR":
             result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("BiddingStrategyType", s_bid_strat)
             if s_crr is not None and s_goal_id is not None:
-                result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("PayForConversionCrr", {"Crr": s_crr, "GoalId": s_goal_id})
+                result["DynamicTextCampaign"]["BiddingStrategy"]["Search"].setdefault("PayForConversionCrr",
+                                                                                      {"Crr": s_crr,
+                                                                                       "GoalId": s_goal_id})
                 if s_weekly_spend_limit is not None:
-                    result["DynamicTextCampaign"]["BiddingStrategy"]["Search"]["PayForConversionCrr"].setdefault("WeeklySpendLimit", s_weekly_spend_limit)
+                    result["DynamicTextCampaign"]["BiddingStrategy"]["Search"]["PayForConversionCrr"].setdefault(
+                        "WeeklySpendLimit", s_weekly_spend_limit)
             else:
                 return None
 
@@ -2734,9 +2847,8 @@ class YandexDirectEcomru:
 
         body = {"method": "get",
                 "params": {"FieldNames": ["Id", "Name", "BusinessType", "SourceType", "FilterSchema", "UpdatedAt",
-                                          "CampaignIds", "NumberOfItems", "Status" ]
+                                          "CampaignIds", "NumberOfItems", "Status"]
                            }
-
 
                 }
 
@@ -2796,7 +2908,7 @@ class YandexDirectEcomru:
 
                 return result
 
-        elif source_type == "FILE" and file_feed_data is not None and file_feed_filename is not  None:
+        elif source_type == "FILE" and file_feed_data is not None and file_feed_filename is not None:
             if len(file_feed_filename) > 255:
                 return None
             else:
@@ -2818,7 +2930,6 @@ class YandexDirectEcomru:
 
         return self.exec_post_api5(service, self.head, body)
 
-
     def delete_feeds(self, ids: list):
         """
         Удаляет фиды
@@ -2830,8 +2941,6 @@ class YandexDirectEcomru:
                 }
 
         return self.exec_post_api5(service, self.head, body)
-
-
 
     @staticmethod
     def update_feed_params(feed_id: int,
@@ -2895,16 +3004,223 @@ class YandexDirectEcomru:
 
         return self.exec_post_api5(service, self.head, body)
 
+    def get_business_profiles(self):
+        """
+        Возвращает данные профилей организаций рекламодателя на Яндексе
+        https://yandex.ru/dev/direct/doc/ref-v5/businesses/get.html
+        """
 
+        service = 'businesses'
 
+        body = {"method": "get",
+                "params": {
+                    # "SelectionCriteria": {"Ids": []},
+                    "FieldNames": [
+                        "Id", "Name", "Address", "Phone", "ProfileUrl", "InternalUrl", "IsPublished",
+                        "MergedIds", "Rubric", "Urls", "HasOffice"
+                    ]
+                }
+                }
 
+        return self.exec_post_api5(service, self.head, body)
 
+    def get_v_cards(self):
+        """
+        Возвращает виртуальные визитки
+        https://yandex.ru/dev/direct/doc/ref-v5/vcards/get.html
+        """
 
+        service = 'vcards'
 
+        body = {
+            "method": "get",
+            "params": {
+                # "SelectionCriteria": {"Ids": []},
+                "FieldNames": [
+                    "Id", "Country", "City", "Street", "House", "Building", "Apartment", "CompanyName", "ExtraMessage",
+                    "ContactPerson", "ContactEmail", "MetroStationId", "CampaignId", "Ogrn", "WorkTime",
+                    "InstantMessenger", "Phone", "PointOnMap"
+                ]
+            }
+        }
 
+        return self.exec_post_api5(service, self.head, body)
 
+    @staticmethod
+    def create_v_card_params(campaign_id: int,
+                             country: str,
+                             city: str,
+                             company_name: str,
+                             work_time: str,
+                             phone_country_code: str,
+                             phone_city_code: str,
+                             phone_number: str,
+                             phone_extension: str = None,
+                             street: str = None,
+                             house: str = None,
+                             building: str = None,
+                             apartment: str = None,
+                             instant_messenger_client: str = None,
+                             instant_messenger_login: str = None,
+                             extra_message: str = None,
+                             contact_email: str = None,
+                             ogrn: str = None,
+                             metro_station_id: int = None,
+                             map_point_x: float = None,
+                             map_point_y: float = None,
+                             map_point_x1: float = None,
+                             map_point_y1: float = None,
+                             map_point_x2: float = None,
+                             map_point_y2: float = None,
+                             contact_person: str = None
+                             ):
+        """Возвращает словарь с параметрами визитки"""
 
+        result = {
+            "CampaignId": campaign_id,
+            "Country": country,
+            "City": city,
+            "CompanyName": company_name,
+            "WorkTime": work_time,
+            "Phone": {"CountryCode": phone_country_code,
+                      "CityCode": phone_city_code,
+                      "PhoneNumber": phone_number
+                      }
+        }
 
+        if len(country) > 50:
+            return None
+        if len(city) > 55:
+            return None
+        if len(company_name) > 255:
+            return None
+        if len(work_time) > 255:
+            return None
+        if not 1 <= len(phone_country_code) <= 5:
+            return None
+        if not 1 <= len(phone_city_code) <= 5:
+            return None
+        if not 5 <= len(phone_number) <= 9:
+            return None
+        if not 8 <= len(phone_country_code + phone_city_code + phone_number) <= 17:
+            return None
 
+        if phone_extension is not None:
+            if not 1 <= len(phone_extension) <= 6:
+                return None
+            else:
+                result["Phone"].setdefault("Extension", phone_extension)
 
+        if street is not None:
+            if len(street) > 55:
+                return None
+            else:
+                result.setdefault("Street", street)
 
+        if house is not None:
+            if len(house) > 30:
+                return None
+            else:
+                result.setdefault("House", house)
+
+        if building is not None:
+            if len(building) > 10:
+                return None
+            else:
+                result.setdefault("Building", building)
+
+        if apartment is not None:
+            if len(apartment) > 100:
+                return None
+            else:
+                result.setdefault("Apartment", apartment)
+
+        if instant_messenger_client is not None and instant_messenger_login is not None:
+            result["InstantMessenger"] = {"MessengerClient": instant_messenger_client,
+                                          "MessengerLogin": instant_messenger_login}
+
+        if extra_message is not None:
+            if len(extra_message) > 200:
+                return None
+            else:
+                result.setdefault("ExtraMessage", extra_message)
+
+        if contact_email is not None:
+            if len(contact_email) > 255:
+                return None
+            else:
+                result.setdefault("ContactEmail", contact_email)
+
+        if ogrn is not None:
+            if len(ogrn) > 255:
+                return None
+            else:
+                result.setdefault("Ogrn", ogrn)
+
+        if metro_station_id is not None:
+            result.setdefault("MetroStationId", metro_station_id)
+
+        if (map_point_x is not None
+                and map_point_y is not None
+                and map_point_x1 is not None
+                and map_point_y1 is not None
+                and map_point_x2 is not None
+                and map_point_y2 is not None):
+
+            if not -180.0 <= map_point_x <= 180.0:
+                return None
+            if not -90.0 <= map_point_y <= 90.0:
+                return None
+            if not -180.0 <= map_point_x1 <= 180.0:
+                return None
+            if not -90.0 <= map_point_y1 <= 90.0:
+                return None
+            if not -180.0 <= map_point_x2 <= 180.0:
+                return None
+            if not -90.0 <= map_point_y2 <= 90.0:
+                return None
+
+            result["PointOnMap"] = {"X": map_point_x,
+                                    "Y": map_point_y,
+                                    "X1": map_point_x1,
+                                    "Y1": map_point_y1,
+                                    "X2": map_point_x2,
+                                    "Y2": map_point_y2
+                                    }
+
+        if contact_person is not None:
+            if len(contact_person) > 155:
+                return None
+            else:
+                result.setdefault("ContactPerson", contact_person)
+
+        return result
+
+    def add_v_cards(self, v_cards: list[dict]):
+        """
+        Создает виртуальные визитки
+        https://yandex.ru/dev/direct/doc/ref-v5/vcards/add.html
+        """
+
+        service = 'vcards'
+
+        body = {"method": "add",
+                "params": {"VCards": v_cards}
+                }
+
+        return self.exec_post_api5(service, self.head, body)
+
+    def delete_v_cards(self, v_card_ids: list[int]):
+        """
+        Удаляет виртуальные визитки
+        https://yandex.ru/dev/direct/doc/ref-v5/vcards/delete.html
+        """
+
+        service = 'vcards'
+
+        body = {
+            "method": "delete",
+            "params": {"SelectionCriteria": {"Ids": v_card_ids}}
+        }
+
+        return self.exec_post_api5(service, self.head, body)
