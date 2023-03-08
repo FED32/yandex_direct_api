@@ -5,12 +5,12 @@ info:
     email: "s.fedyushin@ecomru.ru"
   basePath: "/swagger"
 paths:
-  "/yandexdirect/getregions":
+  "/yandexdirect/getvcards":
     post:
 tags:
-  - info
-summary: "Получить справочные данные: регионы"
-description: "Метод для получения регионов с обновлением данных в БД"
+  - vcards
+summary: "Получить виртуальные визитки"
+description: "Метод возвращает виртуальные визитки"
 consumes:
 - "application/json"
 produces:
@@ -25,15 +25,10 @@ parameters:
       login:
         type: "string"
         example: "aaabbbq123@yandex.ru"
-      update_db:
-        type: "string"
-        example: "false"
-        enum:
-          - "false"
-          - "true"
-        description: Обновление данных в БД
 responses:
   200:
     description: "OK"
   400:
     description: "Bad Request"
+
+

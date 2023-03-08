@@ -42,7 +42,7 @@ else:
 
 app = Flask(__name__)
 app.config.from_object(Configuration)
-app.config['SWAGGER'] = {"title": "Swagger-UI", "uiversion": 3}
+app.config['SWAGGER'] = {"title": "GTCOM-YandexDirectApi", "uiversion": 3}
 
 logger = logger_api.init_logger()
 
@@ -1898,6 +1898,240 @@ def get_html_by_url(url):
     except ConnectionError:
         logger.error(f'get html: {ex}')
         raise HttpError(400, f'{ex}')
+
+
+@app.route('/yandexdirect/getstatgoals', methods=['POST'])
+@swag_from("swagger_conf/get_stat_goals.yml")
+def get_stat_goals():
+    """Метод возвращает сведения о целях Яндекс Метрики, которые доступны для кампании"""
+
+    try:
+        json_file = request.get_json(force=False)
+
+        login = json_file["login"]
+        token = get_token_from_db(client_login=login, engine=engine, logger=logger)
+
+        direct = YandexDirectEcomru(login, token)
+
+        campaign_ids = json_file["campaign_ids"]
+        # update_db = to_boolean(json_file.get("update_db", "false"))
+
+        result = direct.get_stat_goals(campaign_ids)
+
+        if result is None:
+            logger.error("get stat goals: yandex direct error")
+            return jsonify({'error': 'yandex direct error'})
+        else:
+            logger.info(f"get stat goals: {result.status_code}")
+
+            # if update_db is True:
+            #     data = result.json()["result"]["GeoRegions"]
+            #     add_stat_goals(login, engine, logger, data, table_name="ya_ads_stat_goals")
+
+            return jsonify(result.json())
+
+    except BadRequestKeyError:
+        logger.error("get stat goals: BadRequest")
+        return Response(None, 400)
+
+    except KeyError:
+        logger.error("get stat goals: KeyError")
+        return Response(None, 400)
+
+    except BaseException as ex:
+        logger.error(f'get stat goals: {ex}')
+        raise HttpError(400, f'{ex}')
+
+
+@app.route('/yandexdirect/getbusinessprofiles', methods=['POST'])
+@swag_from("swagger_conf/get_business_profiles.yml")
+def get_business_profiles():
+    """Метод возвращает данные профилей организаций рекламодателя на Яндексе"""
+
+    try:
+        json_file = request.get_json(force=False)
+
+        login = json_file["login"]
+        token = get_token_from_db(client_login=login, engine=engine, logger=logger)
+
+        direct = YandexDirectEcomru(login, token)
+
+        result = direct.get_business_profiles()
+
+        if result is None:
+            logger.error("get business profiles: yandex direct error")
+            return jsonify({'error': 'yandex direct error'})
+        else:
+            logger.info(f"get business profiles: {result.status_code}")
+
+            return jsonify(result.json())
+
+    except BadRequestKeyError:
+        logger.error("get business profiles: BadRequest")
+        return Response(None, 400)
+
+    except KeyError:
+        logger.error("get business profiles: KeyError")
+        return Response(None, 400)
+
+    except BaseException as ex:
+        logger.error(f'get business profiles: {ex}')
+        raise HttpError(400, f'{ex}')
+
+
+@app.route('/yandexdirect/getvcards', methods=['POST'])
+@swag_from("swagger_conf/get_v_cards.yml")
+def get_v_cards():
+    """Метод возвращает виртуальные визитки"""
+
+    try:
+        json_file = request.get_json(force=False)
+
+        login = json_file["login"]
+        token = get_token_from_db(client_login=login, engine=engine, logger=logger)
+
+        direct = YandexDirectEcomru(login, token)
+
+        result = direct.get_v_cards()
+
+        if result is None:
+            logger.error("get v_cards: yandex direct error")
+            return jsonify({'error': 'yandex direct error'})
+        else:
+            logger.info(f"get v_cards: {result.status_code}")
+
+            return jsonify(result.json())
+
+    except BadRequestKeyError:
+        logger.error("get v_cards: BadRequest")
+        return Response(None, 400)
+
+    except KeyError:
+        logger.error("get v_cards: KeyError")
+        return Response(None, 400)
+
+    except BaseException as ex:
+        logger.error(f'get v_cards: {ex}')
+        raise HttpError(400, f'{ex}')
+
+
+@app.route('/yandexdirect/addvcard', methods=['POST'])
+@swag_from("swagger_conf/add_v_card.yml")
+def add_v_card():
+    """Метод cоздает виртуальную визитку"""
+
+    try:
+        json_file = request.get_json(force=False)
+
+        login = json_file["login"]
+        token = get_token_from_db(client_login=login, engine=engine, logger=logger)
+
+        direct = YandexDirectEcomru(login, token)
+
+        campaign_id = json_file["campaign_id"]
+        country = json_file["country"]
+        city = json_file["city"]
+        company_name = json_file["company_name"]
+        work_time = json_file["work_time"]
+        phone_country_code = json_file["phone_country_code"]
+        phone_city_code = json_file["phone_city_code"]
+        phone_number = json_file["phone_number"]
+        phone_extension = json_file.get("phone_extension", None)
+        street = json_file.get("street", None)
+        house = json_file.get("house", None)
+        building = json_file.get("building", None)
+        apartment = json_file.get("apartment", None)
+        instant_messenger_client = json_file.get("instant_messenger_client", None)
+        instant_messenger_login = json_file.get("instant_messenger_login", None)
+        extra_message = json_file.get("extra_message", None)
+        contact_email = json_file.get("contact_email", None)
+        ogrn = json_file.get("ogrn", None)
+        metro_station_id = json_file.get("metro_station_id", None)
+        map_point_x = json_file.get("map_point_x", None)
+        map_point_y = json_file.get("map_point_y", None)
+        map_point_x1 = json_file.get("map_point_x1", None)
+        map_point_y1 = json_file.get("map_point_y1", None)
+        map_point_x2 = json_file.get("map_point_x2", None)
+        map_point_y2 = json_file.get("map_point_y2", None)
+        contact_person = json_file.get("contact_person", None)
+
+        v_card_params = direct.create_v_card_params(campaign_id, country, city, company_name, work_time,
+                                                    phone_country_code, phone_city_code, phone_number, phone_extension,
+                                                    street, house, building, apartment, instant_messenger_client,
+                                                    instant_messenger_login, extra_message, contact_email, ogrn,
+                                                    metro_station_id, map_point_x, map_point_y, map_point_x1,
+                                                    map_point_y1, map_point_x2, map_point_y2, contact_person)
+
+        if v_card_params is None:
+            logger.error("add v_card: v_card_params incorrect")
+            return jsonify({'error': 'v_card_params incorrect'})
+        else:
+            result = direct.add_v_cards(v_cards=[v_card_params])
+            if result is None:
+                logger.error("add v_card: yandex direct error")
+                return jsonify({'error': 'yandex direct error'})
+            else:
+                logger.info(f"add v_card: {result.status_code}")
+
+                return jsonify(result.json())
+
+    except BadRequestKeyError:
+        logger.error("add v_card: BadRequest")
+        return Response(None, 400)
+
+    except KeyError:
+        logger.error("add v_card: KeyError")
+        return Response(None, 400)
+
+    except BaseException as ex:
+        logger.error(f'add v_card: {ex}')
+        raise HttpError(400, f'{ex}')
+
+
+@app.route('/yandexdirect/deletevcards', methods=['POST'])
+@swag_from("swagger_conf/delete_v_cards.yml")
+def delete_v_cards():
+    """Метод удаляет виртуальные визитки"""
+
+    try:
+        json_file = request.get_json(force=False)
+
+        login = json_file["login"]
+        token = get_token_from_db(client_login=login, engine=engine, logger=logger)
+
+        direct = YandexDirectEcomru(login, token)
+
+        v_card_ids = json_file["v_card_ids"]
+
+        result = direct.delete_v_cards(v_card_ids)
+
+        if result is None:
+            logger.error("delete v_cards: yandex direct error")
+            return jsonify({'error': 'yandex direct error'})
+        else:
+            logger.info(f"delete v_cards: {result.status_code}")
+
+            return jsonify(result.json())
+
+    except BadRequestKeyError:
+        logger.error("delete v_cards: BadRequest")
+        return Response(None, 400)
+
+    except KeyError:
+        logger.error("delete v_cards: KeyError")
+        return Response(None, 400)
+
+    except BaseException as ex:
+        logger.error(f'delete v_cards: {ex}')
+        raise HttpError(400, f'{ex}')
+
+
+
+
+
+
+
+
 
 
 
