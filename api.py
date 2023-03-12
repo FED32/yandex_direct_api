@@ -10,9 +10,11 @@ import time
 import pandas as pd
 from get_token_from_db import get_token_from_db
 from db_work import put_query, get_clients, get_objects_from_db, get_groups_from_db, get_ads_from_db, add_regions, get_table_from_db, response_result
+import db_work
 from sqlalchemy import create_engine
 import requests
 from fake_useragent import UserAgent
+from celery import Celery
 
 
 host = os.environ.get('ECOMRU_PG_HOST', None)
@@ -43,6 +45,11 @@ else:
 app = Flask(__name__)
 app.config.from_object(Configuration)
 app.config['SWAGGER'] = {"title": "GTCOM-YandexDirectApi", "uiversion": 3}
+app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
+app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379/0'
+
+celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+celery.conf.update(app.config)
 
 logger = logger_api.init_logger()
 
@@ -317,6 +324,7 @@ def add_text_campaign():
 
         goal_ids = json_file.get("goal_ids", None)
         goal_vals = json_file.get("goal_vals", None)
+        goal_is_metrika_source_of_value = json_file.get("goal_is_metrika_source_of_value", None)
 
         attribution_model = json_file.get("attribution_model", "LYDC")
 
@@ -358,6 +366,7 @@ def add_text_campaign():
                                                          counter_ids=counter_ids,
                                                          goal_ids=goal_ids,
                                                          goal_vals=goal_vals,
+                                                         goal_is_metrika_source_of_value=goal_is_metrika_source_of_value,
                                                          tracking_params=tracking_params,
                                                          attribution_model=attribution_model)
 
@@ -433,7 +442,7 @@ def add_text_campaign():
                 # return jsonify(result.json())
 
                 parsed_result = response_result(response=result, sourсe=errors_warnings_sourse,
-                                                   errors_table=errors_table, warnings_table=warnings_table)
+                                                errors_table=errors_table, warnings_table=warnings_table)
 
                 put_query(json_file=json_file, table_name='ya_ads_addcampaigns', result=parsed_result, engine=engine,
                           logger=logger)
@@ -706,7 +715,7 @@ def add_text_ad():
         txt_old_price = json_file.get("txt_old_price", None)
         txt_price_qualifier = json_file.get("txt_price_qualifier", None)
         txt_price_currency = json_file.get("txt_price_currency", None)
-        ext_link_params = json_file.get("ext_link_params", False)
+        ext_link_params = to_boolean(json_file.get("ext_link_params", "false"))
 
         if ext_link_params == "true":
             ext_link_params_ = True
@@ -2125,6 +2134,448 @@ def delete_v_cards():
         logger.error(f'delete v_cards: {ex}')
         raise HttpError(400, f'{ex}')
 
+
+@app.route('/yandexdirect/getaddcampaigntypes', methods=['GET'])
+@swag_from("swagger_conf/get_add_campaign_types.yml")
+def get_campaign_types():
+    """Получить из БД типы кампаний доступные к созданию"""
+
+    try:
+        result = db_work.get_add_campaign_types(engine, logger)
+
+        if result is None:
+            return jsonify({'error': 'database error'})
+        else:
+            logger.info(f"get_campaign_types: OK")
+
+            return jsonify({'result': result})
+
+    except BadRequestKeyError:
+        logger.error("get_campaign_types: BadRequest")
+        return Response(None, 400)
+
+    except KeyError:
+        logger.error("get_campaign_types: KeyError")
+        return Response(None, 400)
+
+    except BaseException as ex:
+        logger.error(f'get_campaign_types: {ex}')
+        raise HttpError(400, f'{ex}')
+
+
+@app.route('/yandexdirect/getaddcampaigncommonparams', methods=['GET'])
+@swag_from("swagger_conf/get_add_campaign_common_params.yml")
+def get_campaign_common_params():
+    """Получить из БД поля общих параметров для всех типов кампаний"""
+
+    try:
+        result = db_work.get_add_campaign_common_params(engine, logger)
+
+        if result is None:
+            return jsonify({'error': 'database error'})
+        else:
+            logger.info(f"get_campaign_common_params: OK")
+
+            return jsonify({'result': result})
+
+    except BadRequestKeyError:
+        logger.error("get_campaign_common_params: BadRequest")
+        return Response(None, 400)
+
+    except KeyError:
+        logger.error("get_campaign_common_params: KeyError")
+        return Response(None, 400)
+
+    except BaseException as ex:
+        logger.error(f'get_campaign_common_params: {ex}')
+        raise HttpError(400, f'{ex}')
+
+
+@app.route('/yandexdirect/getaddcampaigntextparams', methods=['GET'])
+@swag_from("swagger_conf/get_add_campaign_text_params.yml")
+def get_campaign_text_params():
+    """Получить из БД поля параметров для создания текстовой кампании"""
+
+    try:
+        result = db_work.get_add_campaign_text_params(engine, logger)
+
+        if result is None:
+            return jsonify({'error': 'database error'})
+        else:
+            logger.info(f"get_campaign_text_params: OK")
+
+            return jsonify({'result': result})
+
+    except BadRequestKeyError:
+        logger.error("get_campaign_text_params: BadRequest")
+        return Response(None, 400)
+
+    except KeyError:
+        logger.error("get_campaign_text_params: KeyError")
+        return Response(None, 400)
+
+    except BaseException as ex:
+        logger.error(f'get_campaign_text_params: {ex}')
+        raise HttpError(400, f'{ex}')
+
+
+@app.route('/yandexdirect/getaddcampaigndynamictextparams', methods=['GET'])
+@swag_from("swagger_conf/get_add_campaign_dynamic_text_params.yml")
+def get_campaign_dynamic_text_params():
+    """Получить из БД поля параметров для создания динамической текстовой кампании"""
+
+    try:
+        result = db_work.get_add_campaign_dynamic_text_params(engine, logger)
+
+        if result is None:
+            return jsonify({'error': 'database error'})
+        else:
+            logger.info(f"get_campaign_dynamic_text_params: OK")
+
+            return jsonify({'result': result})
+
+    except BadRequestKeyError:
+        logger.error("get_campaign_dynamic_text_params: BadRequest")
+        return Response(None, 400)
+
+    except KeyError:
+        logger.error("get_campaign_dynamic_text_params: KeyError")
+        return Response(None, 400)
+
+    except BaseException as ex:
+        logger.error(f'get_campaign_dynamic_text_params: {ex}')
+        raise HttpError(400, f'{ex}')
+
+
+@app.route('/yandexdirect/getaddcampaignstrategyparams', methods=['POST'])
+@swag_from("swagger_conf/get_add_campaign_strategy_params.yml")
+def get_campaign_strategy_params():
+    """Получить из БД поля параметров стратегии для типа кампании и типа места показа (в сетях или на поиске)"""
+
+    try:
+        json_file = request.get_json(force=False)
+
+        campaign_type = json_file["campaign_type"]
+        placement = json_file["placement"]
+        strategy = json_file["strategy"]
+
+        result = db_work.get_add_campaign_strategy_params(campaign_type, placement, strategy, engine, logger)
+
+        if result is None:
+            return jsonify({'error': 'database error'})
+        else:
+            logger.info(f"get_campaign_strategy_params: OK")
+
+            return jsonify({'result': result})
+
+    except BadRequestKeyError:
+        logger.error("get_campaign_strategy_params: BadRequest")
+        return Response(None, 400)
+
+    except KeyError:
+        logger.error("get_campaign_strategy_params: KeyError")
+        return Response(None, 400)
+
+    except BaseException as ex:
+        logger.error(f'get_campaign_strategy_params: {ex}')
+        raise HttpError(400, f'{ex}')
+
+
+@app.route('/yandexdirect/getaddcampaignsearchstrategytypes', methods=['POST'])
+@swag_from("swagger_conf/get_add_campaign_search_strategy_types.yml")
+def get_campaign_search_strategy_types():
+    """Получить из БД стратегии показа на поиске доступные для типа кампании"""
+
+    try:
+        json_file = request.get_json(force=False)
+
+        campaign_type = json_file["campaign_type"]
+
+        result = db_work.get_add_campaign_search_strategy_types(campaign_type, engine, logger)
+
+        if result is None:
+            return jsonify({'error': 'database error'})
+        else:
+            logger.info(f"get_campaign_search_strategy_types: OK")
+
+            return jsonify({'result': result})
+
+    except BadRequestKeyError:
+        logger.error("get_campaign_search_strategy_types: BadRequest")
+        return Response(None, 400)
+
+    except KeyError:
+        logger.error("get_campaign_search_strategy_types: KeyError")
+        return Response(None, 400)
+
+    except BaseException as ex:
+        logger.error(f'get_campaign_search_strategy_types: {ex}')
+        raise HttpError(400, f'{ex}')
+
+
+@app.route('/yandexdirect/getaddcampaignnetworkstrategytypes', methods=['POST'])
+@swag_from("swagger_conf/get_add_campaign_network_strategy_types.yml")
+def get_campaign_network_strategy_types():
+    """Получить из БД стратегии показа в сетях доступные для типа кампании с выбранной стратегией на поиске"""
+
+    try:
+        json_file = request.get_json(force=False)
+
+        campaign_type = json_file["campaign_type"]
+        search_strategy = json_file["search_strategy"]
+
+        result = db_work.get_add_campaign_network_strategy_types(campaign_type, search_strategy, engine, logger)
+
+        if result is None:
+            return jsonify({'error': 'database error'})
+        else:
+            logger.info(f"get_campaign_network_strategy_types: OK")
+
+            return jsonify({'result': result})
+
+    except BadRequestKeyError:
+        logger.error("get_campaign_network_strategy_types: BadRequest")
+        return Response(None, 400)
+
+    except KeyError:
+        logger.error("get_campaign_network_strategy_types: KeyError")
+        return Response(None, 400)
+
+    except BaseException as ex:
+        logger.error(f'get_campaign_network_strategy_types: {ex}')
+        raise HttpError(400, f'{ex}')
+
+
+@app.route('/yandexdirect/getaddgrouptypes', methods=['POST'])
+@swag_from("swagger_conf/get_add_group_types.yml")
+def get_adgroup_types():
+    """Получить типы групп доступные к созданию"""
+
+    try:
+        json_file = request.get_json(force=False)
+
+        campaign_type = json_file["campaign_type"]
+
+        result = db_work.get_add_group_types(campaign_type, engine, logger)
+
+        if result is None:
+            return jsonify({'error': 'database error'})
+        else:
+            logger.info(f"get_adgroup_types: OK")
+
+            return jsonify({'result': result})
+
+    except BadRequestKeyError:
+        logger.error("get_adgroup_types: BadRequest")
+        return Response(None, 400)
+
+    except KeyError:
+        logger.error("get_adgroup_types: KeyError")
+        return Response(None, 400)
+
+    except BaseException as ex:
+        logger.error(f'get_adgroup_types: {ex}')
+        raise HttpError(400, f'{ex}')
+
+
+@app.route('/yandexdirect/getaddgroupcommonparams', methods=['GET'])
+@swag_from("swagger_conf/get_add_group_common_params.yml")
+def get_adgroup_common_params():
+    """Получить из БД поля общих параметров для всех типов групп"""
+
+    try:
+        result = db_work.get_add_group_common_params(engine, logger)
+
+        if result is None:
+            return jsonify({'error': 'database error'})
+        else:
+            logger.info(f"get_adgroup_common_params: OK")
+
+            return jsonify({'result': result})
+
+    except BadRequestKeyError:
+        logger.error("get_adgroup_common_params: BadRequest")
+        return Response(None, 400)
+
+    except KeyError:
+        logger.error("get_adgroup_common_params: KeyError")
+        return Response(None, 400)
+
+    except BaseException as ex:
+        logger.error(f'get_adgroup_common_params: {ex}')
+        raise HttpError(400, f'{ex}')
+
+
+@app.route('/yandexdirect/getaddgrouptextfeedparams', methods=['GET'])
+@swag_from("swagger_conf/get_add_group_text_feed_params.yml")
+def get_adgroup_text_feed_params():
+    """Получить из БД поля для группы текстово-графических объявлений (параметры фида)"""
+
+    try:
+        result = db_work.get_add_group_text_feed_params(engine, logger)
+
+        if result is None:
+            return jsonify({'error': 'database error'})
+        else:
+            logger.info(f"get_adgroup_text_feed_params: OK")
+
+            return jsonify({'result': result})
+
+    except BadRequestKeyError:
+        logger.error("get_adgroup_text_feed_params: BadRequest")
+        return Response(None, 400)
+
+    except KeyError:
+        logger.error("get_adgroup_text_feed_params: KeyError")
+        return Response(None, 400)
+
+    except BaseException as ex:
+        logger.error(f'get_adgroup_text_feed_params: {ex}')
+        raise HttpError(400, f'{ex}')
+
+
+@app.route('/yandexdirect/getaddgroupdynamictextparams', methods=['GET'])
+@swag_from("swagger_conf/get_add_group_dynamic_text_params.yml")
+def get_adgroup_dynamic_text_params():
+    """Получить из БД поля параметров группы динамический объявлений"""
+
+    try:
+        result = db_work.get_add_group_dynamic_text_params(engine, logger)
+
+        if result is None:
+            return jsonify({'error': 'database error'})
+        else:
+            logger.info(f"get_adgroup_dynamic_text_params: OK")
+
+            return jsonify({'result': result})
+
+    except BadRequestKeyError:
+        logger.error("get_adgroup_dynamic_text_params: BadRequest")
+        return Response(None, 400)
+
+    except KeyError:
+        logger.error("get_adgroup_dynamic_text_params: KeyError")
+        return Response(None, 400)
+
+    except BaseException as ex:
+        logger.error(f'get_adgroup_dynamic_text_params: {ex}')
+        raise HttpError(400, f'{ex}')
+
+
+@app.route('/yandexdirect/getaddgroupdynamictextfeedparams', methods=['GET'])
+@swag_from("swagger_conf/get_add_group_dynamic_text_feed_params.yml")
+def get_adgroup_dynamic_text_feed_params():
+    """Получить из БД поля параметров группы динамический объявлений с подтипом FEED"""
+
+    try:
+        result = db_work.get_add_group_dynamic_text_feed_params(engine, logger)
+
+        if result is None:
+            return jsonify({'error': 'database error'})
+        else:
+            logger.info(f"get_adgroup_dynamic_text_feed_params: OK")
+
+            return jsonify({'result': result})
+
+    except BadRequestKeyError:
+        logger.error("get_adgroup_dynamic_text_feed_params: BadRequest")
+        return Response(None, 400)
+
+    except KeyError:
+        logger.error("get_adgroup_dynamic_text_feed_params: KeyError")
+        return Response(None, 400)
+
+    except BaseException as ex:
+        logger.error(f'get_adgroup_dynamic_text_feed_params: {ex}')
+        raise HttpError(400, f'{ex}')
+
+
+@app.route('/yandexdirect/getaddadtypes', methods=['POST'])
+@swag_from("swagger_conf/get_add_ad_types.yml")
+def get_ad_types():
+    """Получить из БД типы объявлений доступные к созданию"""
+
+    try:
+        json_file = request.get_json(force=False)
+
+        adgroup_type = json_file["adgroup_type"]
+
+        result = db_work.get_add_ad_types(adgroup_type, engine, logger)
+
+        if result is None:
+            return jsonify({'error': 'database error'})
+        else:
+            logger.info(f"get_ad_types: OK")
+
+            return jsonify({'result': result})
+
+    except BadRequestKeyError:
+        logger.error("get_ad_types: BadRequest")
+        return Response(None, 400)
+
+    except KeyError:
+        logger.error("get_ad_types: KeyError")
+        return Response(None, 400)
+
+    except BaseException as ex:
+        logger.error(f'get_ad_types: {ex}')
+        raise HttpError(400, f'{ex}')
+
+
+@app.route('/yandexdirect/getaddadtextadparams', methods=['GET'])
+@swag_from("swagger_conf/get_add_ad_text_ad_params.yml")
+def get_ad_text_ad_params():
+    """Получить из БД параметры полей для создания текстово-графического объявления"""
+
+    try:
+        result = db_work.get_add_ad_text_ad_params(engine, logger)
+
+        if result is None:
+            return jsonify({'error': 'database error'})
+        else:
+            logger.info(f"get_ad_text_ad_params: OK")
+
+            return jsonify({'result': result})
+
+    except BadRequestKeyError:
+        logger.error("get_ad_text_ad_params: BadRequest")
+        return Response(None, 400)
+
+    except KeyError:
+        logger.error("get_ad_text_ad_params: KeyError")
+        return Response(None, 400)
+
+    except BaseException as ex:
+        logger.error(f'get_ad_text_ad_params: {ex}')
+        raise HttpError(400, f'{ex}')
+
+
+@app.route('/yandexdirect/getaddaddynamictextadparams', methods=['GET'])
+@swag_from("swagger_conf/get_add_ad_dynamic_text_ad_params.yml")
+def get_ad_dynamic_text_ad_params():
+    """Получить из БД параметры полей для создания динамического объявления"""
+
+    try:
+        result = db_work.get_add_ad_dynamic_text_ad_params(engine, logger)
+
+        if result is None:
+            return jsonify({'error': 'database error'})
+        else:
+            logger.info(f"get_ad_dynamic_text_ad_params: OK")
+
+            return jsonify({'result': result})
+
+    except BadRequestKeyError:
+        logger.error("get_ad_dynamic_text_ad_params: BadRequest")
+        return Response(None, 400)
+
+    except KeyError:
+        logger.error("get_ad_dynamic_text_ad_params: KeyError")
+        return Response(None, 400)
+
+    except BaseException as ex:
+        logger.error(f'get_ad_dynamic_text_ad_params: {ex}')
+        raise HttpError(400, f'{ex}')
 
 
 

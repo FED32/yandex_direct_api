@@ -470,22 +470,23 @@ class YandexDirectEcomru:
                                 n_crr=None,
                                 n_cpa=None,
                                 # settings=None,
-                                add_metrica_tag="YES",
-                                add_openstat_tag="NO",
-                                add_to_favorites="NO",
-                                enable_area_of_interest_targeting="YES",
-                                enable_company_info="YES",
-                                enable_site_monitoring="NO",
-                                exclude_paused_competing_ads="NO",
+                                add_metrica_tag: str = "YES",
+                                add_openstat_tag: str = "NO",
+                                add_to_favorites: str = "NO",
+                                enable_area_of_interest_targeting: str = "YES",
+                                enable_company_info: str = "YES",
+                                enable_site_monitoring: str = "NO",
+                                exclude_paused_competing_ads: str = "NO",
                                 # maintain_network_cpc="NO",
-                                require_servicing="NO",
-                                campaign_exact_phrase_matching_enabled="NO",
+                                require_servicing: str = "NO",
+                                campaign_exact_phrase_matching_enabled: str = "NO",
                                 counter_ids=None,
                                 #                                 rel_kw_budget_perc=None,
                                 #                                 rel_kw_opt_goal_id=0,
-                                goal_ids=None,
-                                goal_vals=None,
-                                attribution_model="LYDC",
+                                goal_ids: list[int] = None,
+                                goal_vals: list[int] = None,
+                                goal_is_metrika_source_of_value: list[str] = None,
+                                attribution_model: str = "LYDC",
                                 tracking_params: str = None
                                 # update=False
                                 ):
@@ -515,16 +516,33 @@ class YandexDirectEcomru:
         #         if rel_kw_budget_perc != None:
         #             result["TextCampaign"]["RelevantKeywords"] = {"BudgetPercent": rel_kw_budget_perc,
         #                                                           "OptimizeGoalId": rel_kw_opt_goal_id}
-        if goal_ids is not None and goal_vals is not None:
-            try:
-                goals = [{"GoalId": goal_id, "Value": goal_val, "IsMetrikaSourceOfValue": "NO"}
-                         for goal_id, goal_val in zip(goal_ids, goal_vals)]
+        # if goal_ids is not None and goal_vals is not None:
+        #     try:
+        #         goals = [{"GoalId": goal_id, "Value": goal_val, "IsMetrikaSourceOfValue": "NO"}
+        #                  for goal_id, goal_val in zip(goal_ids, goal_vals)]
+        #
+        #         result["TextCampaign"]["PriorityGoals"] = {"Items": goals}
+        #     except TypeError:
+        #         print(
+        #             'Не корректные параметры ключевых целей, на достижение которых направлена автоматическая '
+        #             'корректировка ставок')
 
-                result["TextCampaign"]["PriorityGoals"] = {"Items": goals}
-            except TypeError:
-                print(
-                    'Не корректные параметры ключевых целей, на достижение которых направлена автоматическая '
-                    'корректировка ставок')
+        if goal_ids is not None and goal_vals is not None:
+            if len(goal_ids) == len(goal_vals):
+                if (
+                        s_bid_strat == "AVERAGE_CRR" or s_bid_strat == "PAY_FOR_CONVERSION_CRR") and goal_is_metrika_source_of_value is not None:
+                    if len(goal_is_metrika_source_of_value) == len(goal_ids):
+                        goals = [
+                            {"GoalId": goal_id, "Value": goal_val, "IsMetrikaSourceOfValue": is_metrika_source_of_value}
+                            for goal_id, goal_val, is_metrika_source_of_value in
+                            zip(goal_ids, goal_vals, goal_is_metrika_source_of_value)]
+                    else:
+                        return None
+                else:
+                    goals = [{"GoalId": goal_id, "Value": goal_val} for goal_id, goal_val in zip(goal_ids, goal_vals)]
+            else:
+                return None
+            result["TextCampaign"].setdefault("PriorityGoals", {"Items": goals})
 
         if attribution_model is not None:
             result["TextCampaign"]["AttributionModel"] = attribution_model
@@ -745,9 +763,10 @@ class YandexDirectEcomru:
                                 exclude_paused_competing_ads=None,
                                 require_servicing=None,
                                 counter_ids=None,
-                                goal_ids=None,
-                                goal_vals=None,
-                                attribution_model=None
+                                goal_ids: list[int] = None,
+                                goal_vals: list[int] = None,
+                                goal_is_metrika_source_of_value: list[str] = None,
+                                attribution_model: str = None
                                 ):
         """Возвращает словарь с параметрами для изменения текстовой кампании"""
 
@@ -796,17 +815,34 @@ class YandexDirectEcomru:
             result["TextCampaign"].setdefault("CounterIds")
             result["TextCampaign"]["CounterIds"] = {"Items": counter_ids}
 
-        if goal_ids is not None and goal_vals is not None:
-            if len(goal_ids) != len(goal_vals):
-                print('Не корректные параметры ключевых целей, на достижение которых направлена автоматическая '
-                      'корректировка ставок')
-                return None
-            else:
-                goals = [{"GoalId": goal_id, "Value": goal_val, "Operation": "SET", "IsMetrikaSourceOfValue": "NO"}
-                         for goal_id, goal_val in zip(goal_ids, goal_vals)]
+        # if goal_ids is not None and goal_vals is not None:
+        #     if len(goal_ids) != len(goal_vals):
+        #         print('Не корректные параметры ключевых целей, на достижение которых направлена автоматическая '
+        #               'корректировка ставок')
+        #         return None
+        #     else:
+        #         goals = [{"GoalId": goal_id, "Value": goal_val, "Operation": "SET", "IsMetrikaSourceOfValue": "NO"}
+        #                  for goal_id, goal_val in zip(goal_ids, goal_vals)]
+        #
+        #         result["TextCampaign"].setdefault("PriorityGoals")
+        #         result["TextCampaign"]["PriorityGoals"] = {"Items": goals}
 
-                result["TextCampaign"].setdefault("PriorityGoals")
-                result["TextCampaign"]["PriorityGoals"] = {"Items": goals}
+        if goal_ids is not None and goal_vals is not None:
+            if len(goal_ids) == len(goal_vals):
+                if (
+                        s_bid_strat == "AVERAGE_CRR" or s_bid_strat == "PAY_FOR_CONVERSION_CRR") and goal_is_metrika_source_of_value is not None:
+                    if len(goal_is_metrika_source_of_value) == len(goal_ids):
+                        goals = [
+                            {"GoalId": goal_id, "Value": goal_val, "IsMetrikaSourceOfValue": is_metrika_source_of_value}
+                            for goal_id, goal_val, is_metrika_source_of_value in
+                            zip(goal_ids, goal_vals, goal_is_metrika_source_of_value)]
+                    else:
+                        return None
+                else:
+                    goals = [{"GoalId": goal_id, "Value": goal_val} for goal_id, goal_val in zip(goal_ids, goal_vals)]
+            else:
+                return None
+            result["TextCampaign"].setdefault("PriorityGoals", {"Items": goals})
 
         if attribution_model is not None:
             result["TextCampaign"].setdefault("AttributionModel")
@@ -1330,24 +1366,24 @@ class YandexDirectEcomru:
                 }
         return self.exec_post_api5(service, self.head, body)
 
-    def get_stat_goals(self, campaigns: list[int]):
-        """
-        Возвращает сведения о целях Яндекс Метрики, которые доступны для кампании
-        """
-        body = {"method": "GetStatGoals",
-                "param": {"CampaignIDS": campaigns},
-                "locale": "ru",
-                "token": self.token
-                }
-        head = {"Accept-Language": "ru",
-                "Content-Length": "204",
-                "Content-Type": "application/json; charset=utf-8"}
-
-        response = requests.post(self.urls[1],
-                                 data=json.dumps(body, ensure_ascii=False).encode('utf8'))
-        self.add_into_counter(response)
-        self.print_response_info(response)
-        return response
+    # def get_stat_goals(self, campaigns: list[int]):
+    #     """
+    #     Возвращает сведения о целях Яндекс Метрики, которые доступны для кампании
+    #     """
+    #     body = {"method": "GetStatGoals",
+    #             "param": {"CampaignIDS": campaigns},
+    #             "locale": "ru",
+    #             "token": self.token
+    #             }
+    #     head = {"Accept-Language": "ru",
+    #             "Content-Length": "204",
+    #             "Content-Type": "application/json; charset=utf-8"}
+    #
+    #     response = requests.post(self.urls[1],
+    #                              data=json.dumps(body, ensure_ascii=False).encode('utf8'))
+    #     self.add_into_counter(response)
+    #     self.print_response_info(response)
+    #     return response
 
     def dictionaries(self, dict_names: list[str]):
         """
@@ -1684,24 +1720,24 @@ class YandexDirectEcomru:
     @staticmethod
     def create_ad_params(ads_group_id: int,
                          title: str,
-                         title2=None,
-                         text=None,
-                         mobile=None,
-                         href=None,
-                         turbo_page_id=None,
-                         vcard_id=None,
-                         business_id=None,
-                         prefer_vcard_over_business=None,
-                         ad_image_hash=None,
-                         sitelink_set_id=None,
-                         display_url_path=None,
-                         ad_extension_ids=None,
-                         creative_id=None,
-                         txt_price=None,
-                         txt_old_price=None,
-                         txt_price_qualifier=None,
-                         txt_price_currency=None,
-                         ext_link_params=True
+                         title2: str = None,
+                         text: str = None,
+                         mobile: str = None,
+                         href: str = None,
+                         turbo_page_id: int = None,
+                         vcard_id: int = None,
+                         business_id: int = None,
+                         prefer_vcard_over_business: str = None,
+                         ad_image_hash: str = None,
+                         sitelink_set_id: int = None,
+                         display_url_path: str = None,
+                         ad_extension_ids: list[int] = None,
+                         creative_id: int = None,
+                         txt_price: int = None,
+                         txt_old_price: int = None,
+                         txt_price_qualifier: str = None,
+                         txt_price_currency: str = None,
+                         ext_link_params: bool = False
                          ):
         """
         Возвращает словарь с параметрами объявления
@@ -2173,11 +2209,11 @@ class YandexDirectEcomru:
                               strategy_priority: str = None,
                               user_param1: str = None,
                               user_param2: str = None,
-                              autotargeting_exact="NO",
-                              autotargeting_alternative="NO",
-                              autotargeting_competitor="NO",
-                              autotargeting_broader="NO",
-                              autotargeting_accessory="NO"
+                              autotargeting_exact: str = "NO",
+                              autotargeting_alternative: str = "NO",
+                              autotargeting_competitor: str = "NO",
+                              autotargeting_broader: str = "NO",
+                              autotargeting_accessory: str = "NO"
                               ):
         """Возвращает словарь с параметрами ключевого слова или автотаргетинга"""
 

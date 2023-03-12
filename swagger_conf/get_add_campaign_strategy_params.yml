@@ -1,0 +1,59 @@
+swagger: "2.0"
+info:
+  title: "Yandex Direct Ecom API Documentation"
+  contact:
+    email: "s.fedyushin@ecomru.ru"
+  basePath: "/swagger"
+paths:
+  "/yandexdirect/getaddcampaignstrategyparams":
+    post:
+tags:
+  - params
+summary: "Получить из БД поля параметров стратегии"
+description: "Метод для получения из БД полей параметров стратегии для типа кампании и типа места показа (в сетях или на поиске)"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "body"
+  required: true
+  schema:
+    type: "object"
+    properties:
+      campaign_type:
+        type: "string"
+        example: "TEXT_CAMPAIGN"
+        enum:
+          - "TEXT_CAMPAIGN"
+          - "DYNAMIC_TEXT_CAMPAIGN"
+        description: Тип кампании
+      placement:
+        type: "string"
+        example: "Search"
+        enum:
+          - "Search"
+          - "Network"
+        description: Размещение рекламы Search - на поиске, Network - в сетях
+      strategy:
+        type: "string"
+        enum:
+          - "AVERAGE_CPA"
+          - "AVERAGE_CPC"
+          - "AVERAGE_CRR"
+          - "AVERAGE_ROI"
+          - "HIGHEST_POSITION"
+          - "PAY_FOR_CONVERSION"
+          - "PAY_FOR_CONVERSION_CRR"
+          - "SERVING_OFF"
+          - "WB_MAXIMUM_CLICKS"
+          - "WB_MAXIMUM_CONVERSION_RATE"
+          - "NETWORK_DEFAULT"
+          - "MAXIMUM_COVERAGE"
+        description: Тип стратегии
+responses:
+  200:
+    description: "OK"
+  400:
+    description: "Bad Request"

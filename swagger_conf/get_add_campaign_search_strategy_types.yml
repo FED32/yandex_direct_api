@@ -1,0 +1,36 @@
+swagger: "2.0"
+info:
+  title: "Yandex Direct Ecom API Documentation"
+  contact:
+    email: "s.fedyushin@ecomru.ru"
+  basePath: "/swagger"
+paths:
+  "/yandexdirect/getaddcampaignsearchstrategytypes":
+    post:
+tags:
+  - params
+summary: "Получить из БД стратегии показа на поиске доступные для типа кампании"
+description: "Метод для получения из БД стратегий показа на поиске доступных для типа кампании"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "body"
+  required: true
+  schema:
+    type: "object"
+    properties:
+      campaign_type:
+        type: "string"
+        example: "TEXT_CAMPAIGN"
+        enum:
+          - "TEXT_CAMPAIGN"
+          - "DYNAMIC_TEXT_CAMPAIGN"
+        description: Тип кампании
+responses:
+  200:
+    description: "OK"
+  400:
+    description: "Bad Request"

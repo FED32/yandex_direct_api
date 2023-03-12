@@ -1,0 +1,22 @@
+swagger: "2.0"
+info:
+  title: "Yandex Direct Ecom API Documentation"
+  contact:
+    email: "s.fedyushin@ecomru.ru"
+  basePath: "/swagger"
+paths:
+  "/yandexdirect/getaddgroupcommonparams":
+    get:
+tags:
+  - params
+summary: "Получить из БД поля общих параметров для всех типов групп"
+description: "Метод для получения из БД полей параметров общих для всех типов групп"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+responses:
+  200:
+    description: "OK"
+  400:
+    description: "Bad Request"

@@ -132,7 +132,7 @@ parameters:
         description: Валюта, в которой указана цена (не обязательно)
       ext_link_params:
         type: "string"
-        example: "true"
+        example: "false"
         enum:
           - "true"
           - "false"
