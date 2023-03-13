@@ -14,7 +14,7 @@ def put_query(engine,
               attempts: int = 2,
               result=None
               ):
-    """Загружает запрос в БД"""
+    """Загружает параметры запроса с ответом в БД"""
 
     try:
         res_id = result["result"]["AddResults"][0].get("Id", None)
@@ -201,14 +201,14 @@ def add_regions(engine,
                 data: list[dict],
                 table_name: str,
                 attempts: int = 2):
-    """Записывает данные в таблицу"""
+    """Записывает данные о регионах в таблицу"""
 
     dataset = pd.DataFrame(data)
     # dataset["ParentId"] = dataset["ParentId"].astype('int', copy=False, errors='ignore')
     # dataset.style.format({'ParentId': '{:,.0f}'.format, 'GeoRegionId': '{:,.0f}'.format})
     dataset = dataset.fillna(-1)
     dataset["ParentId"] = dataset["ParentId"].astype('int', copy=False, errors='ignore')
-    print(dataset.dtypes)
+    # print(dataset.dtypes)
 
     with engine.begin() as connection:
         n = 0
@@ -314,6 +314,345 @@ def response_result(response, sourсe: str, errors_table, warnings_table):
         result['Errors'] = errors
 
     return {'result': {"AddResults": [result]}}
+
+
+def sql_query(query, engine, logger, type_='dict'):
+
+    with engine.begin() as connection:
+        try:
+            data = pd.read_sql(query, con=connection)
+
+            if data is None:
+                logger.error("database error")
+                return None
+            elif data.shape[0] == 0:
+                logger.info(f"no data")
+                if type_ == 'dict':
+                    return []
+                elif type_ == 'df':
+                    return data
+            else:
+                if type_ == 'dict':
+                    return data.to_dict(orient='records')
+                elif type_ == 'df':
+                    return data
+
+        except BaseException as ex:
+            logger.error(f"{ex}")
+            return None
+
+
+def get_add_campaign_common_params(engine, logger):
+    """Получить из БД поля общих параметров для всех типов кампаний"""
+
+    query = """
+            SELECT 
+            param_api_name, 
+            dtype, 
+            enum, 
+            required, 
+            by_default, 
+            min, 
+            max, 
+            description, 
+            note 
+            FROM ya_ads_campaign_common_params_attr 
+            ORDER BY id
+            """
+    return sql_query(query, engine, logger, type_='dict')
+
+
+def get_add_campaign_text_params(engine, logger):
+    """Получить из БД поля параметров для создания текстовой кампании"""
+
+    query = """
+            SELECT 
+            param_api_name, 
+            dtype, 
+            enum, 
+            required, 
+            by_default, 
+            min, 
+            max, 
+            description, 
+            note 
+            FROM ya_ads_text_campaign_params_attr 
+            ORDER BY id
+            """
+
+    return sql_query(query, engine, logger, type_='dict')
+
+
+def get_add_campaign_dynamic_text_params(engine, logger):
+    """Получить из БД поля параметров для создания динамической текстовой кампании"""
+
+    query = """
+            SELECT 
+            param_api_name, 
+            dtype, 
+            enum, 
+            required, 
+            by_default, 
+            min, 
+            max, 
+            description, 
+            note 
+            FROM ya_ads_dyn_text_campaign_params_attr 
+            ORDER BY id
+            """
+
+    return sql_query(query, engine, logger, type_='dict')
+
+
+def get_add_campaign_strategy_params(campaign_type: str, placement: str, strategy: str, engine, logger):
+    """Получить из БД поля параметров стратегии для типа кампании и типа места показа (в сетях или на поиске)"""
+
+    query = f"""
+             SELECT 
+             st_p.param_api_name, 
+             st_p_attr.dtype, 
+             st_p_attr.enum, 
+             st_p.required, 
+             st_p_attr.by_default, 
+             st_p_attr.min, 
+             st_p_attr.max, 
+             st_p_attr.description, 
+             st_p.note 
+             FROM ya_ads_campaign_strategy_params AS st_p 
+             JOIN ya_ads_campaign_strategy_params_attr AS st_p_attr ON st_p.param_api_name = st_p_attr.param_api_name 
+             WHERE st_p.campaign_type = '{campaign_type}' AND st_p.placement = '{placement}' AND st_p.strategy_type = '{strategy}' 
+             ORDER BY st_p.id
+             """
+
+    return sql_query(query, engine, logger, type_='dict')
+
+
+def get_add_campaign_search_strategy_types(campaign_type: str, engine, logger):
+    """Получить из БД стратегии показа на поиске доступные для типа кампании"""
+
+    query = f"""
+             SELECT 
+             DISTINCT search_strategy, 
+             description 
+             FROM ya_ads_campaign_search_network csn 
+             JOIN ya_ads_campaign_strategy_types st_types ON csn.search_strategy = st_types.name 
+             WHERE campaign_type = '{campaign_type}'
+             """
+
+    return sql_query(query, engine, logger, type_='dict')
+
+
+def get_add_campaign_network_strategy_types(campaign_type: str, search_strategy: str, engine, logger):
+    """Получить из БД стратегии показа в сетях доступные для типа кампании с выбранной стратегией на поиске"""
+
+    query = f"""
+             SELECT 
+             network_strategy, 
+             description 
+             FROM ya_ads_campaign_search_network csn 
+             JOIN ya_ads_campaign_strategy_types st_types ON csn.network_strategy = st_types.name 
+             WHERE campaign_type = '{campaign_type}' AND search_strategy = '{search_strategy}' 
+             ORDER BY st_types.id
+             """
+
+    return sql_query(query, engine, logger, type_='dict')
+
+
+def get_add_campaign_types(engine, logger):
+    """Получить из БД типы кампаний доступные к созданию"""
+
+    query = """
+            SELECT 
+            name, 
+            description 
+            FROM ya_ads_campaign_types 
+            ORDER BY id
+            """
+
+    return sql_query(query, engine, logger, type_='dict')
+
+
+def get_add_group_types(campaign_type: str, engine, logger):
+    """Получить из БД типы групп доступные к созданию"""
+
+    query = f"""
+            SELECT 
+            name, 
+            description, 
+            note, 
+            campaign_type 
+            FROM ya_ads_addgroup_types 
+            WHERE campaign_type = '{campaign_type}'
+            ORDER BY id
+            """
+
+    return sql_query(query, engine, logger, type_='dict')
+
+
+def get_add_group_common_params(engine, logger):
+    """Получить из БД поля общих параметров для всех типов групп"""
+
+    query = f"""
+             SELECT 
+             param_api_name, 
+             dtype, 
+             enum, 
+             required, 
+             by_default, 
+             min, 
+             max, 
+             description, 
+             note 
+             FROM ya_ads_addgroup_common_params_attr 
+             ORDER BY id
+             """
+
+    return sql_query(query, engine, logger, type_='dict')
+
+
+def get_add_group_text_feed_params(engine, logger):
+    """Получить из БД поля для группы текстово-графических объявлений (параметры фида)"""
+
+    query = """
+            SELECT 
+            param_api_name, 
+            dtype, 
+            enum, 
+            required, 
+            by_default, 
+            min, 
+            max, 
+            description, 
+            note 
+            FROM ya_ads_addgroup_text_feed_params_attr 
+            ORDER BY id
+            """
+    return sql_query(query, engine, logger, type_='dict')
+
+
+def get_add_group_dynamic_text_params(engine, logger):
+    """Получить из БД поля параметров группы динамический объявлений"""
+
+    query = """
+            SELECT 
+            param_api_name, 
+            dtype, 
+            enum, 
+            required, 
+            by_default, 
+            min, 
+            max, 
+            description, 
+            note 
+            FROM ya_ads_addgroup_dynamic_text_params_attr 
+            ORDER BY id
+            """
+
+    return sql_query(query, engine, logger, type_='dict')
+
+
+def get_add_group_dynamic_text_feed_params(engine, logger):
+    """Получить из БД поля параметров группы динамический объявлений с подтипом FEED"""
+
+    query = """
+            SELECT 
+            param_api_name, 
+            dtype, 
+            enum, 
+            required, 
+            by_default, 
+            min, 
+            max, 
+            description, 
+            note 
+            FROM ya_ads_addgroup_dynamic_text_feed_params_attr 
+            ORDER BY id
+            """
+
+    return sql_query(query, engine, logger, type_='dict')
+
+
+def get_add_ad_types(adgroup_type: str, engine, logger):
+    """Получить из БД типы объявлений доступные к созданию"""
+
+    query = f"""
+             SELECT 
+             adtypes.name, 
+             adtypes.description, 
+             adtypes.note 
+             FROM ya_ads_addad_groups_ads_types gr_ads 
+             JOIN ya_ads_addad_ad_types AS adtypes ON gr_ads.ad_type = adtypes.name 
+             WHERE adgroup_type = '{adgroup_type}' 
+             ORDER BY adtypes.id
+             """
+
+    return sql_query(query, engine, logger, type_='dict')
+
+
+def get_add_ad_text_ad_params(engine, logger):
+    """Получить из БД параметры полей для создания текстово-графического объявления"""
+
+    query = """
+            SELECT 
+            param_api_name, 
+            dtype, 
+            enum, 
+            required, 
+            by_default, 
+            min, 
+            max, 
+            description, 
+            note 
+            FROM ya_ads_addad_text_ad_params_attr 
+            ORDER BY id
+            """
+
+    return sql_query(query, engine, logger, type_='dict')
+
+
+def get_add_ad_dynamic_text_ad_params(engine, logger):
+    """Получить из БД параметры полей для создания динамического объявления"""
+
+    query = """
+            SELECT 
+            param_api_name, 
+            dtype, 
+            enum, 
+            required, 
+            by_default, 
+            min, 
+            max, 
+            description, 
+            note 
+            FROM ya_ads_addad_dynamic_text_ad_params_attr 
+            ORDER BY id
+            """
+
+    return sql_query(query, engine, logger, type_='dict')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

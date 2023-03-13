@@ -1,0 +1,22 @@
+swagger: "2.0"
+info:
+  title: "Yandex Direct Ecom API Documentation"
+  contact:
+    email: "s.fedyushin@ecomru.ru"
+  basePath: "/swagger"
+paths:
+  "/yandexdirect/getaddgroupdynamictextparams":
+    get:
+tags:
+  - params
+summary: "Получить из БД поля параметров группы динамический объявлений"
+description: "Метод для получения из БД полей параметров для группы динамический объявлений"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+responses:
+  200:
+    description: "OK"
+  400:
+    description: "Bad Request"

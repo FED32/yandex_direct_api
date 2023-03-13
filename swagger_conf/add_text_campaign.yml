@@ -229,6 +229,12 @@ parameters:
             - long
         example: [1000000, 2000000, 3000000]
         description: Ценности конверсий — денежная оценка выгоды, получаемой рекламодателем при достижении указанных целей, в валюте рекламодателя, умноженная на 1000000
+      goal_is_metrika_source_of_value:
+        type:
+          - array
+            - string
+        example: [ "NO", "YES", "NO" ]
+        description: Источник ключевой цели — цель Метрики. При значении AVERAGE_CRR или PAY_FOR_CONVERSION_CRR в параметре BiddingStrategyType.
       attribution_model:
         type: "string"
         example: "LYDC"
