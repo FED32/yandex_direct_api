@@ -17,12 +17,12 @@ from fake_useragent import UserAgent
 from celery import Celery
 
 
-host = os.environ.get('ECOMRU_PG_HOST', None)
-port = os.environ.get('ECOMRU_PG_PORT', None)
-ssl_mode = os.environ.get('ECOMRU_PG_SSL_MODE', None)
-db_name = os.environ.get('ECOMRU_PG_DB_NAME', None)
-user = os.environ.get('ECOMRU_PG_USER', None)
-password = os.environ.get('ECOMRU_PG_PASSWORD', None)
+HOST = os.environ.get('ECOMRU_PG_HOST', None)
+PORT = os.environ.get('ECOMRU_PG_PORT', None)
+SSL_MODE = os.environ.get('ECOMRU_PG_SSL_MODE', None)
+DB_NAME = os.environ.get('ECOMRU_PG_DB_NAME', None)
+USER = os.environ.get('ECOMRU_PG_USER', None)
+PASSWORD = os.environ.get('ECOMRU_PG_PASSWORD', None)
 target_session_attrs = 'read-write'
 
 # host = 'localhost'
@@ -31,8 +31,8 @@ target_session_attrs = 'read-write'
 # user = 'postgres'
 # password = ' '
 
-db_params = f"postgresql://{user}:{password}@{host}:{port}/{db_name}"
-engine = create_engine(db_params)
+DB_PARAMS = f"postgresql://{USER}:{PASSWORD}@{HOST}:{PORT}/{DB_NAME}"
+engine = create_engine(DB_PARAMS)
 
 if errors_warnings_sourse == 'db':
     errors_table = get_table_from_db('ya_ads_errors', engine, logger=logger_api, type='df')
@@ -45,10 +45,14 @@ else:
 app = Flask(__name__)
 app.config.from_object(Configuration)
 app.config['SWAGGER'] = {"title": "GTCOM-YandexDirectApi", "uiversion": 3}
-app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
-app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379/0'
+# app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
+# app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379/0'
+# app.config['CELERY_BROKER_URL'] = 'redis://127.0.0.1:6379/0'
+# app.config['CELERY_RESULT_BACKEND'] = 'redis://127.0.0.1:6379/0'
+app.config['CELERY_BROKER_URL'] = 'amqp://localhost'
+app.config['CELERY_RESULT_BACKEND'] = 'rpc://localhost'
 
-celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'], backend=app.config['CELERY_RESULT_BACKEND'])
 celery.conf.update(app.config)
 
 logger = logger_api.init_logger()
@@ -2575,6 +2579,97 @@ def get_ad_dynamic_text_ad_params():
 
     except BaseException as ex:
         logger.error(f'get_ad_dynamic_text_ad_params: {ex}')
+        raise HttpError(400, f'{ex}')
+
+
+@celery.task
+def get_campaigns_async(login, text_params, dynamic_text_params):
+
+    token = get_token_from_db(client_login=login, engine=engine, logger=logger)
+    print(token)
+
+    direct = YandexDirectEcomru(login, token)
+    res = direct.get_campaigns(text_params=text_params, dynamic_text_params=dynamic_text_params)
+
+    return res
+
+
+@celery.task
+def some_func_async(arg1, arg2, arg3):
+
+    return {'arg1': arg1, 'arg2': arg2, 'arg3': arg3}
+
+
+@app.route('/yandexdirect/getcampaignsasync', methods=['POST'])
+@swag_from("swagger_conf/get_campaigns_async.yml")
+def get_campaigns_():
+    """
+    Полезные ссылки с примерами:
+    Метод для вывода списка кампаний
+    https://dev.to/itz_salemm/how-to-use-celery-with-flask-2k1m
+    https://www.defpython.ru/ispolzovanie_Celery_vo_Flask
+    https://www.defpython.ru/ispolzovanie_Celery_vo_Flask_czast_2
+    https://ploshadka.net/flask-celery-rabbitmq/
+    https://habr.com/ru/post/461531/
+    """
+
+    try:
+        json_file = request.get_json(force=False)
+        login = json_file["login"]
+        text_params = to_boolean(json_file.get("text_params", "false"))
+        dynamic_text_params = to_boolean(json_file.get("dynamic_text_params", "false"))
+        #
+        # task = get_campaigns_async.delay(login, text_params, dynamic_text_params)
+        # task = get_campaigns_async.apply_async(args=[login, text_params, dynamic_text_params])
+
+        task = some_func_async.delay(arg1=login, arg2=text_params, arg3=dynamic_text_params)
+
+        print(task.id)
+
+        if task is not None:
+            logger.info("get campaigns: OK")
+            return jsonify({'result': str(task.id)})
+        else:
+            logger.error("get campaigns: yandex direct api error")
+            return jsonify({'error': 'yandex direct api error'})
+
+    except BadRequestKeyError:
+        logger.error("get campaigns: BadRequest")
+        return Response(None, 400)
+
+    except KeyError:
+        logger.error("get campaigns: KeyError")
+        return Response(None, 400)
+
+    except BaseException as ex:
+        logger.error(f'get campaigns: {ex}')
+        raise HttpError(400, f'{ex}')
+
+
+@app.route('/yandexdirect/getcampaignsasync/<task_id>', methods=['GET'])
+@swag_from('swagger_conf/get_campaigns_async_result.yml')
+def get_campaigns_async_result(task_id):
+    """Получить кампании"""
+
+    try:
+        # task = get_campaigns_async.AsyncResult(f"""'{task_id}'""")
+
+        task = some_func_async.AsyncResult(str(task_id))
+
+        print(task.state)
+        print(task.info)
+
+        result = task.get(timeout=5)
+
+        response = {
+            'state': task.state,
+            'result': result,
+        }
+
+        return jsonify(response)
+
+    except BaseException as ex:
+        logger.error(f'get campaigns async result: {ex}')
         raise HttpError(400, f'{ex}')
 
 
