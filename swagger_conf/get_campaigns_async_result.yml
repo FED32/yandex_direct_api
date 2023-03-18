@@ -1,0 +1,27 @@
+swagger: "2.0"
+info:
+  title: "Yandex Direct Ecom API Documentation"
+  contact:
+    email: "s.fedyushin@ecomru.ru"
+  basePath: "/swagger"
+paths:
+  "/yandexdirect/getcampaignsasync/<task_id>":
+    post:
+tags:
+  - campaigns
+#    - info
+summary: "Получить кампании по id задачи"
+description: "Метод для получения кампаний и их параметров (фоновый процесс)"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: path
+  name: task_id
+  required: true
+responses:
+  200:
+    description: "OK"
+  400:
+    description: "Bad Request"
