@@ -1,0 +1,50 @@
+swagger: "2.0"
+info:
+  title: "Yandex Direct Ecom API Documentation"
+  contact:
+    email: "s.fedyushin@ecomru.ru"
+  basePath: "/swagger"
+paths:
+  "/yandexdirect/getcampaignsasync":
+    post:
+tags:
+  - campaigns
+#    - info
+summary: "Получить кампании (в фоне)"
+description: "Метод для получения кампаний и их параметров (фоновый процесс)"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "body"
+  required: true
+  schema:
+    type: "object"
+    properties:
+      login:
+        type: "string"
+        example: "aaabbbq123@yandex.ru"
+#      token:
+#        type: "string"
+#        example: "xxx_YYYzzz1234ABCDefg"
+      text_params:
+        type: "string"
+        example: "false"
+        enum:
+          - "true"
+          - "false"
+        description: Выводить параметры кампании с типом «Текстово-графические объявления»
+      dynamic_text_params:
+        type: "string"
+        example: "false"
+        enum:
+          - "true"
+          - "false"
+        description: Выводить параметры кампании с типом «Динамические объявления»
+responses:
+  200:
+    description: "OK"
+  400:
+    description: "Bad Request"
