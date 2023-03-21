@@ -1,0 +1,27 @@
+swagger: "2.0"
+info:
+  title: "Yandex Direct Ecom API Documentation"
+  contact:
+    email: "s.fedyushin@ecomru.ru"
+  basePath: "/swagger"
+paths:
+  "/yandexdirect/wordstatreportasync/<task_id>":
+    post:
+tags:
+  - forecasts
+#    - info
+summary: "Возвращает отчет о статистике поисковых запросов по id асинхронной задачи"
+description: "Метод для получения отчета о статистике поисковых запросов по id асинхронной задачи"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: path
+  name: task_id
+  required: true
+responses:
+  200:
+    description: "OK"
+  400:
+    description: "Bad Request"

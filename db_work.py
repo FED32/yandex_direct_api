@@ -4,7 +4,43 @@ import numpy as np
 from datetime import datetime
 import time
 import json
+from sqlalchemy import exc
 from ecom_yandex_direct import YandexDirectEcomru
+
+
+def sql_query(query, engine, logger, type_='dict'):
+    """Выполнить SQL запрос на чтение"""
+
+    with engine.connect() as connection:
+        with connection.begin() as transaction:
+            try:
+                data = pd.read_sql(query, con=connection)
+
+                if data is None:
+                    logger.error("database error")
+                    return None
+                elif data.shape[0] == 0:
+                    logger.info(f"no data")
+                    if type_ == 'dict':
+                        return []
+                    elif type_ == 'df':
+                        return data
+                else:
+                    if type_ == 'dict':
+                        return data.to_dict(orient='records')
+                    elif type_ == 'df':
+                        return data
+
+            except (exc.DBAPIError, exc.SQLAlchemyError):
+                logger.error("db error")
+                transaction.rollback()
+                raise
+            except BaseException as ex:
+                logger.error(f"{ex}")
+                transaction.rollback()
+                raise
+            finally:
+                connection.close()
 
 
 def put_query(engine,
@@ -65,29 +101,41 @@ def put_query(engine,
 def get_clients(account_id: int, engine, logger):
     """Получает список доступных аккаунтов для клиента"""
 
+    # query = f"""
+    #          SELECT account_id AS api_id, attribute_value AS login
+    #          FROM account_service_data asd
+    #          WHERE attribute_id = 24 AND account_id = {account_id}
+    #          """
+
     query = f"""
-             SELECT account_id AS api_id, attribute_value AS login 
-             FROM account_service_data asd 
-             WHERE attribute_id = 24 AND account_id = {account_id}
+             SELECT 
+             al.name as name, 
+             asd.account_id AS acc_id, 
+             asd.attribute_value AS ya_direct_client_id 
+             FROM account_list al 
+             JOIN account_service_data asd ON al.id = asd.account_id 
+             WHERE status_1 = 'Active' AND al.mp_id = 16 AND asd.attribute_id = 24 AND client_id = {account_id}
              """
 
-    with engine.begin() as connection:
-        try:
-            data = pd.read_sql(query, con=connection)
+    return sql_query(query, engine, logger, type_='dict')
 
-            if data is None:
-                logger.error("accounts database error")
-                return None
-            elif data.shape[0] == 0:
-                logger.info("non-existent account")
-                return []
-            else:
-                return data['login'].tolist()
-
-        except BaseException as ex:
-            logger.error(f"get clients: {ex}")
-            # print('Нет подключения к БД')
-            return None
+    # with engine.begin() as connection:
+    #     try:
+    #         data = pd.read_sql(query, con=connection)
+    #
+    #         if data is None:
+    #             logger.error("accounts database error")
+    #             return None
+    #         elif data.shape[0] == 0:
+    #             logger.info("non-existent account")
+    #             return []
+    #         else:
+    #             return data['login'].tolist()
+    #
+    #     except BaseException as ex:
+    #         logger.error(f"get clients: {ex}")
+    #         # print('Нет подключения к БД')
+    #         return None
 
 
 def get_objects_from_db(login: str, table_name: str, engine, logger):
@@ -99,23 +147,7 @@ def get_objects_from_db(login: str, table_name: str, engine, logger):
              WHERE res_id IS NOT NULL AND login = '{login}'
              """
 
-    with engine.begin() as connection:
-        try:
-            data = pd.read_sql(query, con=connection)
-
-            if data is None:
-                logger.error("accounts database error")
-                return None
-            elif data.shape[0] == 0:
-                logger.info(f"no data for account {login}")
-                return []
-            else:
-                return data.to_dict(orient='records')
-
-        except BaseException as ex:
-            logger.error(f"get objects: {ex}")
-            # print('Нет подключения к БД')
-            return None
+    return sql_query(query, engine, logger, type_='dict')
 
 
 def get_groups_from_db(login: str,
@@ -138,23 +170,7 @@ def get_groups_from_db(login: str,
     if group_id is not None:
         query += f" AND res_id = {group_id}"
 
-    with engine.begin() as connection:
-        try:
-            data = pd.read_sql(query, con=connection)
-
-            if data is None:
-                logger.error("accounts database error")
-                return None
-            elif data.shape[0] == 0:
-                logger.info(f"no data")
-                return []
-            else:
-                return data.to_dict(orient='records')
-
-        except BaseException as ex:
-            logger.error(f"get objects: {ex}")
-            # print('Нет подключения к БД')
-            return None
+    return sql_query(query, engine, logger, type_='dict')
 
 
 def get_ads_from_db(login: str,
@@ -177,23 +193,7 @@ def get_ads_from_db(login: str,
     if ad_id is not None:
         query += f" AND res_id = {ad_id}"
 
-    with engine.begin() as connection:
-        try:
-            data = pd.read_sql(query, con=connection)
-
-            if data is None:
-                logger.error("accounts database error")
-                return None
-            elif data.shape[0] == 0:
-                logger.info(f"no data")
-                return []
-            else:
-                return data.to_dict(orient='records')
-
-        except BaseException as ex:
-            logger.error(f"get objects: {ex}")
-            # print('Нет подключения к БД')
-            return None
+    return sql_query(query, engine, logger, type_='dict')
 
 
 def add_regions(engine,
@@ -233,34 +233,10 @@ def get_table_from_db(table_name: str, engine, logger, type='dict'):
              FROM {table_name}
              """
 
-    with engine.begin() as connection:
-        try:
-            data = pd.read_sql(query, con=connection)
-
-            if data is None:
-                logger.error("database error")
-                return None
-            elif data.shape[0] == 0:
-                logger.info(f"no data")
-                if type == 'dict':
-                    return []
-                elif type == 'df':
-                    return data
-            else:
-                if type == 'dict':
-                    return data.to_dict(orient='records')
-                elif type == 'df':
-                    return data
-                # return data.to_json(orient='records')
-                # return data.to_json(orient='records').encode('utf8').decode('utf8')
-
-        except BaseException as ex:
-            logger.error(f"get table: {ex}")
-            # print('Нет подключения к БД')
-            return None
+    return sql_query(query, engine, logger, type_=type)
 
 
-def response_result(response, sourсe: str, errors_table, warnings_table):
+def response_result(response, source: str, errors_table, warnings_table):
     """Возвращает словарь с результатом аналогичным YandexDirect подставляя описания ошибок и предупреждений из БД"""
 
     result = dict()
@@ -272,7 +248,7 @@ def response_result(response, sourсe: str, errors_table, warnings_table):
     if response.status_code != 200 or response.json().get("error", False):
 
         code = response.json()["error"]["error_code"]
-        if sourсe == 'db':
+        if source == 'db':
             details = errors_table[errors_table.error_code == int(code)]['error_text'].values[0] + ' ' + errors_table[errors_table.error_code == int(code)]['error_comment'].values[0]
         else:
             details = YandexDirectEcomru.u(response.json()["error"]["error_detail"])
@@ -284,7 +260,7 @@ def response_result(response, sourсe: str, errors_table, warnings_table):
             if add.get("Errors", False):
                 for error in add["Errors"]:
                     code = error["Code"]
-                    if sourсe == 'db':
+                    if source == 'db':
                         message = errors_table[errors_table.error_code == int(code)]['error_text'].values[0]
                         details = errors_table[errors_table.error_code == int(code)]['error_comment'].values[0]
                     else:
@@ -298,7 +274,7 @@ def response_result(response, sourсe: str, errors_table, warnings_table):
                 if add.get("Warnings", False):
                     for warning in add["Warnings"]:
                         code = warning["Code"]
-                        if sourсe == 'db':
+                        if source == 'db':
                             message = warnings_table[warnings_table.warning_code == int(code)]['warning_text'].values[0]
                             warnings.append({'Code': code, 'Message': message})
                         else:
@@ -314,32 +290,6 @@ def response_result(response, sourсe: str, errors_table, warnings_table):
         result['Errors'] = errors
 
     return {'result': {"AddResults": [result]}}
-
-
-def sql_query(query, engine, logger, type_='dict'):
-
-    with engine.begin() as connection:
-        try:
-            data = pd.read_sql(query, con=connection)
-
-            if data is None:
-                logger.error("database error")
-                return None
-            elif data.shape[0] == 0:
-                logger.info(f"no data")
-                if type_ == 'dict':
-                    return []
-                elif type_ == 'df':
-                    return data
-            else:
-                if type_ == 'dict':
-                    return data.to_dict(orient='records')
-                elif type_ == 'df':
-                    return data
-
-        except BaseException as ex:
-            logger.error(f"{ex}")
-            return None
 
 
 def get_add_campaign_common_params(engine, logger):

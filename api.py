@@ -45,15 +45,13 @@ else:
 app = Flask(__name__)
 app.config.from_object(Configuration)
 app.config['SWAGGER'] = {"title": "GTCOM-YandexDirectApi", "uiversion": 3}
-# app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
-# app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379/0'
-# app.config['CELERY_BROKER_URL'] = 'redis://127.0.0.1:6379/0'
-# app.config['CELERY_RESULT_BACKEND'] = 'redis://127.0.0.1:6379/0'
-app.config['CELERY_BROKER_URL'] = 'amqp://localhost'
-app.config['CELERY_RESULT_BACKEND'] = 'rpc://localhost'
+app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
+app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379/0'
+# app.config['CELERY_BROKER_URL'] = 'amqp://localhost'
+# app.config['CELERY_RESULT_BACKEND'] = 'rpc://localhost'
 
 celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'], backend=app.config['CELERY_RESULT_BACKEND'])
-celery.conf.update(app.config)
+# celery.conf.update(app.config)
 
 logger = logger_api.init_logger()
 
@@ -90,6 +88,17 @@ def to_boolean(x):
         return False
     else:
         return None
+
+
+def get_task_result(function, task_id):
+    """Получить результат асинхронной задачи"""
+
+    task = function.AsyncResult(str(task_id))
+    if task.state == 'SUCCESS':
+        result = {'state': task.state, 'result': task.get(timeout=5)}
+    else:
+        result = {'state': task.state}
+    return result
 
 
 @app.after_request
@@ -1249,7 +1258,10 @@ def wordstat_report():
             logger.error("create wordstat report: yandex direct error")
             return jsonify({'error': 'create wordstat report - yandex direct error'})
         else:
-            report_id = nwr.json()["data"]
+            try:
+                report_id = nwr.json()["data"]
+            except KeyError:
+                return jsonify({'error': nwr.json()})
 
             status = None
             while status != 'Done':
@@ -1261,7 +1273,7 @@ def wordstat_report():
                 else:
                     reports = pd.DataFrame(rep_list.json()["data"])
                     r_stat = reports[reports["ReportID"] == report_id]
-                    status = r_stat["StatusReport"][0]
+                    status = r_stat["StatusReport"].values[0]
 
             result = direct.get_wordstat_report(report_id=report_id)
 
@@ -1283,6 +1295,94 @@ def wordstat_report():
 
     except BaseException as ex:
         logger.error(f'wordstat report: {ex}')
+        raise HttpError(400, f'{ex}')
+
+
+@celery.task()
+def task_wordstat_report_async(login, token, phrases, regions):
+    """
+    Запускает на сервере формирование отчета о статистике поисковых запросов,
+    проверяет статус и скачивает отчет по готовности
+    """
+
+    direct = YandexDirectEcomru(login, token)
+    nwr = direct.create_new_wordstat_report(phrases=phrases, regions=regions)
+
+    if nwr is None:
+        return {'error': 'create wordstat report - yandex direct error'}
+    else:
+        try:
+            report_id = nwr.json()["data"]
+        except KeyError:
+            return {'error': nwr.json()}
+
+        status = None
+        while status != 'Done':
+            time.sleep(15)
+            rep_list = direct.get_wordstat_report_list()
+            if rep_list is None:
+                return {'error': 'get wordstat report list - yandex direct error'}
+            else:
+                reports = pd.DataFrame(rep_list.json()["data"])
+                r_stat = reports[reports["ReportID"] == report_id]
+                status = r_stat["StatusReport"].values[0]
+
+        result = direct.get_wordstat_report(report_id=report_id)
+
+        if result is None:
+            return {'error': 'get wordstat report - yandex direct error'}
+        else:
+            return result.json()
+
+
+@app.route('/yandexdirect/wordstatreportasync', methods=['POST'])
+@swag_from("swagger_conf/wordstat_report.yml")
+def wordstat_report_async():
+    """
+    Формирует команду на формирование отчета о статистике поисковых запросов,
+    возвращает идентификатор задачи
+    """
+    try:
+        json_file = request.get_json(force=False)
+        login = json_file["login"]
+        token = get_token_from_db(client_login=login, engine=engine, logger=logger)
+        phrases = json_file["phrases"]
+        regions = json_file.get("regions", None)
+        task = task_wordstat_report_async.delay(login, token, phrases, regions)
+        return jsonify({'task_id': task.id})
+
+    except BadRequestKeyError:
+        logger.error("wordstat report async: BadRequest")
+        return Response(None, 400)
+    except KeyError:
+        logger.error("wordstat report async: KeyError")
+        return Response(None, 400)
+    except BaseException as ex:
+        logger.error(f'wordstat report async: {ex}')
+        raise HttpError(400, f'{ex}')
+
+
+@app.route('/yandexdirect/wordstatreportasync/<task_id>', methods=['GET'])
+@swag_from("swagger_conf/wordstat_report_async_result.yml")
+def wordstat_report_async_result(task_id):
+    """Возвращает отчет о статистике поисковых запросов по id асинхронной задачи"""
+
+    try:
+        task = task_wordstat_report_async.AsyncResult(str(task_id))
+        if task.state == 'SUCCESS':
+            result = {'state': task.state, 'result': task.get(timeout=5)}
+        else:
+            result = {'state': task.state}
+        return result
+
+    except BadRequestKeyError:
+        logger.error("wordstat report async result: BadRequest")
+        return Response(None, 400)
+    except KeyError:
+        logger.error("wordstat report async result: KeyError")
+        return Response(None, 400)
+    except BaseException as ex:
+        logger.error(f'wordstat report async result: {ex}')
         raise HttpError(400, f'{ex}')
 
 
@@ -1325,7 +1425,7 @@ def forecast():
                 else:
                     forecasts = pd.DataFrame(forecast_list.json()["data"])
                     f_stat = forecasts[forecasts["ForecastID"] == forecast_id]
-                    status = f_stat["StatusForecast"][0]
+                    status = f_stat["StatusForecast"].values[0]
 
             result = direct.get_forecast(forecast_id=forecast_id)
 
@@ -2582,16 +2682,51 @@ def get_ad_dynamic_text_ad_params():
         raise HttpError(400, f'{ex}')
 
 
-@celery.task
-def get_campaigns_async(login, text_params, dynamic_text_params):
 
-    token = get_token_from_db(client_login=login, engine=engine, logger=logger)
-    print(token)
 
-    direct = YandexDirectEcomru(login, token)
-    res = direct.get_campaigns(text_params=text_params, dynamic_text_params=dynamic_text_params)
 
-    return res
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# @celery.task
+# def get_campaigns_async(login, text_params, dynamic_text_params):
+#
+#     token = get_token_from_db(client_login=login, engine=engine, logger=logger)
+#     print(token)
+#
+#     direct = YandexDirectEcomru(login, token)
+#     res = direct.get_campaigns(text_params=text_params, dynamic_text_params=dynamic_text_params)
+#
+#     return res
 
 
 @celery.task
@@ -2611,6 +2746,10 @@ def get_campaigns_():
     https://www.defpython.ru/ispolzovanie_Celery_vo_Flask_czast_2
     https://ploshadka.net/flask-celery-rabbitmq/
     https://habr.com/ru/post/461531/
+    https://morioh.com/p/35d9fd86c702
+    https://docs.celeryq.dev/en/stable/userguide/workers.html?ref=morioh.com#starting-the-worker
+    https://russianblogs.com/article/23431128896/
+    https://habr.com/ru/post/686820/
     """
 
     try:
@@ -2652,7 +2791,7 @@ def get_campaigns_async_result(task_id):
     """Получить кампании"""
 
     try:
-        # task = get_campaigns_async.AsyncResult(f"""'{task_id}'""")
+        # task = get_campaigns_async.AsyncResult(str(task_id))
 
         task = some_func_async.AsyncResult(str(task_id))
 
@@ -2671,6 +2810,14 @@ def get_campaigns_async_result(task_id):
     except BaseException as ex:
         logger.error(f'get campaigns async result: {ex}')
         raise HttpError(400, f'{ex}')
+
+
+
+
+
+
+
+
 
 
 
