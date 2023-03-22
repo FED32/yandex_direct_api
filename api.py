@@ -9,13 +9,13 @@ import os
 import time
 import pandas as pd
 from get_token_from_db import get_token_from_db
-from db_work import put_query, get_clients, get_objects_from_db, get_groups_from_db, get_ads_from_db, add_regions, get_table_from_db, response_result
+from db_work import put_query, get_clients, get_objects_from_db, get_groups_from_db, get_ads_from_db, add_regions, \
+    get_table_from_db, response_result
 import db_work
 from sqlalchemy import create_engine
 import requests
 from fake_useragent import UserAgent
 from celery import Celery
-
 
 HOST = os.environ.get('ECOMRU_PG_HOST', None)
 PORT = os.environ.get('ECOMRU_PG_PORT', None)
@@ -40,7 +40,6 @@ if errors_warnings_sourse == 'db':
 else:
     errors_table = None
     warnings_table = None
-
 
 app = Flask(__name__)
 app.config.from_object(Configuration)
@@ -90,17 +89,6 @@ def to_boolean(x):
         return None
 
 
-def get_task_result(function, task_id):
-    """Получить результат асинхронной задачи"""
-
-    task = function.AsyncResult(str(task_id))
-    if task.state == 'SUCCESS':
-        result = {'state': task.state, 'result': task.get(timeout=5)}
-    else:
-        result = {'state': task.state}
-    return result
-
-
 @app.after_request
 def apply_headers(response):
     response.headers["Access-Control-Allow-Origin"] = "*"
@@ -122,7 +110,6 @@ def gen_auth_link():
     except BadRequestKeyError:
         logger.error("authlink: BadRequest")
         return Response(None, 400)
-
     except BaseException as ex:
         logger.error(f'authlink: {ex}')
         raise HttpError(400, f'{ex}')
@@ -138,7 +125,6 @@ def get_user_info():
         token = json_file["token"]
 
         direct = YandexDirectEcomru()
-
         result = direct.get_user_info(token=token)
 
         if result.status_code == 200:
@@ -151,11 +137,9 @@ def get_user_info():
     except BadRequestKeyError:
         logger.error("get user info: BadRequest")
         return Response(None, 400)
-
     except KeyError:
         logger.error("get user info: KeyError")
         return Response(None, 400)
-
     except BaseException as ex:
         logger.error(f'get user info: {ex}')
         raise HttpError(400, f'{ex}')
@@ -171,12 +155,9 @@ def get_campaigns():
         login = json_file["login"]
         # token = json_file["token"]
         token = get_token_from_db(client_login=login, engine=engine, logger=logger)
-
         direct = YandexDirectEcomru(login, token)
-
         text_params = to_boolean(json_file.get("text_params", "false"))
         dynamic_text_params = to_boolean(json_file.get("dynamic_text_params", "false"))
-
         campaigns = direct.get_campaigns(text_params=text_params, dynamic_text_params=dynamic_text_params)
 
         if campaigns is not None:
@@ -189,11 +170,9 @@ def get_campaigns():
     except BadRequestKeyError:
         logger.error("get campaigns: BadRequest")
         return Response(None, 400)
-
     except KeyError:
         logger.error("get campaigns: KeyError")
         return Response(None, 400)
-
     except BaseException as ex:
         logger.error(f'get campaigns: {ex}')
         raise HttpError(400, f'{ex}')
@@ -207,11 +186,8 @@ def get_groups():
     try:
         json_file = request.get_json(force=False)
         login = json_file["login"]
-        # token = json_file["token"]
         token = get_token_from_db(client_login=login, engine=engine, logger=logger)
-
         direct = YandexDirectEcomru(login, token)
-
         campaigns = json_file["campaigns"]
         text_feed_params = to_boolean(json_file.get("text_feed_params", "false"))
         dynamic_text_params = to_boolean(json_file.get("dynamic_text_params", "false"))
@@ -231,11 +207,9 @@ def get_groups():
     except BadRequestKeyError:
         logger.error("get groups: BadRequest")
         return Response(None, 400)
-
     except KeyError:
         logger.error("get groups: KeyError")
         return Response(None, 400)
-
     except BaseException as ex:
         logger.error(f'get groups: {ex}')
         raise HttpError(400, f'{ex}')
@@ -249,9 +223,7 @@ def get_ads():
     try:
         json_file = request.get_json(force=False)
         login = json_file["login"]
-        # token = json_file["token"]
         token = get_token_from_db(client_login=login, engine=engine, logger=logger)
-
         direct = YandexDirectEcomru(login, token)
 
         ids = json_file.get("ids", None)
@@ -273,11 +245,9 @@ def get_ads():
     except BadRequestKeyError:
         logger.error("get ads: BadRequest")
         return Response(None, 400)
-
     except KeyError:
         logger.error("get ads: KeyError")
         return Response(None, 400)
-
     except BaseException as ex:
         logger.error(f'get ads: {ex}')
         raise HttpError(400, f'{ex}')
@@ -291,14 +261,11 @@ def add_text_campaign():
     try:
         json_file = request.get_json(force=False)
         login = json_file["login"]
-        # token = json_file["token"]
         token = get_token_from_db(client_login=login, engine=engine, logger=logger)
-
         direct = YandexDirectEcomru(login, token)
 
         s_bid_strat = json_file["s_bid_strat"]
         n_bid_strat = json_file["n_bid_strat"]
-
         s_weekly_spend_limit = json_file.get("s_weekly_spend_limit", None)
         s_bid_ceiling = json_file.get("s_bid_ceiling", None)
         s_goal_id = json_file.get("s_goal_id", None)
@@ -309,7 +276,6 @@ def add_text_campaign():
         s_profitability = json_file.get("s_profitability", None)
         s_crr = json_file.get("s_crr", None)
         s_cpa = json_file.get("s_cpa", None)
-
         n_limit_percent = json_file.get("n_limit_percent", None)
         n_weekly_spend_limit = json_file.get("n_weekly_spend_limit", None)
         n_bid_ceiling = json_file.get("n_bid_ceiling", None)
@@ -321,7 +287,6 @@ def add_text_campaign():
         n_profitability = json_file.get("n_profitability", None)
         n_crr = json_file.get("n_crr", None)
         n_cpa = json_file.get("n_cpa", None)
-
         add_metrica_tag = json_file.get("add_metrica_tag", "YES")
         add_openstat_tag = json_file.get("add_openstat_tag", "NO")
         add_to_favorites = json_file.get("add_to_favorites", "NO")
@@ -332,15 +297,11 @@ def add_text_campaign():
         # maintain_network_cpc = json_file.get("maintain_network_cpc", "NO") больше не поддерживается
         require_servicing = json_file.get("require_servicing", "NO")
         campaign_exact_phrase_matching_enabled = json_file.get("campaign_exact_phrase_matching_enabled", "NO")
-
         counter_ids = json_file.get("counter_ids", None)
-
         goal_ids = json_file.get("goal_ids", None)
         goal_vals = json_file.get("goal_vals", None)
         goal_is_metrika_source_of_value = json_file.get("goal_is_metrika_source_of_value", None)
-
         attribution_model = json_file.get("attribution_model", "LYDC")
-
         tracking_params = json_file.get("tracking_params", None)
 
         txt_camp_params = direct.create_text_camp_params(s_bid_strat=s_bid_strat,
@@ -370,7 +331,7 @@ def add_text_campaign():
                                                          add_openstat_tag=add_openstat_tag,
                                                          add_to_favorites=add_to_favorites,
                                                          enable_area_of_interest_targeting=enable_area_of_interest_targeting,
-                                                         enable_company_info= enable_company_info,
+                                                         enable_company_info=enable_company_info,
                                                          enable_site_monitoring=enable_site_monitoring,
                                                          exclude_paused_competing_ads=exclude_paused_competing_ads,
                                                          # maintain_network_cpc=maintain_network_cpc,
@@ -454,7 +415,7 @@ def add_text_campaign():
                 #           logger=logger)
                 # return jsonify(result.json())
 
-                parsed_result = response_result(response=result, sourсe=errors_warnings_sourse,
+                parsed_result = response_result(response=result, source=errors_warnings_sourse,
                                                 errors_table=errors_table, warnings_table=warnings_table)
 
                 put_query(json_file=json_file, table_name='ya_ads_addcampaigns', result=parsed_result, engine=engine,
@@ -465,14 +426,229 @@ def add_text_campaign():
     except BadRequestKeyError:
         logger.error("add text campaign: BadRequest")
         return Response(None, 400)
-
     except KeyError:
         logger.error("add text campaign: KeyError")
         return Response(None, 400)
-
     except BaseException as ex:
         logger.error(f'add text campaign: {ex}')
         raise HttpError(400, f'{ex}')
+
+
+# @celery.task()
+# def task_add_text_campaign(login, token, camp_params):
+#     """Создать текстовую кампанию"""
+#
+#     direct = YandexDirectEcomru(login, token)
+#     result = direct.add_camp(campaigns=[camp_params])
+#
+#     if result is None:
+#         logger.error("add text campaign: yandex direct error")
+#         return {'error': 'yandex direct error'}
+#     else:
+#         logger.info(f"add text campaign: {result.status_code}")
+#
+#         return result
+#
+#
+# @app.route('/yandexdirect/addtextcampaignasync', methods=['POST'])
+# @swag_from("swagger_conf/add_text_campaign.yml")
+# def add_text_campaign_async():
+#     """Метод для создания текстовой кампании"""
+#
+#     try:
+#         json_file = request.get_json(force=False)
+#         login = json_file["login"]
+#         token = get_token_from_db(client_login=login, engine=engine, logger=logger)
+#         s_bid_strat = json_file["s_bid_strat"]
+#         n_bid_strat = json_file["n_bid_strat"]
+#         s_weekly_spend_limit = json_file.get("s_weekly_spend_limit", None)
+#         s_bid_ceiling = json_file.get("s_bid_ceiling", None)
+#         s_goal_id = json_file.get("s_goal_id", None)
+#         s_average_cpc = json_file.get("s_average_cpc", None)
+#         s_average_cpa = json_file.get("s_average_cpa", None)
+#         s_reserve_return = json_file.get("s_reserve_return")
+#         s_roi_coef = json_file.get("s_roi_coef", None)
+#         s_profitability = json_file.get("s_profitability", None)
+#         s_crr = json_file.get("s_crr", None)
+#         s_cpa = json_file.get("s_cpa", None)
+#         n_limit_percent = json_file.get("n_limit_percent", None)
+#         n_weekly_spend_limit = json_file.get("n_weekly_spend_limit", None)
+#         n_bid_ceiling = json_file.get("n_bid_ceiling", None)
+#         n_goal_id = json_file.get("n_goal_id", None)
+#         n_average_cpc = json_file.get("n_average_cpc", None)
+#         n_average_cpa = json_file.get("n_average_cpa", None)
+#         n_reserve_return = json_file.get("n_reserve_return", None)
+#         n_roi_coef = json_file.get("n_roi_coef", None)
+#         n_profitability = json_file.get("n_profitability", None)
+#         n_crr = json_file.get("n_crr", None)
+#         n_cpa = json_file.get("n_cpa", None)
+#         add_metrica_tag = json_file.get("add_metrica_tag", "YES")
+#         add_openstat_tag = json_file.get("add_openstat_tag", "NO")
+#         add_to_favorites = json_file.get("add_to_favorites", "NO")
+#         enable_area_of_interest_targeting = json_file.get("enable_area_of_interest_targeting", "YES")
+#         enable_company_info = json_file.get("enable_company_info", "YES")
+#         enable_site_monitoring = json_file.get("enable_site_monitoring", "NO")
+#         exclude_paused_competing_ads = json_file.get("exclude_paused_competing_ads", "NO")
+#         # maintain_network_cpc = json_file.get("maintain_network_cpc", "NO") больше не поддерживается
+#         require_servicing = json_file.get("require_servicing", "NO")
+#         campaign_exact_phrase_matching_enabled = json_file.get("campaign_exact_phrase_matching_enabled", "NO")
+#         counter_ids = json_file.get("counter_ids", None)
+#         goal_ids = json_file.get("goal_ids", None)
+#         goal_vals = json_file.get("goal_vals", None)
+#         goal_is_metrika_source_of_value = json_file.get("goal_is_metrika_source_of_value", None)
+#         attribution_model = json_file.get("attribution_model", "LYDC")
+#         tracking_params = json_file.get("tracking_params", None)
+#
+#         txt_camp_params = YandexDirectEcomru.create_text_camp_params(s_bid_strat=s_bid_strat,
+#                                                                      n_bid_strat=n_bid_strat,
+#                                                                      s_weekly_spend_limit=s_weekly_spend_limit,
+#                                                                      s_bid_ceiling=s_bid_ceiling,
+#                                                                      s_goal_id=s_goal_id,
+#                                                                      s_average_cpc=s_average_cpc,
+#                                                                      s_average_cpa=s_average_cpa,
+#                                                                      s_reserve_return=s_reserve_return,
+#                                                                      s_roi_coef=s_roi_coef,
+#                                                                      s_profitability=s_profitability,
+#                                                                      s_crr=s_crr,
+#                                                                      s_cpa=s_cpa,
+#                                                                      n_limit_percent=n_limit_percent,
+#                                                                      n_weekly_spend_limit=n_weekly_spend_limit,
+#                                                                      n_bid_ceiling=n_bid_ceiling,
+#                                                                      n_goal_id=n_goal_id,
+#                                                                      n_average_cpc=n_average_cpc,
+#                                                                      n_average_cpa=n_average_cpa,
+#                                                                      n_reserve_return=n_reserve_return,
+#                                                                      n_roi_coef=n_roi_coef,
+#                                                                      n_profitability=n_profitability,
+#                                                                      n_crr=n_crr,
+#                                                                      n_cpa=n_cpa,
+#                                                                      add_metrica_tag=add_metrica_tag,
+#                                                                      add_openstat_tag=add_openstat_tag,
+#                                                                      add_to_favorites=add_to_favorites,
+#                                                                      enable_area_of_interest_targeting=enable_area_of_interest_targeting,
+#                                                                      enable_company_info=enable_company_info,
+#                                                                      enable_site_monitoring=enable_site_monitoring,
+#                                                                      exclude_paused_competing_ads=exclude_paused_competing_ads,
+#                                                                      # maintain_network_cpc=maintain_network_cpc,
+#                                                                      require_servicing=require_servicing,
+#                                                                      campaign_exact_phrase_matching_enabled=campaign_exact_phrase_matching_enabled,
+#                                                                      counter_ids=counter_ids,
+#                                                                      goal_ids=goal_ids,
+#                                                                      goal_vals=goal_vals,
+#                                                                      goal_is_metrika_source_of_value=goal_is_metrika_source_of_value,
+#                                                                      tracking_params=tracking_params,
+#                                                                      attribution_model=attribution_model)
+#
+#         if txt_camp_params is None:
+#             logger.error("add text campaign: txt_camp_params incorrect")
+#             return jsonify({'error': 'txt_camp_params incorrect'})
+#         else:
+#             name = json_file["name"]
+#             start_date = json_file["start_date"]
+#             end_date = json_file.get("end_date", None)
+#             client_info = json_file.get("client_info", None)
+#             sms_events = json_file.get("sms_events", None)
+#             sms_time_from = json_file.get("sms_time_from", "9:00")
+#             sms_time_to = json_file.get("sms_time_to", "21:00")
+#             email = json_file.get("email", None)
+#             email_ch_pos_interval = json_file.get("email_ch_pos_interval", 60)
+#             email_warning_bal = json_file.get("email_warning_bal", 20)
+#             email_send_acc_news = json_file.get("email_send_acc_news", "NO")
+#             email_send_warnings = json_file.get("email_send_warnings", "NO")
+#             timezone = json_file.get("timezone", "Europe/Moscow")
+#             daily_budget_amount = json_file.get("daily_budget_amount", None)
+#             daily_budget_mode = json_file.get("daily_budget_mode", None)
+#             negative_keywords = json_file.get("negative_keywords", None)
+#             blocked_ips = json_file.get("blocked_ips", None)
+#             excluded_sites = json_file.get("excluded_sites", None)
+#             time_targeting_shedule = json_file.get("time_targeting_shedule", None)
+#             time_targeting_cons_working_weekends = json_file.get("time_targeting_cons_working_weekends", None)
+#             time_targeting_suspend_on_holidays = json_file.get("time_targeting_suspend_on_holidays", None)
+#             time_targeting_bid_percent = json_file.get("time_targeting_bid_percent", None)
+#             time_targeting_start_hour = json_file.get("time_targeting_start_hour", None)
+#             time_targeting_end_hour = json_file.get("time_targeting_end_hour", None)
+#
+#             camp_params = YandexDirectEcomru.create_campaign(name=name,
+#                                                              start_date=start_date,
+#                                                              end_date=end_date,
+#                                                              client_info=client_info,
+#                                                              sms_events=sms_events,
+#                                                              sms_time_from=sms_time_from,
+#                                                              sms_time_to=sms_time_to,
+#                                                              email=email,
+#                                                              email_ch_pos_interval=email_ch_pos_interval,
+#                                                              email_warning_bal=email_warning_bal,
+#                                                              email_send_acc_news=email_send_acc_news,
+#                                                              email_send_warnings=email_send_warnings,
+#                                                              timezone=timezone,
+#                                                              daily_budget_amount=daily_budget_amount,
+#                                                              daily_budget_mode=daily_budget_mode,
+#                                                              negative_keywords=negative_keywords,
+#                                                              blocked_ips=blocked_ips,
+#                                                              excluded_sites=excluded_sites,
+#                                                              text_campaign_params=txt_camp_params['TextCampaign'],
+#                                                              mobile_app_campaign_params=None,
+#                                                              dynamic_text_campaign_params=None,
+#                                                              cpm_banner_campaign_params=None,
+#                                                              smart_campaign_params=None,
+#                                                              time_targeting_shedule=time_targeting_shedule,
+#                                                              time_targeting_cons_working_weekends=time_targeting_cons_working_weekends,
+#                                                              time_targeting_suspend_on_holidays=time_targeting_suspend_on_holidays,
+#                                                              time_targeting_bid_percent=time_targeting_bid_percent,
+#                                                              time_targeting_start_hour=time_targeting_start_hour,
+#                                                              time_targeting_end_hour=time_targeting_end_hour)
+#
+#             task = task_add_text_campaign.delay(login, token, camp_params)
+#
+#             return jsonify(task.id)
+#
+#     except BadRequestKeyError:
+#         logger.error("add text campaign async: BadRequest")
+#         return Response(None, 400)
+#     except KeyError:
+#         logger.error("add text campaign async: KeyError")
+#         return Response(None, 400)
+#     except BaseException as ex:
+#         logger.error(f'add text campaign async: {ex}')
+#         raise HttpError(400, f'{ex}')
+#
+#
+# @app.route('/yandexdirect/addtextcampaignasync/<task_id>', methods=['GET'])
+# @swag_from("swagger_conf/add_text_campaign_async.yml")
+# def add_text_campaign_async_result(task_id):
+#     """Возвращает результат по id асинхронной задачи"""
+#
+#     try:
+#         task = task_add_text_campaign.AsyncResult(str(task_id))
+#
+#         if task.state == 'SUCCESS':
+#             # result = {'state': task.state, 'result': task.get(timeout=5)}
+#
+#             result = task.get(timeout=5)
+#
+#             parsed_result = response_result(response=result, source=errors_warnings_sourse,
+#                                             errors_table=errors_table, warnings_table=warnings_table)
+#
+#             # put_query(json_file=json_file, table_name='ya_ads_addcampaigns', result=parsed_result, engine=engine,
+#             #           logger=logger)
+#
+#             return parsed_result
+#
+#         else:
+#             result = {'state': task.state}
+#
+#             return result
+#
+#     except BadRequestKeyError:
+#         logger.error("add text campaign async result: BadRequest")
+#         return Response(None, 400)
+#     except KeyError:
+#         logger.error("add text campaign async result: KeyError")
+#         return Response(None, 400)
+#     except BaseException as ex:
+#         logger.error(f'add text campaign async result: {ex}')
+#         raise HttpError(400, f'{ex}')
+
 
 
 # @app.route('/yandexdirect/updatetextcampaign', methods=['POST'])
@@ -674,7 +850,7 @@ def add_group():
                 #
                 # return jsonify(result.json())
 
-                parsed_result = response_result(response=result, sourсe=errors_warnings_sourse,
+                parsed_result = response_result(response=result, source=errors_warnings_sourse,
                                                 errors_table=errors_table, warnings_table=warnings_table)
 
                 put_query(json_file=json_file, table_name='ya_ads_addgroups', result=parsed_result, engine=engine,
@@ -775,7 +951,7 @@ def add_text_ad():
                 #
                 # return jsonify(result.json())
 
-                parsed_result = response_result(response=result, sourсe=errors_warnings_sourse,
+                parsed_result = response_result(response=result, source=errors_warnings_sourse,
                                                 errors_table=errors_table, warnings_table=warnings_table)
 
                 put_query(json_file=json_file, table_name='ya_ads_addads', result=parsed_result, engine=engine,
@@ -837,7 +1013,7 @@ def add_dynamic_text_ad():
                 #
                 # return jsonify(result.json())
 
-                parsed_result = response_result(response=result, sourсe=errors_warnings_sourse,
+                parsed_result = response_result(response=result, source=errors_warnings_sourse,
                                                 errors_table=errors_table, warnings_table=warnings_table)
 
                 put_query(json_file=json_file, table_name='ya_ads_addads', result=parsed_result, engine=engine,
@@ -1105,7 +1281,7 @@ def add_keyword():
                 #
                 # return jsonify(result.json())
 
-                parsed_result = response_result(response=result, sourсe=errors_warnings_sourse,
+                parsed_result = response_result(response=result, source=errors_warnings_sourse,
                                                 errors_table=errors_table, warnings_table=warnings_table)
 
                 put_query(json_file=json_file, table_name='ya_ads_addkeywords', result=parsed_result, engine=engine,
@@ -1413,7 +1589,10 @@ def forecast():
             logger.error("forecast: yandex direct error")
             return jsonify({'error': 'create new forecast - yandex direct error'})
         else:
-            forecast_id = nf.json()["data"]
+            try:
+                forecast_id = nf.json()["data"]
+            except KeyError:
+                return jsonify({'error': nf.json()})
 
             status = None
             while status != 'Done':
@@ -1432,7 +1611,6 @@ def forecast():
             if result is None:
                 logger.error("get forecast: yandex direct error")
                 return jsonify({'error': 'get forecast - yandex direct error'})
-
             else:
                 logger.info(f"get forecast: {result.status_code}")
                 return jsonify(result.json())
@@ -1440,13 +1618,106 @@ def forecast():
     except BadRequestKeyError:
         logger.error("forecast: BadRequest")
         return Response(None, 400)
-
     except KeyError:
         logger.error("forecast: KeyError")
         return Response(None, 400)
-
     except BaseException as ex:
         logger.error(f'forecast: {ex}')
+        raise HttpError(400, f'{ex}')
+
+
+@celery.task()
+def task_forecast_async(login, token, phrases, regions, currency, auc_bids):
+    """
+    Запускает на сервере формирование прогноза показов, кликов и затрат.
+    Отслеживает статус и загружает прогноз по готовности
+    """
+
+    direct = YandexDirectEcomru(login, token)
+    nf = direct.create_new_forecast(phrases=phrases, regions=regions, currency=currency, auc_bids=auc_bids)
+
+    if nf is None:
+        logger.error("forecast async: yandex direct error")
+        return {'error': 'create new forecast - yandex direct error'}
+    else:
+        try:
+            forecast_id = nf.json()["data"]
+        except KeyError:
+            return {'error': nf.json()}
+
+        status = None
+        while status != 'Done':
+            time.sleep(15)
+            forecast_list = direct.get_forecast_list()
+            if forecast_list is None:
+                logger.error("forecast_list list: yandex direct error")
+                return {'error': 'forecast_list list - yandex direct error'}
+            else:
+                forecasts = pd.DataFrame(forecast_list.json()["data"])
+                f_stat = forecasts[forecasts["ForecastID"] == forecast_id]
+                status = f_stat["StatusForecast"].values[0]
+
+        result = direct.get_forecast(forecast_id=forecast_id)
+
+        if result is None:
+            logger.error("get forecast async: yandex direct error")
+            return {'error': 'get forecast - yandex direct error'}
+        else:
+            logger.info(f"get forecast: {result.status_code}")
+            return result.json()
+
+
+@app.route('/yandexdirect/forecastasync', methods=['POST'])
+@swag_from("swagger_conf/forecast.yml")
+def forecast_async():
+    """
+    Формирует команду на формирование прогноза показов, кликов и затрат,
+    возвращает идентификатор задачи
+    """
+    try:
+        json_file = request.get_json(force=False)
+        login = json_file["login"]
+        token = get_token_from_db(client_login=login, engine=engine, logger=logger)
+        phrases = json_file["phrases"]
+        regions = json_file.get("regions", None)
+        currency = json_file["currency"]
+        auc_bids = json_file.get("auc_bids", None)
+        task = task_forecast_async.delay(login, token, phrases, regions, currency, auc_bids)
+
+        return jsonify({'task_id': task.id})
+
+    except BadRequestKeyError:
+        logger.error("forecast async: BadRequest")
+        return Response(None, 400)
+    except KeyError:
+        logger.error("forecast async: KeyError")
+        return Response(None, 400)
+    except BaseException as ex:
+        logger.error(f'forecast async: {ex}')
+        raise HttpError(400, f'{ex}')
+
+
+@app.route('/yandexdirect/forecastasync/<task_id>', methods=['GET'])
+@swag_from("swagger_conf/forecast_async_result.yml")
+def forecast_async_result(task_id):
+    """Возвращает прогноз по id асинхронной задачи"""
+
+    try:
+        task = task_forecast_async.AsyncResult(str(task_id))
+        if task.state == 'SUCCESS':
+            result = {'state': task.state, 'result': task.get(timeout=5)}
+        else:
+            result = {'state': task.state}
+        return result
+
+    except BadRequestKeyError:
+        logger.error("forecast async result: BadRequest")
+        return Response(None, 400)
+    except KeyError:
+        logger.error("forecast async result: KeyError")
+        return Response(None, 400)
+    except BaseException as ex:
+        logger.error(f'forecast async result: {ex}')
         raise HttpError(400, f'{ex}')
 
 
@@ -1470,11 +1741,9 @@ def get_clients_():
     except BadRequestKeyError:
         logger.error("get_clients: BadRequest")
         return Response(None, 400)
-
     except KeyError:
         logger.error("get_clients: KeyError")
         return Response(None, 400)
-
     except BaseException as ex:
         logger.error(f'get_clients: {ex}')
         raise HttpError(400, f'{ex}')
@@ -1524,7 +1793,8 @@ def get_groups_db():
         campaign_id = json_file.get("campaign_id", None)
         group_id = json_file.get("group_id", None)
 
-        res = get_groups_from_db(login=login, campaign_id=campaign_id, group_id=group_id, table_name='ya_ads_addgroups', engine=engine, logger=logger)
+        res = get_groups_from_db(login=login, campaign_id=campaign_id, group_id=group_id, table_name='ya_ads_addgroups',
+                                 engine=engine, logger=logger)
 
         if res is None:
             raise HttpError(400, f'accounts database error')
@@ -1678,7 +1948,8 @@ def add_dynamic_text_campaign():
                                                  excluded_sites=excluded_sites,
                                                  text_campaign_params=None,
                                                  mobile_app_campaign_params=None,
-                                                 dynamic_text_campaign_params=dynamic_txt_camp_params["DynamicTextCampaign"],
+                                                 dynamic_text_campaign_params=dynamic_txt_camp_params[
+                                                     "DynamicTextCampaign"],
                                                  cpm_banner_campaign_params=None,
                                                  smart_campaign_params=None,
                                                  time_targeting_shedule=time_targeting_shedule,
@@ -1701,7 +1972,7 @@ def add_dynamic_text_campaign():
                 #
                 # return jsonify(result.json())
 
-                parsed_result = response_result(response=result, sourсe=errors_warnings_sourse,
+                parsed_result = response_result(response=result, source=errors_warnings_sourse,
                                                 errors_table=errors_table, warnings_table=warnings_table)
 
                 put_query(json_file=json_file, table_name='ya_ads_addcampaigns', result=parsed_result, engine=engine,
@@ -2681,43 +2952,7 @@ def get_ad_dynamic_text_ad_params():
         logger.error(f'get_ad_dynamic_text_ad_params: {ex}')
         raise HttpError(400, f'{ex}')
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# @celery.task
+# @celery.task()
 # def get_campaigns_async(login, text_params, dynamic_text_params):
 #
 #     token = get_token_from_db(client_login=login, engine=engine, logger=logger)
@@ -2728,107 +2963,87 @@ def get_ad_dynamic_text_ad_params():
 #
 #     return res
 
-
-@celery.task
-def some_func_async(arg1, arg2, arg3):
-
-    return {'arg1': arg1, 'arg2': arg2, 'arg3': arg3}
-
-
-@app.route('/yandexdirect/getcampaignsasync', methods=['POST'])
-@swag_from("swagger_conf/get_campaigns_async.yml")
-def get_campaigns_():
-    """
-    Полезные ссылки с примерами:
-    Метод для вывода списка кампаний
-    https://dev.to/itz_salemm/how-to-use-celery-with-flask-2k1m
-    https://www.defpython.ru/ispolzovanie_Celery_vo_Flask
-    https://www.defpython.ru/ispolzovanie_Celery_vo_Flask_czast_2
-    https://ploshadka.net/flask-celery-rabbitmq/
-    https://habr.com/ru/post/461531/
-    https://morioh.com/p/35d9fd86c702
-    https://docs.celeryq.dev/en/stable/userguide/workers.html?ref=morioh.com#starting-the-worker
-    https://russianblogs.com/article/23431128896/
-    https://habr.com/ru/post/686820/
-    """
-
-    try:
-        json_file = request.get_json(force=False)
-        login = json_file["login"]
-        text_params = to_boolean(json_file.get("text_params", "false"))
-        dynamic_text_params = to_boolean(json_file.get("dynamic_text_params", "false"))
-        #
-        # task = get_campaigns_async.delay(login, text_params, dynamic_text_params)
-        # task = get_campaigns_async.apply_async(args=[login, text_params, dynamic_text_params])
-
-        task = some_func_async.delay(arg1=login, arg2=text_params, arg3=dynamic_text_params)
-
-        print(task.id)
-
-        if task is not None:
-            logger.info("get campaigns: OK")
-            return jsonify({'result': str(task.id)})
-        else:
-            logger.error("get campaigns: yandex direct api error")
-            return jsonify({'error': 'yandex direct api error'})
-
-    except BadRequestKeyError:
-        logger.error("get campaigns: BadRequest")
-        return Response(None, 400)
-
-    except KeyError:
-        logger.error("get campaigns: KeyError")
-        return Response(None, 400)
-
-    except BaseException as ex:
-        logger.error(f'get campaigns: {ex}')
-        raise HttpError(400, f'{ex}')
-
-
-@app.route('/yandexdirect/getcampaignsasync/<task_id>', methods=['GET'])
-@swag_from('swagger_conf/get_campaigns_async_result.yml')
-def get_campaigns_async_result(task_id):
-    """Получить кампании"""
-
-    try:
-        # task = get_campaigns_async.AsyncResult(str(task_id))
-
-        task = some_func_async.AsyncResult(str(task_id))
-
-        print(task.state)
-        print(task.info)
-
-        result = task.get(timeout=5)
-
-        response = {
-            'state': task.state,
-            'result': result,
-        }
-
-        return jsonify(response)
-
-    except BaseException as ex:
-        logger.error(f'get campaigns async result: {ex}')
-        raise HttpError(400, f'{ex}')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#
+# @celery.task()
+# def some_func_async(arg1, arg2, arg3):
+#
+#     return {'arg1': arg1, 'arg2': arg2, 'arg3': arg3}
+#
+#
+# @app.route('/yandexdirect/getcampaignsasync', methods=['POST'])
+# @swag_from("swagger_conf/get_campaigns_async.yml")
+# def get_campaigns_():
+#     """
+#     Полезные ссылки с примерами:
+#     Метод для вывода списка кампаний
+#     https://dev.to/itz_salemm/how-to-use-celery-with-flask-2k1m
+#     https://www.defpython.ru/ispolzovanie_Celery_vo_Flask
+#     https://www.defpython.ru/ispolzovanie_Celery_vo_Flask_czast_2
+#     https://ploshadka.net/flask-celery-rabbitmq/
+#     https://habr.com/ru/post/461531/
+#     https://morioh.com/p/35d9fd86c702
+#     https://docs.celeryq.dev/en/stable/userguide/workers.html?ref=morioh.com#starting-the-worker
+#     https://russianblogs.com/article/23431128896/
+#     https://habr.com/ru/post/686820/
+#     """
+#
+#     try:
+#         json_file = request.get_json(force=False)
+#         login = json_file["login"]
+#         text_params = to_boolean(json_file.get("text_params", "false"))
+#         dynamic_text_params = to_boolean(json_file.get("dynamic_text_params", "false"))
+#         #
+#         # task = get_campaigns_async.delay(login, text_params, dynamic_text_params)
+#         # task = get_campaigns_async.apply_async(args=[login, text_params, dynamic_text_params])
+#
+#         task = some_func_async.delay(arg1=login, arg2=text_params, arg3=dynamic_text_params)
+#
+#         print(task.id)
+#
+#         if task is not None:
+#             logger.info("get campaigns: OK")
+#             return jsonify({'result': str(task.id)})
+#         else:
+#             logger.error("get campaigns: yandex direct api error")
+#             return jsonify({'error': 'yandex direct api error'})
+#
+#     except BadRequestKeyError:
+#         logger.error("get campaigns: BadRequest")
+#         return Response(None, 400)
+#
+#     except KeyError:
+#         logger.error("get campaigns: KeyError")
+#         return Response(None, 400)
+#
+#     except BaseException as ex:
+#         logger.error(f'get campaigns: {ex}')
+#         raise HttpError(400, f'{ex}')
+#
+#
+# @app.route('/yandexdirect/getcampaignsasync/<task_id>', methods=['GET'])
+# @swag_from('swagger_conf/get_campaigns_async_result.yml')
+# def get_campaigns_async_result(task_id):
+#     """Получить кампании"""
+#
+#     try:
+#         # task = get_campaigns_async.AsyncResult(str(task_id))
+#
+#         task = some_func_async.AsyncResult(str(task_id))
+#
+#         print(task.state)
+#         print(task.info)
+#
+#         result = task.get(timeout=5)
+#
+#         response = {
+#             'state': task.state,
+#             'result': result,
+#         }
+#
+#         return jsonify(response)
+#
+#     except BaseException as ex:
+#         logger.error(f'get campaigns async result: {ex}')
+#         raise HttpError(400, f'{ex}')
+#
+#

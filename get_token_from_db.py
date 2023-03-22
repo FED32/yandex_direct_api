@@ -73,8 +73,8 @@ def get_token_from_db(client_login: str, engine, logger):
                     logger.info("no data")
                     return ''
                 else:
-                    print(data['client_token'])
-                    return data['client_token'][0]
+                    # print(data['client_token'])
+                    return data['client_token'].values[0]
 
             except (exc.DBAPIError, exc.SQLAlchemyError):
                 logger.error("db error")
