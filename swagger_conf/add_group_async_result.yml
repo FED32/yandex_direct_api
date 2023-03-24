@@ -5,13 +5,12 @@ info:
     email: "s.fedyushin@ecomru.ru"
   basePath: "/swagger"
 paths:
-  "/yandexdirect/getcampaignsasync/<task_id>":
+  "/yandexdirect/addcampaignasync/<task_id>":
     get:
 tags:
-  - campaigns
-#    - info
-summary: "Получить кампании по id задачи"
-description: "Метод для получения кампаний и их параметров (фоновый процесс)"
+  - adgroups
+summary: "Возвращает результат создания группы по id асинхронной задачи"
+description: "Метод для получения результата создания группы по id асинхронной задачи"
 consumes:
 - "application/json"
 produces:

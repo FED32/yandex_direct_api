@@ -6,7 +6,7 @@ info:
   basePath: "/swagger"
 paths:
   "/yandexdirect/wordstatreportasync/<task_id>":
-    post:
+    get:
 tags:
   - forecasts
 #    - info
