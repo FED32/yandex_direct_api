@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-# import psycopg2
+import psycopg2
 from datetime import datetime
 import time
 import json
@@ -43,11 +43,64 @@ def sql_query(query, engine, logger, type_='dict'):
                 connection.close()
 
 
+def add_into_table(dataset, table_name: str, engine,
+                   logger,
+                   attempts=1):
+    """Выполнить запись датасета в таблицу БД"""
+
+    with engine.begin() as connection:
+        n = 0
+        while n < attempts:
+            try:
+                res = dataset.to_sql(name=table_name, con=connection, if_exists='append', index=False)
+                logger.info(f"Upload to {table_name} - ok")
+                return 'ok'
+            except BaseException as ex:
+                logger.error(f"data to db: {ex}")
+                time.sleep(5)
+                n += 1
+        logger.error("data to db error")
+        return None
+
+    # with engine.begin() as connection:
+    #     with connection.begin() as transaction:
+    #         try:
+    #             res = dataset.to_sql(name=table_name, con=connection, if_exists='append', index=False)
+    #             # transaction.commit()
+    #             logger.info(f"Upload to {table_name} - ok")
+    #             # return 'ok'
+    #         except (exc.DBAPIError, exc.SQLAlchemyError):
+    #             logger.info(f"Upload to {table_name} -error")
+    #             transaction.rollback()
+    #             raise
+    #         finally:
+    #             connection.close()
+
+
+def upd_into_table(query: str, engine, logger):
+    """Выполнить запрос на запись в БД"""
+
+    with engine.connect() as connection:
+        with connection.begin() as transaction:
+            try:
+                connection.execute(query)
+                transaction.commit()
+                logger.info("successful")
+            except (exc.DBAPIError, exc.SQLAlchemyError):
+                logger.info("error")
+                transaction.rollback()
+                raise
+            # else:
+            #     transaction.commit()
+            finally:
+                connection.close()
+
+
 def put_query(engine,
               logger,
               json_file,
               table_name: str,
-              attempts: int = 2,
+              attempts: int = 1,
               result=None
               ):
     """Загружает параметры запроса с ответом в БД"""
@@ -83,19 +136,61 @@ def put_query(engine,
     # print(dataset['res_warnings'][0])
     # print(json_file)
 
-    with engine.begin() as connection:
-        n = 0
-        while n < attempts:
-            try:
-                res = dataset.to_sql(name=table_name, con=connection, if_exists='append', index=False)
-                logger.info(f"Upload to {table_name} - ok")
-                return 'ok'
-            except BaseException as ex:
-                logger.error(f"data to db: {ex}")
-                time.sleep(5)
-                n += 1
-        logger.error("data to db error")
-        return None
+    return add_into_table(dataset, table_name, engine, logger, attempts)
+
+
+def put_query_in(engine,
+                 logger,
+                 json_file,
+                 table_name: str,
+                 task_id: str = None,
+                 attempts: int = 2):
+    """Загружает параметры запроса в БД"""
+
+    if task_id is not None:
+        json_file.setdefault("task_id", task_id)
+
+    dataset = pd.DataFrame([json_file])
+    dataset['date_time'] = datetime.now()
+
+    return add_into_table(dataset, table_name, engine, logger, attempts)
+
+
+def put_query_out(task_id: str,
+                  table_name: str,
+                  result: dict,
+                  engine,
+                  logger
+                  ):
+    """Обновляет результат запроса"""
+
+    res_id = None
+    res_warnings = None
+    res_errors = None
+
+    try:
+        res_id = result["result"]["AddResults"][0].get("Id", None)
+        res_warnings = result["result"]["AddResults"][0].get("Warnings", None)
+        res_errors = result["result"]["AddResults"][0].get("Errors", None)
+    except KeyError:
+        res_errors = [result.get("error", None)]
+
+    queries = []
+
+    if res_id is not None:
+        queries.append(f"""UPDATE {table_name} SET res_id = {int(res_id)} WHERE task_id = '{task_id}'""")
+
+    if res_warnings is not None:
+        res_warnings_ = [json.dumps(i, ensure_ascii=False).encode('utf8').decode('utf8') for i in res_warnings]
+        queries.append(f"""UPDATE {table_name} SET res_warnings = ARRAY{res_warnings_} WHERE task_id = '{task_id}'""")
+
+    if res_errors is not None:
+        res_errors_ = [json.dumps(i, ensure_ascii=False).encode('utf8').decode('utf8') for i in res_errors]
+        queries.append(f"""UPDATE {table_name} SET res_errors = ARRAY{res_errors_} WHERE task_id = '{task_id}'""")
+
+    query = " ".join(queries)
+    # print(query)
+    return upd_into_table(query, engine, logger)
 
 
 def get_clients(account_id: int, engine, logger):
@@ -118,24 +213,6 @@ def get_clients(account_id: int, engine, logger):
              """
 
     return sql_query(query, engine, logger, type_='dict')
-
-    # with engine.begin() as connection:
-    #     try:
-    #         data = pd.read_sql(query, con=connection)
-    #
-    #         if data is None:
-    #             logger.error("accounts database error")
-    #             return None
-    #         elif data.shape[0] == 0:
-    #             logger.info("non-existent account")
-    #             return []
-    #         else:
-    #             return data['login'].tolist()
-    #
-    #     except BaseException as ex:
-    #         logger.error(f"get clients: {ex}")
-    #         # print('Нет подключения к БД')
-    #         return None
 
 
 def get_objects_from_db(login: str, table_name: str, engine, logger):
@@ -257,6 +334,62 @@ def response_result(response, source: str, errors_table, warnings_table):
 
     else:
         for add in response.json()["result"]["AddResults"]:
+            if add.get("Errors", False):
+                for error in add["Errors"]:
+                    code = error["Code"]
+                    if source == 'db':
+                        message = errors_table[errors_table.error_code == int(code)]['error_text'].values[0]
+                        details = errors_table[errors_table.error_code == int(code)]['error_comment'].values[0]
+                    else:
+                        message = YandexDirectEcomru.u(error["Message"])
+                        details = YandexDirectEcomru.u(error["Details"])
+
+                    errors.append({'Code': code, 'Message': message, 'Details': details})
+
+            else:
+                res_id = add["Id"]
+                if add.get("Warnings", False):
+                    for warning in add["Warnings"]:
+                        code = warning["Code"]
+                        if source == 'db':
+                            message = warnings_table[warnings_table.warning_code == int(code)]['warning_text'].values[0]
+                            warnings.append({'Code': code, 'Message': message})
+                        else:
+                            message = YandexDirectEcomru.u(warning["Message"])
+                            details = YandexDirectEcomru.u(warning["Details"])
+                            warnings.append({'Code': code, 'Message': message, 'Details': details})
+
+    if res_id is not None:
+        result['Id'] = res_id
+    if len(warnings) > 0:
+        result['Warnings'] = warnings
+    if len(errors) > 0:
+        result['Errors'] = errors
+
+    return {'result': {"AddResults": [result]}}
+
+
+def response_result2(response, source: str, errors_table, warnings_table):
+    """Возвращает словарь с результатом аналогичным YandexDirect подставляя описания ошибок и предупреждений из БД"""
+
+    result = dict()
+
+    res_id = None
+    warnings = []
+    errors = []
+
+    if response.get("error", False):
+        code = response["error"]["error_code"]
+        if source == 'db':
+            details = errors_table[errors_table.error_code == int(code)]['error_text'].values[0] + ' ' + \
+                      errors_table[errors_table.error_code == int(code)]['error_comment'].values[0]
+        else:
+            details = YandexDirectEcomru.u(response["error"]["error_detail"])
+
+        errors.append({'Code': code, 'Details': details})
+
+    else:
+        for add in response["result"]["AddResults"]:
             if add.get("Errors", False):
                 for error in add["Errors"]:
                     code = error["Code"]

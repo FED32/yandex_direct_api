@@ -6,7 +6,7 @@ info:
   basePath: "/swagger"
 paths:
   "/yandexdirect/forecastasync/<task_id>":
-    post:
+    get:
 tags:
   - forecasts
 #    - info
