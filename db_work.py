@@ -438,7 +438,9 @@ def get_add_campaign_common_params(engine, logger):
             min, 
             max, 
             description, 
-            note 
+            note, 
+            for_ui_description, 
+            for_ui_tooltip 
             FROM ya_ads_campaign_common_params_attr 
             ORDER BY id
             """
@@ -458,7 +460,9 @@ def get_add_campaign_text_params(engine, logger):
             min, 
             max, 
             description, 
-            note 
+            note, 
+            for_ui_description, 
+            for_ui_tooltip 
             FROM ya_ads_text_campaign_params_attr 
             ORDER BY id
             """
@@ -479,7 +483,9 @@ def get_add_campaign_dynamic_text_params(engine, logger):
             min, 
             max, 
             description, 
-            note 
+            note, 
+            for_ui_description, 
+            for_ui_tooltip 
             FROM ya_ads_dyn_text_campaign_params_attr 
             ORDER BY id
             """
@@ -500,7 +506,9 @@ def get_add_campaign_strategy_params(campaign_type: str, placement: str, strateg
              st_p_attr.min, 
              st_p_attr.max, 
              st_p_attr.description, 
-             st_p.note 
+             st_p.note, 
+             st_p_attr.for_ui_description, 
+             st_p_attr.for_ui_tooltip 
              FROM ya_ads_campaign_strategy_params AS st_p 
              JOIN ya_ads_campaign_strategy_params_attr AS st_p_attr ON st_p.param_api_name = st_p_attr.param_api_name 
              WHERE st_p.campaign_type = '{campaign_type}' AND st_p.placement = '{placement}' AND st_p.strategy_type = '{strategy}' 
@@ -585,7 +593,9 @@ def get_add_group_common_params(engine, logger):
              min, 
              max, 
              description, 
-             note 
+             note, 
+             for_ui_description, 
+             for_ui_tooltip 
              FROM ya_ads_addgroup_common_params_attr 
              ORDER BY id
              """
@@ -606,7 +616,9 @@ def get_add_group_text_feed_params(engine, logger):
             min, 
             max, 
             description, 
-            note 
+            note, 
+            for_ui_description, 
+            for_ui_tooltip 
             FROM ya_ads_addgroup_text_feed_params_attr 
             ORDER BY id
             """
@@ -626,7 +638,9 @@ def get_add_group_dynamic_text_params(engine, logger):
             min, 
             max, 
             description, 
-            note 
+            note, 
+            for_ui_description, 
+            for_ui_tooltip 
             FROM ya_ads_addgroup_dynamic_text_params_attr 
             ORDER BY id
             """
@@ -647,7 +661,9 @@ def get_add_group_dynamic_text_feed_params(engine, logger):
             min, 
             max, 
             description, 
-            note 
+            note, 
+            for_ui_description, 
+            for_ui_tooltip 
             FROM ya_ads_addgroup_dynamic_text_feed_params_attr 
             ORDER BY id
             """
@@ -685,7 +701,9 @@ def get_add_ad_text_ad_params(engine, logger):
             min, 
             max, 
             description, 
-            note 
+            note, 
+            for_ui_description, 
+            for_ui_tooltip 
             FROM ya_ads_addad_text_ad_params_attr 
             ORDER BY id
             """
@@ -706,7 +724,9 @@ def get_add_ad_dynamic_text_ad_params(engine, logger):
             min, 
             max, 
             description, 
-            note 
+            note, 
+            for_ui_description, 
+            for_ui_tooltip 
             FROM ya_ads_addad_dynamic_text_ad_params_attr 
             ORDER BY id
             """
