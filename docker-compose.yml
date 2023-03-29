@@ -17,6 +17,8 @@ services:
       ECOMRU_PG_PASSWORD: ${ECOMRU_PG_PASSWORD}
       ECOMRU_PG_SSL_MODE: ${ECOMRU_PG_SSL_MODE}
 
+    depends_on:
+      - redis
     #command: sh script.sh
     volumes:
       - /home/get/logs_all/yandex_direct_ecom_api/:/app/logs/
@@ -37,5 +39,21 @@ services:
     volumes:
       - /home/get/cert:/app/cert
 
+  redis:
+    container_name: redis
+    restart: always
+    image: redis:latest
+    ports:
+      - 6379:6379
 
-    
+  worker:
+    container_name: celery
+    build: .
+    command: celery -A api.celery worker --loglevel=info
+    volumes:
+      - /home/get/logs_all/yandex_direct_ecom_api/:/app/logs/
+    depends_on:
+      - redis
+      - yandex-direct-ecom-api
+
+
