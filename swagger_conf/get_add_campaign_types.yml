@@ -9,6 +9,7 @@ paths:
     get:
 tags:
   - params
+    - campaigns
 summary: "Получить из БД типы кампаний доступные к созданию"
 description: "Метод для получения из БД типов кампаний доступных к созданию"
 consumes:
