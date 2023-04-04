@@ -5,6 +5,7 @@ from flasgger import Swagger, swag_from
 from config import Configuration, errors_warnings_sourse, DB_PARAMS
 import logger_api, logger_celery
 from ecom_yandex_direct import YandexDirectEcomru
+from ecom_yandex_market import YandexMarketEcomru
 import os
 import time
 import pandas as pd
@@ -3342,14 +3343,46 @@ def get_ad_dynamic_text_ad_params():
     except BadRequestKeyError:
         logger.error("get_ad_dynamic_text_ad_params: BadRequest")
         return Response(None, 400)
-
     except KeyError:
         logger.error("get_ad_dynamic_text_ad_params: KeyError")
         return Response(None, 400)
-
     except BaseException as ex:
         logger.error(f'get_ad_dynamic_text_ad_params: {ex}')
         raise HttpError(400, f'{ex}')
+
+
+@app.route('/yandexmarket/salesboost', methods=['POST'])
+@swag_from("swagger_conf/market_salesboost.yml")
+def market_salesboost():
+    """Включение буста продаж и установка ставок"""
+
+    try:
+        json_file = request.get_json(force=False)
+        token = json_file["token"]
+        business_id = json_file["business_id"]
+        sku_list = json_file["sku_list"]
+        bids_list = json_file["bids_list"]
+
+        y_market = YandexMarketEcomru(token=token)
+
+        res = y_market.sales_boost(business_id, sku_list, bids_list)
+        logger.info(f"""market_salesboost: {res["code"]} {res["message"]}""")
+
+        return jsonify(res)
+
+    except BadRequestKeyError:
+        logger.error("market_salesboost: BadRequest")
+        return Response(None, 400)
+    except KeyError:
+        logger.error("market_salesboost: KeyError")
+        return Response(None, 400)
+    except BaseException as ex:
+        logger.error(f'market_salesboost: {ex}')
+        raise HttpError(400, f'{ex}')
+
+
+
+
 
 # @celery.task()
 # def get_campaigns_async(login, text_params, dynamic_text_params):
