@@ -1,0 +1,51 @@
+swagger: "2.0"
+info:
+  title: "Yandex Direct Ecom API Documentation"
+  contact:
+    email: "s.fedyushin@ecomru.ru"
+  basePath: "/swagger"
+paths:
+  "/yandexmarket/salesboost":
+    post:
+tags:
+  - market
+summary: "Включение буста продаж и установка ставок"
+description: "Запускает буст продаж — создает и включает кампанию, добавляет в нее товары и назначает на них ставки."
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "body"
+  required: true
+  schema:
+    type: "object"
+    properties:
+#      login:
+#        type: "string"
+#        example: "aaabbbq123@yandex.ru"
+      token:
+        type: "string"
+        example: "xxx_YYYzzz1234ABCDefg"
+      business_id:
+        type: "integer"
+        example: 1234
+        description: Идентификатор бизнеса.
+      sku_list:
+        type:
+          - array
+            - integer
+        example: [12345, 34567]
+        description: список SKU товаров
+      bids_list:
+        type:
+          - array
+            - integer
+        example: [50, 100]
+        description: список ставок на товары
+responses:
+  200:
+    description: "OK"
+  400:
+    description: "Bad Request"
