@@ -1,0 +1,202 @@
+2023-03-24 02:13:56,783 - logger_celery - INFO - Upload to ya_ads_addcampaigns - ok - (db_work.py:56)
+2023-03-24 02:28:20,840 - logger_celery - INFO - Upload to ya_ads_addcampaigns - ok - (db_work.py:56)
+2023-03-24 02:29:57,300 - logger_celery - INFO - Upload to ya_ads_addcampaigns - ok - (db_work.py:56)
+2023-03-24 02:33:06,432 - logger_celery - INFO - Upload to ya_ads_addcampaigns - ok - (db_work.py:56)
+2023-03-24 02:44:45,432 - logger_celery - INFO - add text campaign: b6698bd2-4497-4a4e-87ac-4309cad57d57 - (api.py:432)
+2023-03-24 02:44:45,641 - logger_celery - INFO - add text campaign: 200 - (api.py:441)
+2023-03-24 02:44:45,989 - logger_celery - INFO - Upload to ya_ads_addcampaigns - ok - (db_work.py:56)
+2023-03-24 14:59:35,887 - logger_celery - INFO - add text campaign: 1d3a07dc-9d15-4fc6-9236-742960c12e55 - (api.py:432)
+2023-03-24 14:59:43,033 - logger_celery - ERROR - add text campaign: yandex direct error - (api.py:438)
+2023-03-24 15:08:01,517 - logger_celery - INFO - add text campaign: c72f8bab-9820-4214-ba4e-adb8b4aade1c - (api.py:432)
+2023-03-24 15:08:01,517 - logger_celery - INFO - add text campaign: c72f8bab-9820-4214-ba4e-adb8b4aade1c - (api.py:432)
+2023-03-24 15:08:02,960 - logger_celery - INFO - add text campaign: 200 - (api.py:441)
+2023-03-24 15:08:02,960 - logger_celery - INFO - add text campaign: 200 - (api.py:441)
+2023-03-24 15:08:03,913 - logger_celery - INFO - Upload to ya_ads_addcampaigns - ok - (db_work.py:56)
+2023-03-24 15:08:03,913 - logger_celery - INFO - Upload to ya_ads_addcampaigns - ok - (db_work.py:56)
+2023-03-24 15:09:56,029 - logger_celery - INFO - add text campaign: 297b8e54-9559-414f-973c-c480cb0158d8 - (api.py:432)
+2023-03-24 15:09:56,029 - logger_celery - INFO - add text campaign: 297b8e54-9559-414f-973c-c480cb0158d8 - (api.py:432)
+2023-03-24 15:09:56,029 - logger_celery - INFO - add text campaign: 297b8e54-9559-414f-973c-c480cb0158d8 - (api.py:432)
+2023-03-24 15:09:56,774 - logger_celery - INFO - add text campaign: 200 - (api.py:441)
+2023-03-24 15:09:56,774 - logger_celery - INFO - add text campaign: 200 - (api.py:441)
+2023-03-24 15:09:56,774 - logger_celery - INFO - add text campaign: 200 - (api.py:441)
+2023-03-24 15:10:19,202 - logger_celery - INFO - add text campaign: 8e845b3f-df23-4911-9ffe-db513ff8bc1c - (api.py:432)
+2023-03-24 15:10:19,202 - logger_celery - INFO - add text campaign: 8e845b3f-df23-4911-9ffe-db513ff8bc1c - (api.py:432)
+2023-03-24 15:10:19,202 - logger_celery - INFO - add text campaign: 8e845b3f-df23-4911-9ffe-db513ff8bc1c - (api.py:432)
+2023-03-24 15:10:19,202 - logger_celery - INFO - add text campaign: 8e845b3f-df23-4911-9ffe-db513ff8bc1c - (api.py:432)
+2023-03-24 15:10:20,019 - logger_celery - INFO - add text campaign: 200 - (api.py:441)
+2023-03-24 15:10:20,019 - logger_celery - INFO - add text campaign: 200 - (api.py:441)
+2023-03-24 15:10:20,019 - logger_celery - INFO - add text campaign: 200 - (api.py:441)
+2023-03-24 15:10:20,019 - logger_celery - INFO - add text campaign: 200 - (api.py:441)
+2023-03-24 15:27:13,814 - logger_celery - INFO - add text campaign async: 67ab7836-aad2-4eb8-83d5-587d53d79a5e - (api.py:434)
+2023-03-24 15:27:17,649 - logger_celery - INFO - add text campaign async: 200 - (api.py:443)
+2023-03-24 15:27:18,357 - logger_celery - INFO - Upload to ya_ads_addcampaigns - ok - (db_work.py:56)
+2023-03-24 15:57:56,528 - logger_celery - INFO - add text campaign async: c0ec8f3f-99d6-40c8-b2a4-133c0aaebe36 - (api.py:433)
+2023-03-24 15:57:59,815 - logger_celery - INFO - add campaign async: 200 - (api.py:442)
+2023-03-24 15:58:00,397 - logger_celery - INFO - Upload to ya_ads_addcampaigns - ok - (db_work.py:56)
+2023-03-24 16:45:25,033 - logger_celery - INFO - add group async: 1e555bf4-1a84-425e-8e85-382bf7bca5cd - (api.py:874)
+2023-03-24 16:45:25,735 - logger_celery - ERROR - data to db: (psycopg2.errors.UndefinedColumn) column "task_id" of relation "ya_ads_addgroups" does not exist
+LINE 1: ...feed_category_ids, text_feed_id, tracking_params, task_id, r...
+                                                             ^
+
+[SQL: INSERT INTO ya_ads_addgroups (campaign_id, dynamic_text_autotargeting_accessory, dynamic_text_autotargeting_alternative, dynamic_text_autotargeting_broader, dynamic_text_autotargeting_competitor, dynamic_text_autotargeting_exact, dynamic_text_domain_urls, dynamic_text_feed_autotargeting_accessory, dynamic_text_feed_autotargeting_alternative, dynamic_text_feed_autotargeting_broader, dynamic_text_feed_autotargeting_competitor, dynamic_text_feed_autotargeting_exact, dynamic_text_feed_ids, login, name, negative_keyword_set_ids, negative_keywords, region_ids, text_feed_category_ids, text_feed_id, tracking_params, task_id, res_errors, date_time) VALUES (%(campaign_id)s, %(dynamic_text_autotargeting_accessory)s, %(dynamic_text_autotargeting_alternative)s, %(dynamic_text_autotargeting_broader)s, %(dynamic_text_autotargeting_competitor)s, %(dynamic_text_autotargeting_exact)s, %(dynamic_text_domain_urls)s, %(dynamic_text_feed_autotargeting_accessory)s, %(dynamic_text_feed_autotargeting_alternative)s, %(dynamic_text_feed_autotargeting_broader)s, %(dynamic_text_feed_autotargeting_competitor)s, %(dynamic_text_feed_autotargeting_exact)s, %(dynamic_text_feed_ids)s, %(login)s, %(name)s, %(negative_keyword_set_ids)s, %(negative_keywords)s, %(region_ids)s, %(text_feed_category_ids)s, %(text_feed_id)s, %(tracking_params)s, %(task_id)s, %(res_errors)s, %(date_time)s)]
+[parameters: {'campaign_id': 123456, 'dynamic_text_autotargeting_accessory': 'YES', 'dynamic_text_autotargeting_alternative': 'YES', 'dynamic_text_autotargeting_broader': 'YES', 'dynamic_text_autotargeting_competitor': 'YES', 'dynamic_text_autotargeting_exact': 'YES', 'dynamic_text_domain_urls': 'www.site.com', 'dynamic_text_feed_autotargeting_accessory': 'YES', 'dynamic_text_feed_autotargeting_alternative': 'YES', 'dynamic_text_feed_autotargeting_broader': 'YES', 'dynamic_text_feed_autotargeting_competitor': 'YES', 'dynamic_text_feed_autotargeting_exact': 'YES', 'dynamic_text_feed_ids': 12321, 'login': 'ecomru-408641-xm1b@yandex.ru', 'name': 'abcdef', 'negative_keyword_set_ids': [123, 456, 789], 'negative_keywords': ['диван', 'кровать'], 'region_ids': [11, 12, 13, -14], 'text_feed_category_ids': [123, 456, 789], 'text_feed_id': 123456, 'tracking_params': 'from=direct&ad={ad_id}', 'task_id': '1e555bf4-1a84-425e-8e85-382bf7bca5cd', 'res_errors': ['{"Code": 5009, "Message": "More than one field was sent", "Details": "Only one of the  fields must be specified"}'], 'date_time': datetime.datetime(2023, 3, 24, 16, 45, 25, 175176)}]
+(Background on this error at: https://sqlalche.me/e/14/f405) - (db_work.py:59)
+2023-03-24 16:45:30,781 - logger_celery - ERROR - data to db: (psycopg2.errors.InFailedSqlTransaction) current transaction is aborted, commands ignored until end of transaction block
+
+[SQL: select relname from pg_class c join pg_namespace n on n.oid=c.relnamespace where pg_catalog.pg_table_is_visible(c.oid) and relname=%(name)s]
+[parameters: {'name': 'ya_ads_addgroups'}]
+(Background on this error at: https://sqlalche.me/e/14/2j85) - (db_work.py:59)
+2023-03-24 16:45:35,788 - logger_celery - ERROR - data to db error - (db_work.py:62)
+2023-03-24 16:48:35,374 - logger_celery - INFO - add group async: 3d2cea78-af9f-4276-b0a6-b56e4c6fee30 - (api.py:874)
+2023-03-24 16:48:35,374 - logger_celery - INFO - add group async: 3d2cea78-af9f-4276-b0a6-b56e4c6fee30 - (api.py:874)
+2023-03-24 16:48:36,711 - logger_celery - ERROR - add group async: (psycopg2.OperationalError) server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+
+(Background on this error at: https://sqlalche.me/e/14/e3q8) - (api.py:894)
+2023-03-24 16:48:36,711 - logger_celery - ERROR - add group async: (psycopg2.OperationalError) server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+
+(Background on this error at: https://sqlalche.me/e/14/e3q8) - (api.py:894)
+2023-03-24 16:50:19,548 - logger_celery - INFO - add group async: d35dcad6-189b-4ea7-b4fb-de18a6e0e253 - (api.py:874)
+2023-03-24 16:50:20,250 - logger_celery - INFO - Upload to ya_ads_addgroups - ok - (db_work.py:56)
+2023-03-24 18:24:24,600 - logger_celery - INFO - add ad async: e7617d40-494f-4c74-8923-e892130fc11a - (api.py:1157)
+2023-03-24 18:24:25,327 - logger_celery - ERROR - data to db: (psycopg2.errors.UndefinedColumn) column "task_id" of relation "ya_ads_addads" does not exist
+LINE 1: ...xt_price_currency, txt_price_qualifier, vcard_id, task_id, r...
+                                                             ^
+
+[SQL: INSERT INTO ya_ads_addads (ad_extension_ids, ad_image_hash, ads_group_id, business_id, creative_id, display_url_path, ext_link_params, href, login, mobile, prefer_vcard_over_business, sitelink_set_id, text, title, title2, turbo_page_id, txt_old_price, txt_price, txt_price_currency, txt_price_qualifier, vcard_id, task_id, res_errors, date_time) VALUES (%(ad_extension_ids)s, %(ad_image_hash)s, %(ads_group_id)s, %(business_id)s, %(creative_id)s, %(display_url_path)s, %(ext_link_params)s, %(href)s, %(login)s, %(mobile)s, %(prefer_vcard_over_business)s, %(sitelink_set_id)s, %(text)s, %(title)s, %(title2)s, %(turbo_page_id)s, %(txt_old_price)s, %(txt_price)s, %(txt_price_currency)s, %(txt_price_qualifier)s, %(vcard_id)s, %(task_id)s, %(res_errors)s, %(date_time)s)]
+[parameters: {'ad_extension_ids': [12345, 7890], 'ad_image_hash': 'wodjwb979fcu131ewhfiw134', 'ads_group_id': 123456, 'business_id': 123456, 'creative_id': 123456, 'display_url_path': 'NO', 'ext_link_params': 'false', 'href': 'https://site.ru', 'login': 'ecomru-408641-xm1b@yandex.ru', 'mobile': 'NO', 'prefer_vcard_over_business': 'NO', 'sitelink_set_id': 123456, 'text': 'some text какой-то текст', 'title': 'абвгabcd', 'title2': 'абвгabcd', 'turbo_page_id': 123456, 'txt_old_price': 10000, 'txt_price': 9999, 'txt_price_currency': 'USD', 'txt_price_qualifier': 'FROM', 'vcard_id': 123456, 'task_id': 'e7617d40-494f-4c74-8923-e892130fc11a', 'res_errors': ['{"Code": 8800, "Message": "Object not found", "Details": "Company not found"}', '{"Code": 8800, "Message": "Object not found", "Details": "Набор быс ... (486 characters truncated) ... d", "Details": "Extension 12345 not found"}', '{"Code": 5005, "Message": "Field set incorrectly", "Details": "Старая цена должна быть больше новой"}'], 'date_time': datetime.datetime(2023, 3, 24, 18, 24, 24, 845580)}]
+(Background on this error at: https://sqlalche.me/e/14/f405) - (db_work.py:59)
+2023-03-24 18:24:30,377 - logger_celery - ERROR - data to db: (psycopg2.errors.InFailedSqlTransaction) current transaction is aborted, commands ignored until end of transaction block
+
+[SQL: select relname from pg_class c join pg_namespace n on n.oid=c.relnamespace where pg_catalog.pg_table_is_visible(c.oid) and relname=%(name)s]
+[parameters: {'name': 'ya_ads_addads'}]
+(Background on this error at: https://sqlalche.me/e/14/2j85) - (db_work.py:59)
+2023-03-24 18:24:35,402 - logger_celery - ERROR - data to db error - (db_work.py:62)
+2023-03-24 18:26:55,822 - logger_celery - INFO - add ad async: 87e64460-aa7f-43a1-b622-a12792eaf9e5 - (api.py:1157)
+2023-03-24 18:26:55,822 - logger_celery - INFO - add ad async: 87e64460-aa7f-43a1-b622-a12792eaf9e5 - (api.py:1157)
+2023-03-24 18:26:57,522 - logger_celery - ERROR - add ad async: (psycopg2.OperationalError) server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+
+(Background on this error at: https://sqlalche.me/e/14/e3q8) - (api.py:1177)
+2023-03-24 18:26:57,522 - logger_celery - ERROR - add ad async: (psycopg2.OperationalError) server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+
+(Background on this error at: https://sqlalche.me/e/14/e3q8) - (api.py:1177)
+2023-03-24 18:29:30,102 - logger_celery - INFO - add ad async: 755689f7-52c7-494c-8dec-ba53cc86a784 - (api.py:1157)
+2023-03-24 18:29:30,887 - logger_celery - ERROR - data to db: (psycopg2.errors.UndefinedColumn) column "task_id" of relation "ya_ads_addads" does not exist
+LINE 1: ...xt_price_currency, txt_price_qualifier, vcard_id, task_id, r...
+                                                             ^
+
+[SQL: INSERT INTO ya_ads_addads (ad_extension_ids, ad_image_hash, ads_group_id, business_id, creative_id, display_url_path, ext_link_params, href, login, mobile, prefer_vcard_over_business, sitelink_set_id, text, title, title2, turbo_page_id, txt_old_price, txt_price, txt_price_currency, txt_price_qualifier, vcard_id, task_id, res_errors, date_time) VALUES (%(ad_extension_ids)s, %(ad_image_hash)s, %(ads_group_id)s, %(business_id)s, %(creative_id)s, %(display_url_path)s, %(ext_link_params)s, %(href)s, %(login)s, %(mobile)s, %(prefer_vcard_over_business)s, %(sitelink_set_id)s, %(text)s, %(title)s, %(title2)s, %(turbo_page_id)s, %(txt_old_price)s, %(txt_price)s, %(txt_price_currency)s, %(txt_price_qualifier)s, %(vcard_id)s, %(task_id)s, %(res_errors)s, %(date_time)s)]
+[parameters: {'ad_extension_ids': [12345, 7890], 'ad_image_hash': 'wodjwb979fcu131ewhfiw134', 'ads_group_id': 123456, 'business_id': 123456, 'creative_id': 123456, 'display_url_path': 'NO', 'ext_link_params': 'false', 'href': 'https://site.ru', 'login': 'ecomru-408641-xm1b@yandex.ru', 'mobile': 'NO', 'prefer_vcard_over_business': 'NO', 'sitelink_set_id': 123456, 'text': 'some text какой-то текст', 'title': 'абвгabcd', 'title2': 'абвгabcd', 'turbo_page_id': 123456, 'txt_old_price': 10000, 'txt_price': 9999, 'txt_price_currency': 'USD', 'txt_price_qualifier': 'FROM', 'vcard_id': 123456, 'task_id': '755689f7-52c7-494c-8dec-ba53cc86a784', 'res_errors': ['{"Code": 8800, "Message": "Object not found", "Details": "Company not found"}', '{"Code": 8800, "Message": "Object not found", "Details": "Набор быс ... (486 characters truncated) ... d", "Details": "Extension 12345 not found"}', '{"Code": 5005, "Message": "Field set incorrectly", "Details": "Старая цена должна быть больше новой"}'], 'date_time': datetime.datetime(2023, 3, 24, 18, 29, 30, 613169)}]
+(Background on this error at: https://sqlalche.me/e/14/f405) - (db_work.py:59)
+2023-03-24 18:29:35,905 - logger_celery - ERROR - data to db: (psycopg2.errors.InFailedSqlTransaction) current transaction is aborted, commands ignored until end of transaction block
+
+[SQL: select relname from pg_class c join pg_namespace n on n.oid=c.relnamespace where pg_catalog.pg_table_is_visible(c.oid) and relname=%(name)s]
+[parameters: {'name': 'ya_ads_addads'}]
+(Background on this error at: https://sqlalche.me/e/14/2j85) - (db_work.py:59)
+2023-03-24 18:29:40,922 - logger_celery - ERROR - data to db error - (db_work.py:62)
+2023-03-24 18:31:33,870 - logger_celery - INFO - add ad async: 07f95759-a259-4a48-b71f-55e67518ab31 - (api.py:1157)
+2023-03-24 18:31:33,870 - logger_celery - INFO - add ad async: 07f95759-a259-4a48-b71f-55e67518ab31 - (api.py:1157)
+2023-03-24 18:31:35,342 - logger_celery - ERROR - add ad async: (psycopg2.OperationalError) server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+
+(Background on this error at: https://sqlalche.me/e/14/e3q8) - (api.py:1177)
+2023-03-24 18:31:35,342 - logger_celery - ERROR - add ad async: (psycopg2.OperationalError) server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+
+(Background on this error at: https://sqlalche.me/e/14/e3q8) - (api.py:1177)
+2023-03-24 18:38:14,313 - logger_celery - INFO - add ad async: d3a2c4a6-e0d6-4bb9-8857-040be383e746 - (api.py:1157)
+2023-03-24 18:38:16,107 - logger_celery - ERROR - add ad async: (psycopg2.OperationalError) server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+
+(Background on this error at: https://sqlalche.me/e/14/e3q8) - (api.py:1177)
+2023-03-24 18:39:10,792 - logger_celery - INFO - add ad async: edb733b5-ba27-4db6-833e-ef3e07eb6c5d - (api.py:1157)
+2023-03-24 18:39:12,529 - logger_celery - ERROR - add ad async: (psycopg2.OperationalError) server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+
+(Background on this error at: https://sqlalche.me/e/14/e3q8) - (api.py:1177)
+2023-03-24 18:52:12,565 - logger_celery - INFO - add ad async: 49b637a9-450b-42f8-867f-96c0f87ebdc3 - (api.py:1166)
+2023-03-24 18:52:13,069 - logger_celery - INFO - Upload to ya_ads_addads - ok - (db_work.py:56)
+2023-03-24 18:53:08,240 - logger_celery - INFO - add ad async: 60b6bc5e-2d8a-4f12-9fa6-fa23a9d3c29b - (api.py:1166)
+2023-03-24 18:53:08,240 - logger_celery - INFO - add ad async: 60b6bc5e-2d8a-4f12-9fa6-fa23a9d3c29b - (api.py:1166)
+2023-03-24 18:53:09,537 - logger_celery - ERROR - add ad async: (psycopg2.OperationalError) server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+
+(Background on this error at: https://sqlalche.me/e/14/e3q8) - (api.py:1186)
+2023-03-24 18:53:09,537 - logger_celery - ERROR - add ad async: (psycopg2.OperationalError) server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+
+(Background on this error at: https://sqlalche.me/e/14/e3q8) - (api.py:1186)
+2023-03-24 18:58:50,976 - logger_celery - INFO - add ad async: 6a5e0d29-945f-4380-85f5-ca75a616e218 - (api.py:1166)
+2023-03-24 18:58:51,620 - logger_celery - INFO - Upload to ya_ads_addads - ok - (db_work.py:69)
+2023-03-24 19:01:16,614 - logger_celery - INFO - add ad async: 0e6d226e-c64f-45dc-81b1-37ddb4ad0122 - (api.py:1166)
+2023-03-24 19:01:17,241 - logger_celery - INFO - Upload to ya_ads_addads - ok - (db_work.py:70)
+2023-03-24 21:58:57,756 - logger_celery - INFO - add campaign async: 778d184c-da2b-4e92-a55b-dc26fa750872 - (api.py:433)
+2023-03-24 21:58:58,142 - logger_celery - INFO - add campaign async: 200 - (api.py:442)
+2023-03-24 21:58:58,551 - logger_celery - INFO - Upload to ya_ads_addcampaigns - ok - (db_work.py:70)
+2023-03-24 22:02:12,487 - logger_celery - INFO - add campaign async: 6ef724d3-7736-4077-9b35-1f7000301c16 - (api.py:433)
+2023-03-24 22:02:12,625 - logger_celery - INFO - add campaign async: 200 - (api.py:442)
+2023-03-24 22:02:13,019 - logger_celery - INFO - Upload to ya_ads_addcampaigns - ok - (db_work.py:70)
+2023-03-24 22:05:45,898 - logger_celery - INFO - add campaign async: 0ae5638a-cc97-49a4-b764-2d90b9dcf7ca - (api.py:433)
+2023-03-24 22:05:46,121 - logger_celery - INFO - add campaign async: 200 - (api.py:442)
+2023-03-24 22:05:46,563 - logger_celery - INFO - Upload to ya_ads_addcampaigns - ok - (db_work.py:56)
+2023-03-24 22:07:58,194 - logger_celery - INFO - add ad async: 91dbf784-598d-434d-907e-edd86f76ef3c - (api.py:1166)
+2023-03-24 22:07:58,194 - logger_celery - INFO - add ad async: 91dbf784-598d-434d-907e-edd86f76ef3c - (api.py:1166)
+2023-03-24 22:07:58,683 - logger_celery - INFO - Upload to ya_ads_addads - ok - (db_work.py:56)
+2023-03-24 22:07:58,683 - logger_celery - INFO - Upload to ya_ads_addads - ok - (db_work.py:56)
+2023-03-24 22:09:31,321 - logger_celery - INFO - add ad async: fe8f31c0-1dbc-4140-ba01-81f5eab8be35 - (api.py:1166)
+2023-03-24 22:09:31,321 - logger_celery - INFO - add ad async: fe8f31c0-1dbc-4140-ba01-81f5eab8be35 - (api.py:1166)
+2023-03-24 22:09:31,321 - logger_celery - INFO - add ad async: fe8f31c0-1dbc-4140-ba01-81f5eab8be35 - (api.py:1166)
+2023-03-24 22:09:32,367 - logger_celery - INFO - Upload to ya_ads_addads - ok - (db_work.py:56)
+2023-03-24 22:09:32,367 - logger_celery - INFO - Upload to ya_ads_addads - ok - (db_work.py:56)
+2023-03-24 22:09:32,367 - logger_celery - INFO - Upload to ya_ads_addads - ok - (db_work.py:56)
+2023-03-24 23:20:30,838 - logger_celery - INFO - add ad async: b9e1a164-2262-48da-b7a4-abe982c6bdde - (api.py:1166)
+2023-03-24 23:20:30,838 - logger_celery - INFO - add ad async: b9e1a164-2262-48da-b7a4-abe982c6bdde - (api.py:1166)
+2023-03-24 23:20:30,838 - logger_celery - INFO - add ad async: b9e1a164-2262-48da-b7a4-abe982c6bdde - (api.py:1166)
+2023-03-24 23:20:30,838 - logger_celery - INFO - add ad async: b9e1a164-2262-48da-b7a4-abe982c6bdde - (api.py:1166)
+2023-03-24 23:20:31,280 - logger_celery - INFO - Upload to ya_ads_addads - ok - (db_work.py:56)
+2023-03-24 23:20:31,280 - logger_celery - INFO - Upload to ya_ads_addads - ok - (db_work.py:56)
+2023-03-24 23:20:31,280 - logger_celery - INFO - Upload to ya_ads_addads - ok - (db_work.py:56)
+2023-03-24 23:20:31,280 - logger_celery - INFO - Upload to ya_ads_addads - ok - (db_work.py:56)
